@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 type ItemType = 'Phone' | 'Laptop' | 'Purse' | 'Wallet' | 'ID Card' | 'Document' | 'Pet' | 'Bag' | 'Other';
 
@@ -8,24 +9,57 @@ interface ReportLostModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
+    initialData?: any; // Using any for simplicity, but ideally should be Post type
 }
 
-export default function ReportLostModal({ isOpen, onClose, onSuccess }: ReportLostModalProps) {
+export default function ReportLostModal({ isOpen, onClose, onSuccess, initialData }: ReportLostModalProps) {
+    const { user } = useAuth();
     const [itemType, setItemType] = useState<ItemType>('Phone');
     const [images, setImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Form State
-    const [title, setTitle] = useState('');
-    const [color, setColor] = useState('');
-    const [description, setDescription] = useState('');
-    const [location, setLocation] = useState('Colombo'); // Default or empty
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
-    const [contactPhone, setContactPhone] = useState('');
-    const [imei, setImei] = useState('');
-    const [serialNumber, setSerialNumber] = useState('');
-    const [idNumber, setIdNumber] = useState('');
+    const [title, setTitle] = useState(initialData?.title || '');
+    const [color, setColor] = useState(initialData?.color || '');
+    const [description, setDescription] = useState(initialData?.description || '');
+    const [location, setLocation] = useState(initialData?.location || 'Colombo');
+    const [date, setDate] = useState(initialData?.date || '');
+    const [time, setTime] = useState(initialData?.time || '');
+    const [contactPhone, setContactPhone] = useState(initialData?.contactPhone || '');
+    const [imei, setImei] = useState(initialData?.imei || '');
+    const [serialNumber, setSerialNumber] = useState(initialData?.serialNumber || '');
+    const [idNumber, setIdNumber] = useState(initialData?.idNumber || '');
+
+    useEffect(() => {
+        if (initialData) {
+            setItemType(initialData.type ? (initialData.type.charAt(0) + initialData.type.slice(1).toLowerCase()) as ItemType : 'Phone');
+            setTitle(initialData.title || '');
+            setColor(initialData.color || '');
+            setDescription(initialData.description || '');
+            setLocation(initialData.location || 'Colombo');
+            setDate(initialData.date || '');
+            setTime(initialData.time || '');
+            setContactPhone(initialData.contactPhone || '');
+            setImei(initialData.imei || '');
+            setSerialNumber(initialData.serialNumber || '');
+            setIdNumber(initialData.idNumber || '');
+            setImages(initialData.images || []);
+        } else {
+            // Reset form when opening for new post
+            setTitle('');
+            setColor('');
+            setDescription('');
+            setLocation('Colombo');
+            setDate('');
+            setTime('');
+            setContactPhone('');
+            setImei('');
+            setSerialNumber('');
+            setIdNumber('');
+            setImages([]);
+            setItemType('Phone');
+        }
+    }, [initialData, isOpen]);
 
     if (!isOpen) return null;
 
@@ -49,6 +83,19 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess }: ReportLo
     const handleSubmit = async () => {
         setLoading(true);
         try {
+            let userId = undefined;
+            if (user?.email) {
+                try {
+                    const userResponse = await fetch(`http://localhost:8082/api/users/${user.email}`);
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        userId = userData.id;
+                    }
+                } catch (error) {
+                    console.error('Error fetching user ID:', error);
+                }
+            }
+
             const payload = {
                 title,
                 description,
@@ -63,9 +110,14 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess }: ReportLo
                 imei: itemType === 'Phone' ? imei : undefined,
                 serialNumber: itemType === 'Laptop' ? serialNumber : undefined,
                 idNumber: (itemType === 'ID Card' || itemType === 'Other') ? idNumber : undefined,
+                userId: userId
             };
 
-            await api.post('/posts', payload);
+            if (initialData) {
+                await api.put(`/posts/${initialData.id}`, payload);
+            } else {
+                await api.post('/posts', payload);
+            }
 
             // Reset form (optional, or just close)
             setTitle('');
@@ -90,7 +142,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess }: ReportLo
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                    <h2 className="text-2xl font-bold text-gray-900">Report Lost Item</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{initialData ? 'Edit Lost Item' : 'Report Lost Item'}</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
                         <X size={24} />
                     </button>
@@ -277,7 +329,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess }: ReportLo
                         disabled={loading}
                         className="px-6 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Submitting...' : 'Submit Report'}
+                        {loading ? 'Submitting...' : (initialData ? 'Save Changes' : 'Submit Report')}
                     </button>
                 </div>
             </div>

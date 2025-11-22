@@ -18,7 +18,6 @@ public class PostService {
         if (post.getDate() == null) {
             post.setDate(LocalDate.now());
         }
-        // Default status if not provided? Or assume frontend sends it.
         return postRepository.save(post);
     }
 
@@ -29,8 +28,24 @@ public class PostService {
     public List<Post> getPostsByStatus(PostStatus status) {
         return postRepository.findByStatus(status);
     }
-    
+
+    public List<Post> getPostsByUserId(String userId) {
+        return postRepository.findByUserId(userId);
+    }
+
     public Post getPostById(String id) {
         return postRepository.findById(id).orElse(null);
+    }
+
+    public Post updatePost(String id, Post post) {
+        if (postRepository.existsById(id)) {
+            post.setId(id);
+            return postRepository.save(post);
+        }
+        return null;
+    }
+
+    public void deletePost(String id) {
+        postRepository.deleteById(id);
     }
 }

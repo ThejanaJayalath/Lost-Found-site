@@ -29,7 +29,7 @@ public class PostController {
         }
         return ResponseEntity.ok(postService.getAllPosts());
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<Post> getPostById(@PathVariable String id) {
         Post post = postService.getPostById(id);
@@ -37,5 +37,25 @@ public class PostController {
             return ResponseEntity.ok(post);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(postService.getPostsByUserId(userId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post post) {
+        Post updatedPost = postService.updatePost(id, post);
+        if (updatedPost != null) {
+            return ResponseEntity.ok(updatedPost);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable String id) {
+        postService.deletePost(id);
+        return ResponseEntity.ok().build();
     }
 }

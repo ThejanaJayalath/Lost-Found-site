@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Post {
     id: string;
@@ -13,6 +13,8 @@ interface Post {
     color: string;
     contactPhone?: string;
     time?: string;
+    userName?: string; // Assuming we might have this, or use placeholder
+    userInitial?: string;
 }
 
 interface PostCardProps {
@@ -37,21 +39,34 @@ export default function PostCard({ post, onClick }: PostCardProps) {
         }
     };
 
+    // Placeholder for user info since we don't have it in the Post model yet fully populated
+    const userInitial = "A";
+
     return (
         <div
             onClick={onClick}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group cursor-pointer"
+            className="bg-[#E6E6FA]/40 rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50"
         >
-            {/* Image Carousel */}
-            <div className="h-48 overflow-hidden relative bg-gray-100">
+            {/* Header */}
+            <div className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#5D5C8D] flex items-center justify-center text-white font-medium">
+                    {userInitial}
+                </div>
+                <div>
+                    <h3 className="font-semibold text-gray-800 text-sm">{post.title}</h3>
+                    <p className="text-xs text-gray-500">{post.date}</p>
+                </div>
+            </div>
+
+            {/* Image Area */}
+            <div className="h-48 bg-gray-200 relative group overflow-hidden">
                 {post.images && post.images.length > 0 ? (
                     <>
                         <img
                             src={post.images[currentImageIndex]}
                             alt={post.title}
-                            className="w-full h-full object-cover transition-transform duration-500"
+                            className="w-full h-full object-cover"
                         />
-
                         {/* Navigation Arrows */}
                         {post.images.length > 1 && (
                             <>
@@ -67,7 +82,6 @@ export default function PostCard({ post, onClick }: PostCardProps) {
                                 >
                                     <ChevronRight size={20} />
                                 </button>
-
                                 {/* Dots Indicator */}
                                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                                     {post.images.map((_, idx) => (
@@ -81,37 +95,35 @@ export default function PostCard({ post, onClick }: PostCardProps) {
                         )}
                     </>
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50">
-                        <span className="text-4xl">📦</span>
+                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                        <div className="flex gap-4 opacity-50">
+                            <div className="w-12 h-12 border-2 border-gray-400 rounded-lg flex items-center justify-center">
+                                <span className="text-2xl">▲</span>
+                            </div>
+                            <div className="w-12 h-12 border-2 border-gray-400 rounded-full flex items-center justify-center">
+                                <span className="text-2xl">●</span>
+                            </div>
+                        </div>
                     </div>
                 )}
-                <span className={`absolute top-4 right-4 text-white text-xs font-bold px-3 py-1 rounded-full ${post.status === 'LOST' ? 'bg-red-500' : 'bg-green-500'}`}>
-                    {post.status}
-                </span>
             </div>
 
             {/* Content */}
             <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg text-gray-900 line-clamp-1">{post.title}</h3>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap ml-2">{post.type}</span>
-                </div>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{post.description}</p>
-
-                <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-4">
-                    <div className="flex items-center gap-1">
-                        <MapPin size={14} />
-                        <span className="truncate max-w-[100px]">{post.location}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Calendar size={14} />
-                        <span>{post.date}</span>
-                    </div>
+                <h2 className="text-xl font-bold text-gray-800 mb-1">{post.title}</h2>
+                <div className="flex items-center gap-1 text-gray-500 text-sm mb-3">
+                    <span>{post.location}</span>
                 </div>
 
-                <button className="w-full mt-4 bg-green-50 text-green-700 border border-green-200 py-2 rounded-lg font-medium hover:bg-green-100 transition-colors">
-                    I Found This!
-                </button>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {post.description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"}
+                </p>
+
+                <div className="flex justify-end">
+                    <button className="bg-[#5D5C8D] text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-[#4A4970] transition-colors">
+                        Contact
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -12,6 +12,7 @@ import java.util.List;
 public class Post {
     @Id
     private String id;
+    private String userId;
 
     private String title;
     private String description;
