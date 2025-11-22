@@ -1,0 +1,12 @@
+package com.example.lost_and_found_lk_backend.repository;
+
+import com.example.lost_and_found_lk_backend.model.Post;
+import com.example.lost_and_found_lk_backend.model.PostStatus;
+import com.example.lost_and_found_lk_backend.model.ItemType;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.List;
+
+public interface PostRepository extends MongoRepository<Post, String> {
+    List<Post> findByStatus(PostStatus status);
+    List<Post> findByType(ItemType type);
+}
