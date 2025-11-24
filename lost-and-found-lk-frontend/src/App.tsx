@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -6,9 +6,24 @@ import Home from './pages/Home';
 import Lost from './pages/Lost';
 import Found from './pages/Found';
 import Profile from './pages/Profile';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import { AuthProvider } from './contexts/AuthContext';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal';
+
+function Layout({ children, onOpenLogin, onOpenSignup }: any) {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="flex flex-col min-h-screen font-sans">
+      {!isAdmin && <Navbar onOpenLogin={onOpenLogin} onOpenSignup={onOpenSignup} />}
+      {children}
+      {!isAdmin && <Footer />}
+    </div>
+  );
+}
 
 function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -27,16 +42,16 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="flex flex-col min-h-screen font-sans">
-          <Navbar onOpenLogin={openLogin} onOpenSignup={openSignup} />
+        <Layout onOpenLogin={openLogin} onOpenSignup={openSignup}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/lost" element={<Lost onOpenLogin={openLogin} />} />
             <Route path="/found" element={<Found onOpenLogin={openLogin} />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>
-          <Footer />
-        </div>
+        </Layout>
         <LoginModal
           isOpen={isLoginOpen}
           onClose={() => setIsLoginOpen(false)}

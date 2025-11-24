@@ -47,4 +47,21 @@
     z-index: -1;
     pointer-events: none;
   }
+
+  .neon-avatar {
+    position: relative;
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: 0 0 10px #00f2ff, 0 0 20px #00f2ff;
+  }
+
+  .neon-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: #00f2ff;
+    z-index: -1;
+    filter: blur(5px);
+  }
 }

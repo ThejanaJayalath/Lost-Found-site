@@ -15,4 +15,5 @@ public class User {
     private String phoneNumber;
     private String authProvider; // "google" or "local"
     private String password; // Encrypted password for local auth
+    private boolean blocked;
 }

@@ -38,4 +38,6 @@ public class Post {
     // User Display Info
     private String userName;
     private String userInitial;
+
+    private boolean hidden;
 }
