@@ -46,21 +46,10 @@ export default function PostCard({ post, onClick }: PostCardProps) {
     return (
         <div
             onClick={onClick}
-            className="bg-gray-900 border border-blue-500/20 rounded-2xl overflow-hidden hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-500/40 transition-all duration-300 cursor-pointer group flex flex-col h-full"
+            className="bg-gray-800 border border-blue-500/20 rounded-2xl overflow-hidden hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-500/40 transition-all duration-300 cursor-pointer group flex flex-col h-full"
         >
-            {/* Header */}
-            <div className="p-4 flex items-center gap-3 border-b border-gray-800">
-                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-medium border border-gray-700">
-                    {userInitial}
-                </div>
-                <div>
-                    <h3 className="font-medium text-gray-200 text-sm">{userName}</h3>
-                    <p className="text-xs text-gray-500">{post.date}</p>
-                </div>
-            </div>
-
             {/* Image Area */}
-            <div className="h-48 bg-gray-800 relative overflow-hidden">
+            <div className="h-64 bg-gray-800 relative overflow-hidden">
                 {post.images && post.images.length > 0 ? (
                     <>
                         <img
@@ -104,6 +93,17 @@ export default function PostCard({ post, onClick }: PostCardProps) {
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* User Info (Moved below image) */}
+            <div className="p-4 flex items-center gap-3 border-b border-gray-700/50">
+                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 font-medium border border-gray-600">
+                    {userInitial}
+                </div>
+                <div>
+                    <h3 className="font-medium text-gray-200 text-sm">{userName}</h3>
+                    <p className="text-xs text-gray-500">{post.date}</p>
+                </div>
             </div>
 
             {/* Content */}

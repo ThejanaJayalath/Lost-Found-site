@@ -1,5 +1,6 @@
-import { X, MapPin, Calendar, Tag, Smartphone, Laptop, CreditCard, FileText, Briefcase, Dog, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, MapPin, Calendar, Tag, Smartphone, Laptop, CreditCard, FileText, Briefcase, Dog, Clock, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Post {
     id: string;
@@ -16,6 +17,7 @@ interface Post {
     serialNumber?: string;
     idNumber?: string;
     contactPhone?: string;
+    contactName?: string;
 }
 
 interface PostDetailModalProps {
@@ -24,7 +26,11 @@ interface PostDetailModalProps {
 }
 
 export default function PostDetailModal({ post, onClose }: PostDetailModalProps) {
+    const { user } = useAuth();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     if (!post) return null;
 
@@ -41,12 +47,116 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
         }
     };
 
+    const handleFoundClick = () => {
+        if (post.status === 'LOST') {
+            setShowConfirmation(true);
+        } else {
+            // Logic for 'Contact Owner' if needed, or just show phone
+        }
+    };
+
+    const handleConfirmFound = async () => {
+        if (!user || !user.email) {
+            alert("Please log in to report this item as found.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch('http://localhost:8082/api/interactions/found', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    postId: post.id,
+                    finderEmail: user.email,
+                    ownerEmail: null // Can be added if available in post data
+                }),
+            });
+
+            if (response.ok) {
+                setShowConfirmation(false);
+                setShowSuccess(true);
+            } else {
+                const errorText = await response.text();
+                alert(`Error: ${errorText}`);
+            }
+        } catch (error) {
+            console.error("Error recording interaction:", error);
+            alert("Failed to record interaction. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
             <div
-                className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-gray-800"
+                className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-gray-800 relative"
                 onClick={e => e.stopPropagation()}
             >
+                {/* Confirmation Modal Overlay */}
+                {showConfirmation && (
+                    <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+                        <div className="bg-gray-800 p-8 rounded-2xl max-w-md w-full border border-gray-700 text-center">
+                            <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <AlertTriangle size={32} className="text-yellow-500" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">Are you sure?</h3>
+                            <p className="text-gray-400 mb-8">
+                                Do you confirm that you have found this exact item? This will notify the owner.
+                            </p>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setShowConfirmation(false)}
+                                    className="flex-1 py-3 px-4 rounded-xl font-medium bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleConfirmFound}
+                                    disabled={isSubmitting}
+                                    className="flex-1 py-3 px-4 rounded-xl font-bold bg-green-500 text-white hover:bg-green-600 transition-colors shadow-lg shadow-green-500/20"
+                                >
+                                    {isSubmitting ? 'Processing...' : 'Yes, I Found It'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Success Modal Overlay */}
+                {showSuccess && (
+                    <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+                        <div className="bg-gray-800 p-8 rounded-2xl max-w-md w-full border border-gray-700 text-center">
+                            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <CheckCircle size={32} className="text-green-500" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">Thank You!</h3>
+                            <p className="text-gray-400 mb-6">
+                                Please contact the owner immediately to return the item.
+                            </p>
+
+                            <div className="bg-gray-700/50 p-6 rounded-xl border border-gray-600 mb-8">
+                                <p className="text-sm text-gray-400 uppercase tracking-wider mb-2">Owner's Contact</p>
+                                <p className="text-3xl font-bold text-white mb-1">{post.contactPhone || "No Phone Provided"}</p>
+                                {post.contactName && <p className="text-gray-300">{post.contactName}</p>}
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setShowSuccess(false);
+                                    onClose();
+                                }}
+                                className="w-full py-3 px-4 rounded-xl font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Image Section (Left/Top) */}
                 <div className="w-full md:w-1/2 bg-gray-800 relative flex flex-col">
                     <div className="flex-1 relative min-h-[300px] md:min-h-full group">
@@ -189,10 +299,13 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
                     </div>
 
                     <div className="p-6 border-t border-gray-800 bg-gray-900">
-                        <button className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] ${post.status === 'LOST'
+                        <button
+                            onClick={handleFoundClick}
+                            className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] ${post.status === 'LOST'
                                 ? 'bg-green-500 hover:bg-green-600 text-white shadow-green-500/30'
                                 : 'bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30'
-                            }`}>
+                                }`}
+                        >
                             {post.status === 'LOST' ? 'I Found This!' : 'Contact Owner'}
                         </button>
                     </div>

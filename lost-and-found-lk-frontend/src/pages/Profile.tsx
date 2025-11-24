@@ -25,9 +25,12 @@ export default function Profile() {
     const [name, setName] = useState(user?.displayName || '');
     const [phone, setPhone] = useState('');
     const [posts, setPosts] = useState<Post[]>([]);
+    const [foundPosts, setFoundPosts] = useState<Post[]>([]);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isFoundModalOpen, setIsFoundModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState<Post | null>(null);
+
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -37,6 +40,8 @@ export default function Profile() {
             setName(user.displayName || '');
             fetchUserData();
             fetchUserPosts();
+            fetchFoundPosts();
+            fetchNotifications();
         }
     }, [user, loading, navigate]);
 
@@ -69,6 +74,53 @@ export default function Profile() {
             }
         } catch (error) {
             console.error('Error fetching posts:', error);
+        }
+    };
+
+    const fetchFoundPosts = async () => {
+        if (!user || !user.email) return;
+        try {
+            const response = await fetch(`http://localhost:8082/api/interactions/user/${user.email}/found`);
+            if (response.ok) {
+                const data = await response.json();
+                setFoundPosts(data);
+            }
+        } catch (error) {
+            console.error('Error fetching found posts:', error);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        if (!user || !user.email) return;
+        try {
+            const response = await fetch(`http://localhost:8082/api/interactions/user/${user.email}/claims`);
+            if (response.ok) {
+                const data = await response.json();
+                // Filter out already accepted/rejected if needed, or show all
+                setNotifications(data.filter((n: any) => n.status === 'PENDING'));
+            }
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    };
+
+    const handleConfirmClaim = async (interactionId: string) => {
+        if (!window.confirm("Are you sure you want to confirm this item return? This will mark the post as resolved.")) return;
+
+        try {
+            const response = await fetch(`http://localhost:8082/api/interactions/${interactionId}/confirm`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                alert("Item confirmed returned! Post marked as resolved.");
+                fetchNotifications();
+                fetchUserPosts(); // Refresh posts to show new status
+            } else {
+                alert("Failed to confirm.");
+            }
+        } catch (error) {
+            console.error("Error confirming claim:", error);
         }
     };
 
@@ -175,6 +227,47 @@ export default function Profile() {
                     </div>
                 </div>
 
+                {/* Notifications Section */}
+                {notifications.length > 0 && (
+                    <div className="mb-12">
+                        <div className="flex items-center gap-3 mb-6">
+                            <h2 className="text-2xl font-bold text-white">Notifications</h2>
+                            <span className="text-sm font-normal text-white bg-red-500 px-2 py-1 rounded-full animate-pulse">
+                                {notifications.length} New
+                            </span>
+                        </div>
+                        <div className="grid gap-4">
+                            {notifications.map((notif) => (
+                                <div key={notif.id} className="bg-gray-800 p-6 rounded-xl border border-gray-700 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg shadow-blue-500/5">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400">
+                                            <CheckCircle size={24} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white">Item Found!</h3>
+                                            <p className="text-gray-400">
+                                                <span className="font-bold text-white">{notif.finderName || notif.finderEmail}</span> claims to have found your item.
+                                            </p>
+                                            {notif.finderPhone && (
+                                                <div className="flex items-center gap-2 mt-2 text-green-400 font-mono bg-green-500/10 px-3 py-1 rounded-lg w-fit">
+                                                    <Phone size={14} />
+                                                    {notif.finderPhone}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleConfirmClaim(notif.id)}
+                                        className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all transform hover:scale-105 whitespace-nowrap"
+                                    >
+                                        Confirm It's Mine
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* My Posts Section */}
                 <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
                     <h2 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -207,7 +300,7 @@ export default function Profile() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
                     {posts.map((post) => (
                         <div key={post.id} className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-500/30 transition-all duration-300 group">
                             <div className="aspect-video bg-gray-700 relative overflow-hidden">
@@ -276,7 +369,7 @@ export default function Profile() {
                 </div>
 
                 {posts.length === 0 && (
-                    <div className="text-center py-16 bg-gray-800/50 rounded-2xl border border-dashed border-gray-700">
+                    <div className="text-center py-16 bg-gray-800/50 rounded-2xl border border-dashed border-gray-700 mb-16">
                         <div className="w-16 h-16 bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Box size={32} className="text-gray-500" />
                         </div>
@@ -285,6 +378,58 @@ export default function Profile() {
                             You haven't posted any lost or found items yet. Use the buttons above to create your first post.
                         </p>
                     </div>
+                )}
+
+                {/* Items I Found Section */}
+                {foundPosts.length > 0 && (
+                    <>
+                        <div className="flex items-center gap-3 mb-8 border-t border-gray-700 pt-12">
+                            <h2 className="text-2xl font-bold text-white">Items I Found</h2>
+                            <span className="text-sm font-normal text-gray-500 bg-gray-800 px-2 py-1 rounded-full border border-gray-700">
+                                {foundPosts.length}
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {foundPosts.map((post) => (
+                                <div key={post.id} className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] hover:border-green-500/30 transition-all duration-300 group">
+                                    <div className="aspect-video bg-gray-700 relative overflow-hidden">
+                                        {post.images && post.images.length > 0 ? (
+                                            <img
+                                                src={post.images[0]}
+                                                alt={post.title}
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                                <Box size={32} className="opacity-50" />
+                                            </div>
+                                        )}
+
+                                        {/* Status Badge */}
+                                        <div className="absolute top-3 left-3">
+                                            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur-md bg-green-500/90 text-white">
+                                                FOUND BY ME
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-5">
+                                        <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">{post.title}</h3>
+                                        <p className="text-sm text-gray-400 line-clamp-2 mb-4 h-10">{post.description}</p>
+
+                                        <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-700 pt-4">
+                                            <span className="flex items-center gap-1">
+                                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                                {post.date}
+                                            </span>
+                                            <span className="truncate max-w-[150px]">{post.location}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
 
