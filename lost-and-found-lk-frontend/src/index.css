@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .animate-dash {
+    stroke-dasharray: 10;
+    animation: dash 20s linear infinite;
+  }
+  
+  .animate-dash-reverse {
+    stroke-dasharray: 10;
+    animation: dash 20s linear infinite reverse;
+  }
+
+  @keyframes dash {
+    to {
+      stroke-dashoffset: 1000;
+    }
+  }
+}

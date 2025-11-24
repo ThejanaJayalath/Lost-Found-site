@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
-import ReportLostModal from '../components/ReportLostModal';
+import { useNavigate } from 'react-router-dom';
+import { Search, Menu, Box } from 'lucide-react';
 import PostDetailModal from '../components/PostDetailModal';
 import PostCard from '../components/PostCard';
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Post {
     id: string;
@@ -22,8 +23,13 @@ interface Post {
     time?: string;
 }
 
-export default function Lost() {
-    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+interface LostProps {
+    onOpenLogin: () => void;
+}
+
+export default function Lost({ onOpenLogin }: LostProps) {
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
@@ -91,30 +97,24 @@ export default function Lost() {
     });
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#FFF5EE] via-[#FFFFF0] to-[#F0FFF0] px-4 md:px-8 py-8">
+        <div className="min-h-screen bg-gray-900 px-4 md:px-8 py-8 pt-24">
             <div className="max-w-7xl mx-auto">
                 {/* Header Section */}
-                <div className="text-center mb-12">
-                    <h1 className="text-5xl font-bold text-[#2D2B2B] mb-8 font-serif">Lost Items</h1>
+                <div className="flex flex-col items-center mb-12">
+                    <h1 className="text-5xl font-bold text-gray-200 mb-8 font-sans">Lost Items</h1>
 
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 max-w-4xl mx-auto">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-5xl">
                         {/* Search Bar */}
-                        <div className="relative flex-1 w-full">
-                            <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                                <div className="text-gray-500">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                                    </svg>
-                                </div>
+                        <div className="relative flex-1 w-full max-w-2xl">
+                            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <Menu size={20} />
                             </div>
                             <input
                                 type="text"
                                 placeholder="Item Name"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-12 py-3 bg-[#F5F5DC]/50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-gray-700 placeholder-gray-500"
+                                className="w-full pl-12 pr-12 py-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-gray-200 placeholder-gray-500 transition-all"
                             />
                             <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                 <Search size={20} />
@@ -122,12 +122,19 @@ export default function Lost() {
                         </div>
 
                         {/* Report Button */}
+                        {/* Report Button */}
                         <button
-                            onClick={() => setIsReportModalOpen(true)}
-                            className="bg-[#E85D4E] hover:bg-[#D64C3D] text-white px-8 py-3 rounded-xl shadow-lg shadow-red-500/20 transition-all transform hover:scale-105 flex items-center gap-2 font-medium text-lg"
+                            onClick={() => {
+                                if (user) {
+                                    navigate('/profile');
+                                } else {
+                                    onOpenLogin();
+                                }
+                            }}
+                            className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-8 py-3 rounded-lg shadow-lg shadow-red-500/20 transition-all transform hover:scale-105 flex items-center gap-2 font-medium text-lg"
                         >
                             <span>Report</span>
-                            <span className="text-2xl">📦</span>
+                            <Box size={20} />
                         </button>
                     </div>
 
@@ -136,7 +143,8 @@ export default function Lost() {
                         <select
                             value={dateFilter}
                             onChange={(e) => setDateFilter(e.target.value)}
-                            className="px-6 py-2 bg-white/80 border border-gray-200 rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 cursor-pointer shadow-sm hover:shadow-md transition-all"
+                            className="px-6 py-2 bg-gray-800 border border-gray-700 rounded-full text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer hover:bg-gray-700 transition-all appearance-none"
+                            style={{ backgroundImage: 'none' }} // Remove default arrow if wanted, or keep standard
                         >
                             <option value="all">Any Time</option>
                             <option value="today">Today</option>
@@ -151,7 +159,8 @@ export default function Lost() {
                         <select
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="px-6 py-2 bg-white/80 border border-gray-200 rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 cursor-pointer shadow-sm hover:shadow-md transition-all"
+                            className="px-6 py-2 bg-gray-800 border border-gray-700 rounded-full text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer hover:bg-gray-700 transition-all appearance-none"
+                            style={{ backgroundImage: 'none' }}
                         >
                             <option value="all">All Categories</option>
                             <option value="Phone">Phone</option>
@@ -169,7 +178,7 @@ export default function Lost() {
 
                 {/* Items Grid */}
                 {loading ? (
-                    <div className="text-center py-12">Loading...</div>
+                    <div className="text-center py-12 text-gray-400">Loading...</div>
                 ) : (
                     <>
                         {filteredPosts.length === 0 ? (
@@ -177,7 +186,7 @@ export default function Lost() {
                                 No items found matching "{searchQuery}"
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {filteredPosts.map((item) => (
                                     <PostCard
                                         key={item.id}
@@ -191,11 +200,7 @@ export default function Lost() {
                 )}
             </div>
 
-            <ReportLostModal
-                isOpen={isReportModalOpen}
-                onClose={() => setIsReportModalOpen(false)}
-                onSuccess={fetchPosts}
-            />
+
 
             <PostDetailModal
                 post={selectedPost}

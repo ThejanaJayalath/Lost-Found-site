@@ -19,7 +19,6 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
     const [loading, setLoading] = useState(false);
 
     // Form State
-    // Form State
     const [title, setTitle] = useState(initialData?.title || '');
     const [color, setColor] = useState(initialData?.color || '');
     const [description, setDescription] = useState(initialData?.description || '');
@@ -143,11 +142,11 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                    <h2 className="text-2xl font-bold text-gray-900">{initialData ? 'Edit Found Item' : 'Report Found Item'}</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-800 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+                <div className="p-6 border-b border-gray-800 flex justify-between items-center sticky top-0 bg-gray-900 z-10">
+                    <h2 className="text-2xl font-bold text-white">{initialData ? 'Edit Found Item' : 'Report Found Item'}</h2>
+                    <button onClick={onClose} className="text-gray-400 hover:text-white p-2 hover:bg-gray-800 rounded-full transition-colors">
                         <X size={24} />
                     </button>
                 </div>
@@ -155,11 +154,11 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
                 <div className="p-8 space-y-6">
                     {/* Item Type Selection */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">What did you find?</label>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">What did you find?</label>
                         <select
                             value={itemType}
                             onChange={(e) => setItemType(e.target.value as ItemType)}
-                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all"
+                            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none transition-all"
                         >
                             <option value="Phone">Phone</option>
                             <option value="Laptop">Laptop</option>
@@ -178,22 +177,22 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
                         {/* Common Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-400 mb-1">
                                     {itemType === 'Pet' ? 'Pet Name (if known)' : 'Item Name / Brand & Model'}
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. iPhone 14 Pro"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Color</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. Black"
                                     value={color}
                                     onChange={(e) => setColor(e.target.value)}
@@ -203,20 +202,20 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Location Found</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Location Found</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. Colombo Fort"
                                     value={location}
                                     onChange={(e) => setLocation(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Contact Number</label>
                                 <input
                                     type="tel"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. 0771234567"
                                     value={contactPhone}
                                     onChange={(e) => setContactPhone(e.target.value)}
@@ -226,19 +225,19 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Date Found</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Date Found</label>
                                 <input
                                     type="date"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none [color-scheme:dark]"
                                     value={date}
                                     onChange={(e) => setDate(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Time Found</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Time Found</label>
                                 <input
                                     type="time"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none [color-scheme:dark]"
                                     value={time}
                                     onChange={(e) => setTime(e.target.value)}
                                 />
@@ -246,9 +245,9 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
                             <textarea
-                                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none h-32"
+                                className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none h-32 placeholder-gray-500"
                                 placeholder="Provide specific details..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
@@ -257,11 +256,11 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
 
                         {/* Specific Fields - OPTIONAL for Found items */}
                         {itemType === 'Phone' && (
-                            <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                                <label className="block text-sm font-medium text-green-800 mb-1">IMEI Number (Optional)</label>
+                            <div className="bg-green-500/10 p-4 rounded-lg border border-green-500/20">
+                                <label className="block text-sm font-medium text-green-400 mb-1">IMEI Number (Optional)</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-900 border border-green-500/30 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none placeholder-gray-500"
                                     placeholder="Enter IMEI if visible"
                                     value={imei}
                                     onChange={(e) => setImei(e.target.value)}
@@ -270,11 +269,11 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
                         )}
 
                         {itemType === 'Laptop' && (
-                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                                <label className="block text-sm font-medium text-blue-800 mb-1">Serial Number (Optional)</label>
+                            <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20">
+                                <label className="block text-sm font-medium text-blue-400 mb-1">Serial Number (Optional)</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                                    className="w-full p-3 bg-gray-900 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none placeholder-gray-500"
                                     placeholder="Enter Serial Number if visible"
                                     value={serialNumber}
                                     onChange={(e) => setSerialNumber(e.target.value)}
@@ -284,10 +283,10 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
 
                         {(itemType === 'ID Card' || itemType === 'Other') && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ID / Serial Number (Optional)</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">ID / Serial Number (Optional)</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none placeholder-gray-500"
                                     placeholder="Any unique identifier"
                                     value={idNumber}
                                     onChange={(e) => setIdNumber(e.target.value)}
@@ -297,10 +296,10 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
 
                         {/* Image Upload */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Upload Images (Max 5)</label>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">Upload Images (Max 5)</label>
                             <div className="flex flex-wrap gap-4">
                                 {images.map((img, idx) => (
-                                    <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200">
+                                    <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-700">
                                         <img src={img} alt="Upload" className="w-full h-full object-cover" />
                                         <button
                                             onClick={() => removeImage(idx)}
@@ -311,7 +310,7 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
                                     </div>
                                 ))}
                                 {images.length < 5 && (
-                                    <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors text-gray-400 hover:text-green-500">
+                                    <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-500/10 transition-colors text-gray-500 hover:text-green-500">
                                         <Upload size={24} />
                                         <span className="text-xs mt-1">Add</span>
                                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
@@ -322,14 +321,14 @@ export default function ReportFoundModal({ isOpen, onClose, onSuccess, initialDa
                     </div>
                 </div>
 
-                <div className="p-6 border-t border-gray-100 flex justify-end gap-4 bg-gray-50 rounded-b-2xl">
-                    <button onClick={onClose} className="px-6 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition-colors">
+                <div className="p-6 border-t border-gray-800 flex justify-end gap-4 bg-gray-900 rounded-b-2xl">
+                    <button onClick={onClose} className="px-6 py-2 text-gray-400 font-medium hover:bg-gray-800 rounded-lg transition-colors">
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="px-6 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 shadow-lg shadow-green-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium rounded-lg hover:from-green-600 hover:to-emerald-600 shadow-lg shadow-green-500/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Submitting...' : (initialData ? 'Save Changes' : 'Submit Report')}
                     </button>

@@ -34,4 +34,8 @@ public class Post {
     // Contact info (Temporary until Auth is implemented)
     private String contactName;
     private String contactPhone;
+
+    // User Display Info
+    private String userName;
+    private String userInitial;
 }

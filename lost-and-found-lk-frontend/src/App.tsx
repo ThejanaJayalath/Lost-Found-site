@@ -31,8 +31,8 @@ function App() {
           <Navbar onOpenLogin={openLogin} onOpenSignup={openSignup} />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/lost" element={<Lost />} />
-            <Route path="/found" element={<Found />} />
+            <Route path="/lost" element={<Lost onOpenLogin={openLogin} />} />
+            <Route path="/found" element={<Found onOpenLogin={openLogin} />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
           <Footer />

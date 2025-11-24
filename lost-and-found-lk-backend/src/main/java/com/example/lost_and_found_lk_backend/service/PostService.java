@@ -14,10 +14,27 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private com.example.lost_and_found_lk_backend.repository.UserRepository userRepository;
+
     public Post createPost(Post post) {
         if (post.getDate() == null) {
             post.setDate(LocalDate.now());
         }
+
+        // Fetch user details if userId is present
+        if (post.getUserId() != null) {
+            userRepository.findById(post.getUserId()).ifPresent(user -> {
+                post.setUserName(user.getName());
+                // Set initial
+                if (user.getName() != null && !user.getName().isEmpty()) {
+                    post.setUserInitial(user.getName().substring(0, 1).toUpperCase());
+                } else {
+                    post.setUserInitial("U");
+                }
+            });
+        }
+
         return postRepository.save(post);
     }
 
@@ -47,5 +64,23 @@ public class PostService {
 
     public void deletePost(String id) {
         postRepository.deleteById(id);
+    }
+
+    public Post searchLostDevice(String type, String value) {
+        List<Post> posts;
+        String trimmedValue = value.trim();
+        System.out.println("Searching for: type=" + type + ", value='" + trimmedValue + "'");
+
+        if ("PHONE".equalsIgnoreCase(type)) {
+            posts = postRepository.findByImeiIgnoreCaseAndStatus(trimmedValue, PostStatus.LOST);
+        } else if ("LAPTOP".equalsIgnoreCase(type)) {
+            posts = postRepository.findBySerialNumberIgnoreCaseAndStatus(trimmedValue, PostStatus.LOST);
+        } else {
+            System.out.println("Invalid type: " + type);
+            return null;
+        }
+
+        System.out.println("Found " + posts.size() + " posts");
+        return posts.isEmpty() ? null : posts.get(0);
     }
 }

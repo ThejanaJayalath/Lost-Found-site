@@ -58,4 +58,16 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Post> searchLostDevice(@RequestParam String type, @RequestParam String value) {
+        System.out.println("Search Request: type=" + type + ", value=" + value);
+        Post post = postService.searchLostDevice(type, value);
+        if (post != null) {
+            System.out.println("Post found: " + post.getId());
+            return ResponseEntity.ok(post);
+        }
+        System.out.println("Post not found");
+        return ResponseEntity.notFound().build();
+    }
 }

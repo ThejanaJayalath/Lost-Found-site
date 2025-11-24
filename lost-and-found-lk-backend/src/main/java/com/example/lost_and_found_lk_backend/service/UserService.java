@@ -25,6 +25,7 @@ public class UserService {
             // Update fields if necessary, but keep ID
             dbUser.setName(user.getName());
             dbUser.setPhotoUrl(user.getPhotoUrl());
+            dbUser.setPhoneNumber(user.getPhoneNumber());
             dbUser.setAuthProvider(user.getAuthProvider());
             // Only update password if provided and not empty (for local auth updates)
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {

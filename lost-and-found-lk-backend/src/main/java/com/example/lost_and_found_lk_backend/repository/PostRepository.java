@@ -12,4 +12,8 @@ public interface PostRepository extends MongoRepository<Post, String> {
     List<Post> findByUserId(String userId);
 
     List<Post> findByType(ItemType type);
+
+    List<Post> findByImeiIgnoreCaseAndStatus(String imei, PostStatus status);
+
+    List<Post> findBySerialNumberIgnoreCaseAndStatus(String serialNumber, PostStatus status);
 }

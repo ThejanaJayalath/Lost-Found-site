@@ -9,7 +9,7 @@ interface ReportLostModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
-    initialData?: any; // Using any for simplicity, but ideally should be Post type
+    initialData?: any;
 }
 
 export default function ReportLostModal({ isOpen, onClose, onSuccess, initialData }: ReportLostModalProps) {
@@ -106,7 +106,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                 type: itemType.toUpperCase(),
                 status: 'LOST',
                 color,
-                images, // Note: In a real app, these should be uploaded URLs
+                images,
                 imei: itemType === 'Phone' ? imei : undefined,
                 serialNumber: itemType === 'Laptop' ? serialNumber : undefined,
                 idNumber: (itemType === 'ID Card' || itemType === 'Other') ? idNumber : undefined,
@@ -119,7 +119,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                 await api.post('/posts', payload);
             }
 
-            // Reset form (optional, or just close)
+            // Reset form
             setTitle('');
             setDescription('');
             setColor('');
@@ -139,11 +139,11 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                    <h2 className="text-2xl font-bold text-gray-900">{initialData ? 'Edit Lost Item' : 'Report Lost Item'}</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-800 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+                <div className="p-6 border-b border-gray-800 flex justify-between items-center sticky top-0 bg-gray-900 z-10">
+                    <h2 className="text-2xl font-bold text-white">{initialData ? 'Edit Lost Item' : 'Report Lost Item'}</h2>
+                    <button onClick={onClose} className="text-gray-400 hover:text-white p-2 hover:bg-gray-800 rounded-full transition-colors">
                         <X size={24} />
                     </button>
                 </div>
@@ -151,11 +151,11 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                 <div className="p-8 space-y-6">
                     {/* Item Type Selection */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">What did you lose?</label>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">What did you lose?</label>
                         <select
                             value={itemType}
                             onChange={(e) => setItemType(e.target.value as ItemType)}
-                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
+                            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none transition-all"
                         >
                             <option value="Phone">Phone</option>
                             <option value="Laptop">Laptop</option>
@@ -174,22 +174,22 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                         {/* Common Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-400 mb-1">
                                     {itemType === 'Pet' ? 'Pet Name' : 'Item Name / Brand & Model'}
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. iPhone 14 Pro"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Color</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. Black"
                                     value={color}
                                     onChange={(e) => setColor(e.target.value)}
@@ -199,20 +199,20 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Location</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. Colombo Fort"
                                     value={location}
                                     onChange={(e) => setLocation(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Contact Number</label>
                                 <input
                                     type="tel"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none placeholder-gray-500"
                                     placeholder="e.g. 0771234567"
                                     value={contactPhone}
                                     onChange={(e) => setContactPhone(e.target.value)}
@@ -222,19 +222,19 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Date Lost</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Date Lost</label>
                                 <input
                                     type="date"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none [color-scheme:dark]"
                                     value={date}
                                     onChange={(e) => setDate(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Time Lost</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Time Lost</label>
                                 <input
                                     type="time"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none [color-scheme:dark]"
                                     value={time}
                                     onChange={(e) => setTime(e.target.value)}
                                 />
@@ -242,9 +242,9 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
                             <textarea
-                                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none h-32"
+                                className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none h-32 placeholder-gray-500"
                                 placeholder="Provide specific details..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
@@ -253,39 +253,39 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
 
                         {/* Specific Fields */}
                         {itemType === 'Phone' && (
-                            <div className="bg-red-50 p-4 rounded-lg border border-red-100">
-                                <label className="block text-sm font-medium text-red-800 mb-1">IMEI Number</label>
+                            <div className="bg-red-500/10 p-4 rounded-lg border border-red-500/20">
+                                <label className="block text-sm font-medium text-red-400 mb-1">IMEI Number</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-900 border border-red-500/30 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none placeholder-gray-500"
                                     placeholder="Enter IMEI"
                                     value={imei}
                                     onChange={(e) => setImei(e.target.value)}
                                 />
-                                <p className="text-xs text-red-600 mt-1">This will be encrypted and hidden from the public.</p>
+                                <p className="text-xs text-red-400/80 mt-1">This will be encrypted and hidden from the public.</p>
                             </div>
                         )}
 
                         {itemType === 'Laptop' && (
-                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                                <label className="block text-sm font-medium text-blue-800 mb-1">Serial Number</label>
+                            <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20">
+                                <label className="block text-sm font-medium text-blue-400 mb-1">Serial Number</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                                    className="w-full p-3 bg-gray-900 border border-blue-500/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none placeholder-gray-500"
                                     placeholder="Enter Serial Number"
                                     value={serialNumber}
                                     onChange={(e) => setSerialNumber(e.target.value)}
                                 />
-                                <p className="text-xs text-blue-600 mt-1">This will be visible to help identify the device.</p>
+                                <p className="text-xs text-blue-400/80 mt-1">This will be visible to help identify the device.</p>
                             </div>
                         )}
 
                         {(itemType === 'ID Card' || itemType === 'Other') && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ID / Serial Number (Optional)</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">ID / Serial Number (Optional)</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none placeholder-gray-500"
                                     placeholder="Any unique identifier"
                                     value={idNumber}
                                     onChange={(e) => setIdNumber(e.target.value)}
@@ -295,10 +295,10 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
 
                         {/* Image Upload */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Upload Images (Max 5)</label>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">Upload Images (Max 5)</label>
                             <div className="flex flex-wrap gap-4">
                                 {images.map((img, idx) => (
-                                    <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200">
+                                    <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-700">
                                         <img src={img} alt="Upload" className="w-full h-full object-cover" />
                                         <button
                                             onClick={() => removeImage(idx)}
@@ -309,7 +309,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                                     </div>
                                 ))}
                                 {images.length < 5 && (
-                                    <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors text-gray-400 hover:text-red-500">
+                                    <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-red-500 hover:bg-red-500/10 transition-colors text-gray-500 hover:text-red-500">
                                         <Upload size={24} />
                                         <span className="text-xs mt-1">Add</span>
                                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
@@ -320,14 +320,14 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                     </div>
                 </div>
 
-                <div className="p-6 border-t border-gray-100 flex justify-end gap-4 bg-gray-50 rounded-b-2xl">
-                    <button onClick={onClose} className="px-6 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition-colors">
+                <div className="p-6 border-t border-gray-800 flex justify-end gap-4 bg-gray-900 rounded-b-2xl">
+                    <button onClick={onClose} className="px-6 py-2 text-gray-400 font-medium hover:bg-gray-800 rounded-lg transition-colors">
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="px-6 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-medium rounded-lg hover:from-red-600 hover:to-orange-600 shadow-lg shadow-red-500/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Submitting...' : (initialData ? 'Save Changes' : 'Submit Report')}
                     </button>

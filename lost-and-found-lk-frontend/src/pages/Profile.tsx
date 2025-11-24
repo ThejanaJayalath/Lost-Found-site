@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Mail, Phone, Edit2, Trash2, Plus } from 'lucide-react';
+import { User, Mail, Phone, Edit2, Trash2, Box, CheckCircle } from 'lucide-react';
 import ReportLostModal from '../components/ReportLostModal';
 import ReportFoundModal from '../components/ReportFoundModal';
 
@@ -18,7 +19,8 @@ interface Post {
 }
 
 export default function Profile() {
-    const { user, syncUserWithBackend } = useAuth();
+    const navigate = useNavigate();
+    const { user, syncUserWithBackend, loading } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [name, setName] = useState(user?.displayName || '');
     const [phone, setPhone] = useState('');
@@ -28,12 +30,15 @@ export default function Profile() {
     const [editingPost, setEditingPost] = useState<Post | null>(null);
 
     useEffect(() => {
+        if (!loading && !user) {
+            navigate('/');
+        }
         if (user) {
             setName(user.displayName || '');
             fetchUserData();
             fetchUserPosts();
         }
-    }, [user]);
+    }, [user, loading, navigate]);
 
     const fetchUserData = async () => {
         if (!user || !user.email) return;
@@ -53,14 +58,6 @@ export default function Profile() {
     const fetchUserPosts = async () => {
         if (!user) return;
         try {
-            // Assuming we will use email or a specific userId field if available. 
-            // Since we added userId to Post, we need to know what that userId is.
-            // If it's the MongoDB ID, we need to get it from fetchUserData first.
-            // Or if we store it in AuthContext.
-            // For now, let's assume we use email or we fetch the user first and get the ID.
-
-            // Better approach: fetch user first, get ID, then fetch posts.
-            // But for now let's try fetching by email if we change the backend, or just fetch user first.
             const userResponse = await fetch(`http://localhost:8082/api/users/${user.email}`);
             if (userResponse.ok) {
                 const userData = await userResponse.json();
@@ -99,48 +96,63 @@ export default function Profile() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-gray-900 px-4 md:px-8 py-8 pt-24">
+            <div className="max-w-5xl mx-auto">
                 {/* Profile Header */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-6">
-                            <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                                {user?.photoURL ? (
-                                    <img src={user.photoURL} alt={name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <User size={40} className="text-gray-400" />
-                                )}
+                <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-8 mb-12 relative overflow-hidden">
+                    {/* Decorative Background Glow */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+                    <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative z-10">
+                        <div className="flex flex-col md:flex-row items-center gap-8 w-full">
+                            {/* Avatar */}
+                            <div className="relative group">
+                                <div className="w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border-4 border-gray-600 shadow-xl">
+                                    {user?.photoURL ? (
+                                        <img src={user.photoURL} alt={name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User size={48} className="text-gray-400" />
+                                    )}
+                                </div>
+                                <div className="absolute inset-0 rounded-full ring-2 ring-blue-500/50 animate-pulse"></div>
                             </div>
-                            <div>
+
+                            {/* User Info */}
+                            <div className="flex-1 text-center md:text-left w-full">
                                 {isEditing ? (
-                                    <div className="space-y-3">
-                                        <input
-                                            type="text"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
-                                            placeholder="Full Name"
-                                        />
-                                        <input
-                                            type="tel"
-                                            value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
-                                            className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none"
-                                            placeholder="Phone Number"
-                                        />
+                                    <div className="space-y-4 max-w-md mx-auto md:mx-0">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
+                                            <input
+                                                type="text"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                className="block w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-white placeholder-gray-400 outline-none transition-all"
+                                                placeholder="Full Name"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-1">Phone Number</label>
+                                            <input
+                                                type="tel"
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                                className="block w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-white placeholder-gray-400 outline-none transition-all"
+                                                placeholder="Phone Number"
+                                            />
+                                        </div>
                                     </div>
                                 ) : (
                                     <>
-                                        <h1 className="text-2xl font-bold text-gray-900">{name}</h1>
-                                        <div className="flex items-center gap-4 mt-2 text-gray-600">
-                                            <div className="flex items-center gap-2">
-                                                <Mail size={16} />
+                                        <h1 className="text-3xl font-bold text-white mb-2">{name}</h1>
+                                        <div className="flex flex-col md:flex-row items-center gap-4 text-gray-400">
+                                            <div className="flex items-center gap-2 bg-gray-700/50 px-3 py-1 rounded-full">
+                                                <Mail size={16} className="text-blue-400" />
                                                 <span>{user?.email}</span>
                                             </div>
                                             {phone && (
-                                                <div className="flex items-center gap-2">
-                                                    <Phone size={16} />
+                                                <div className="flex items-center gap-2 bg-gray-700/50 px-3 py-1 rounded-full">
+                                                    <Phone size={16} className="text-green-400" />
                                                     <span>{phone}</span>
                                                 </div>
                                             )}
@@ -149,11 +161,13 @@ export default function Profile() {
                                 )}
                             </div>
                         </div>
+
+                        {/* Edit Button */}
                         <button
                             onClick={() => isEditing ? handleUpdateProfile() : setIsEditing(true)}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${isEditing
-                                ? 'bg-red-500 text-white hover:bg-red-600'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            className={`px-6 py-2.5 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg ${isEditing
+                                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 shadow-blue-500/20'
+                                : 'bg-gray-700 text-gray-200 hover:bg-gray-600 border border-gray-600 hover:text-white'
                                 }`}
                         >
                             {isEditing ? 'Save Changes' : 'Edit Profile'}
@@ -162,42 +176,55 @@ export default function Profile() {
                 </div>
 
                 {/* My Posts Section */}
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">My Posts</h2>
-                    <button
-                        onClick={() => {
-                            setEditingPost(null);
-                            setIsReportModalOpen(true);
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30"
-                    >
-                        <Plus size={20} />
-                        Report Lost Item
-                    </button>
-                    <button
-                        onClick={() => {
-                            setEditingPost(null);
-                            setIsFoundModalOpen(true);
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-lg shadow-green-500/30 ml-4"
-                    >
-                        <Plus size={20} />
-                        Report Found Item
-                    </button>
+                <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                        My Posts
+                        <span className="text-sm font-normal text-gray-500 bg-gray-800 px-2 py-1 rounded-full border border-gray-700">
+                            {posts.length}
+                        </span>
+                    </h2>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => {
+                                setEditingPost(null);
+                                setIsReportModalOpen(true);
+                            }}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg hover:from-red-600 hover:to-orange-600 transition-all shadow-lg shadow-red-500/20 transform hover:scale-105"
+                        >
+                            <Box size={18} />
+                            Report Lost
+                        </button>
+                        <button
+                            onClick={() => {
+                                setEditingPost(null);
+                                setIsFoundModalOpen(true);
+                            }}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg shadow-green-500/20 transform hover:scale-105"
+                        >
+                            <CheckCircle size={18} />
+                            Report Found
+                        </button>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {posts.map((post) => (
-                        <div key={post.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
-                            <div className="aspect-video bg-gray-100 relative">
+                        <div key={post.id} className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-500/30 transition-all duration-300 group">
+                            <div className="aspect-video bg-gray-700 relative overflow-hidden">
                                 {post.images && post.images.length > 0 ? (
-                                    <img src={post.images[0]} alt={post.title} className="w-full h-full object-cover" />
+                                    <img
+                                        src={post.images[0]}
+                                        alt={post.title}
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                        No Image
+                                    <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                        <Box size={32} className="opacity-50" />
                                     </div>
                                 )}
-                                <div className="absolute top-2 right-2 flex gap-2">
+
+                                {/* Overlay Actions */}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
                                     <button
                                         onClick={() => {
                                             setEditingPost(post);
@@ -207,30 +234,41 @@ export default function Profile() {
                                                 setIsReportModalOpen(true);
                                             }
                                         }}
-                                        className="p-2 bg-white/90 rounded-full hover:bg-white text-gray-700 transition-colors"
+                                        className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white backdrop-blur-md border border-white/20 transition-all transform hover:scale-110"
+                                        title="Edit Post"
                                     >
-                                        <Edit2 size={16} />
+                                        <Edit2 size={20} />
                                     </button>
                                     <button
                                         onClick={() => handleDeletePost(post.id)}
-                                        className="p-2 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors"
+                                        className="p-3 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md border border-red-400/20 transition-all transform hover:scale-110"
+                                        title="Delete Post"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={20} />
                                     </button>
                                 </div>
-                            </div>
-                            <div className="p-4">
-                                <div className="flex items-start justify-between mb-2">
-                                    <h3 className="font-semibold text-gray-900 line-clamp-1">{post.title}</h3>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${post.status === 'LOST' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+
+                                {/* Status Badge */}
+                                <div className="absolute top-3 left-3">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur-md ${post.status === 'LOST'
+                                        ? 'bg-red-500/90 text-white'
+                                        : 'bg-green-500/90 text-white'
                                         }`}>
                                         {post.status}
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-600 line-clamp-2 mb-3">{post.description}</p>
-                                <div className="flex items-center justify-between text-xs text-gray-500">
-                                    <span>{post.date}</span>
-                                    <span>{post.location}</span>
+                            </div>
+
+                            <div className="p-5">
+                                <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">{post.title}</h3>
+                                <p className="text-sm text-gray-400 line-clamp-2 mb-4 h-10">{post.description}</p>
+
+                                <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-700 pt-4">
+                                    <span className="flex items-center gap-1">
+                                        <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                        {post.date}
+                                    </span>
+                                    <span className="truncate max-w-[150px]">{post.location}</span>
                                 </div>
                             </div>
                         </div>
@@ -238,8 +276,14 @@ export default function Profile() {
                 </div>
 
                 {posts.length === 0 && (
-                    <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                        <p className="text-gray-500">You haven't posted anything yet.</p>
+                    <div className="text-center py-16 bg-gray-800/50 rounded-2xl border border-dashed border-gray-700">
+                        <div className="w-16 h-16 bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Box size={32} className="text-gray-500" />
+                        </div>
+                        <h3 className="text-xl font-medium text-white mb-2">No posts yet</h3>
+                        <p className="text-gray-400 max-w-sm mx-auto">
+                            You haven't posted any lost or found items yet. Use the buttons above to create your first post.
+                        </p>
                     </div>
                 )}
             </div>

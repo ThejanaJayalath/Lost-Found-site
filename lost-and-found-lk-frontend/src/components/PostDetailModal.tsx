@@ -42,20 +42,20 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
             <div
-                className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row"
+                className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-gray-800"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Image Section (Left/Top) */}
-                <div className="w-full md:w-1/2 bg-gray-100 relative flex flex-col">
+                <div className="w-full md:w-1/2 bg-gray-800 relative flex flex-col">
                     <div className="flex-1 relative min-h-[300px] md:min-h-full group">
                         {post.images && post.images.length > 0 ? (
                             <>
                                 <img
                                     src={post.images[currentImageIndex]}
                                     alt={post.title}
-                                    className="absolute inset-0 w-full h-full object-contain bg-black/5"
+                                    className="absolute inset-0 w-full h-full object-contain bg-black/20"
                                 />
 
                                 {/* Navigation Arrows */}
@@ -66,7 +66,7 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
                                                 e.stopPropagation();
                                                 setCurrentImageIndex((prev) => (prev === 0 ? post.images.length - 1 : prev - 1));
                                             }}
-                                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
                                         >
                                             <ChevronLeft size={24} />
                                         </button>
@@ -75,20 +75,20 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
                                                 e.stopPropagation();
                                                 setCurrentImageIndex((prev) => (prev === post.images.length - 1 ? 0 : prev + 1));
                                             }}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
                                         >
                                             <ChevronRight size={24} />
                                         </button>
 
                                         {/* Image Counter */}
-                                        <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
                                             {currentImageIndex + 1} / {post.images.length}
                                         </div>
                                     </>
                                 )}
                             </>
                         ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                            <div className="absolute inset-0 flex items-center justify-center text-gray-600">
                                 <span className="text-6xl">📦</span>
                             </div>
                         )}
@@ -96,12 +96,12 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
 
                     {/* Thumbnails */}
                     {post.images && post.images.length > 1 && (
-                        <div className="p-4 flex gap-2 overflow-x-auto bg-white/80 backdrop-blur border-t border-gray-200">
+                        <div className="p-4 flex gap-2 overflow-x-auto bg-gray-800/90 backdrop-blur border-t border-gray-700">
                             {post.images.map((img, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setCurrentImageIndex(idx)}
-                                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 ${idx === currentImageIndex ? 'border-red-500' : 'border-transparent'}`}
+                                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 ${idx === currentImageIndex ? 'border-blue-500' : 'border-transparent'}`}
                                 >
                                     <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
                                 </button>
@@ -111,85 +111,89 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
 
                     <button
                         onClick={onClose}
-                        className="absolute top-4 left-4 md:hidden bg-white/80 p-2 rounded-full text-gray-800"
+                        className="absolute top-4 left-4 md:hidden bg-black/50 p-2 rounded-full text-white backdrop-blur-sm"
                     >
                         <X size={24} />
                     </button>
                 </div>
 
                 {/* Details Section (Right/Bottom) */}
-                <div className="w-full md:w-1/2 flex flex-col h-full max-h-[50vh] md:max-h-[90vh]">
-                    <div className="p-6 md:p-8 overflow-y-auto flex-1">
+                <div className="w-full md:w-1/2 flex flex-col h-full max-h-[50vh] md:max-h-[90vh] bg-gray-900">
+                    <div className="p-6 md:p-8 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="flex items-center gap-2 text-red-500 font-medium text-sm uppercase tracking-wider">
+                            <div className={`flex items-center gap-2 font-medium text-sm uppercase tracking-wider ${post.status === 'LOST' ? 'text-red-400' : 'text-green-400'
+                                }`}>
                                 {getItemIcon(post.type)}
                                 <span>{post.type}</span>
                             </div>
-                            <button onClick={onClose} className="hidden md:block text-gray-400 hover:text-gray-600 transition-colors">
+                            <button onClick={onClose} className="hidden md:block text-gray-400 hover:text-white transition-colors">
                                 <X size={24} />
                             </button>
                         </div>
 
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h2>
+                        <h2 className="text-3xl font-bold text-white mb-2">{post.title}</h2>
 
                         {/* Date & Time */}
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-6">
-                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full">
-                                <Calendar size={16} />
+                        <div className="flex flex-wrap gap-3 text-sm text-gray-400 mb-6">
+                            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                                <Calendar size={14} />
                                 <span>{post.date ? new Date(post.date).toLocaleDateString() : 'Date unknown'}</span>
                             </div>
                             {post.time && (
-                                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full">
-                                    <Clock size={16} />
+                                <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                                    <Clock size={14} />
                                     <span>{post.time}</span>
                                 </div>
                             )}
-                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full">
-                                <MapPin size={16} />
+                            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                                <MapPin size={14} />
                                 <span>{post.location}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full">
-                                <Tag size={16} />
+                            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                                <Tag size={14} />
                                 <span>{post.color}</span>
                             </div>
                         </div>
 
-                        <div className="prose prose-gray max-w-none mb-8">
-                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Description</h3>
-                            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                        <div className="prose prose-invert max-w-none mb-8">
+                            <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-2">Description</h3>
+                            <p className="text-gray-400 leading-relaxed whitespace-pre-wrap">
                                 {post.description}
                             </p>
                         </div>
 
                         {/* Specific Details */}
                         {(post.serialNumber || post.idNumber || post.contactPhone) && (
-                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-8">
-                                <h4 className="text-blue-900 font-bold text-sm mb-2">Identifiers & Contact</h4>
+                            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700 mb-8">
+                                <h4 className="text-blue-400 font-bold text-sm mb-3 uppercase tracking-wider">Identifiers & Contact</h4>
                                 {post.serialNumber && (
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-blue-700">Serial Number:</span>
-                                        <span className="font-mono text-blue-900">{post.serialNumber}</span>
+                                    <div className="flex justify-between text-sm mb-2">
+                                        <span className="text-gray-400">Serial Number:</span>
+                                        <span className="font-mono text-white bg-gray-700 px-2 py-0.5 rounded">{post.serialNumber}</span>
                                     </div>
                                 )}
                                 {post.idNumber && (
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-blue-700">ID Number:</span>
-                                        <span className="font-mono text-blue-900">{post.idNumber}</span>
+                                    <div className="flex justify-between text-sm mb-2">
+                                        <span className="text-gray-400">ID Number:</span>
+                                        <span className="font-mono text-white bg-gray-700 px-2 py-0.5 rounded">{post.idNumber}</span>
                                     </div>
                                 )}
                                 {post.contactPhone && (
-                                    <div className="flex justify-between text-sm mt-2 pt-2 border-t border-blue-200">
-                                        <span className="text-blue-700 font-medium">Contact:</span>
-                                        <span className="font-bold text-blue-900">{post.contactPhone}</span>
+                                    <div className="flex justify-between text-sm mt-3 pt-3 border-t border-gray-700">
+                                        <span className="text-gray-400 font-medium">Contact:</span>
+                                        <span className="font-bold text-green-400 text-lg">{post.contactPhone}</span>
                                     </div>
                                 )}
                             </div>
                         )}
                     </div>
 
-                    <div className="p-6 border-t border-gray-100 bg-gray-50">
-                        <button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-500/30 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
-                            I Found This!
+                    <div className="p-6 border-t border-gray-800 bg-gray-900">
+                        <button className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] ${post.status === 'LOST'
+                                ? 'bg-green-500 hover:bg-green-600 text-white shadow-green-500/30'
+                                : 'bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30'
+                            }`}>
+                            {post.status === 'LOST' ? 'I Found This!' : 'Contact Owner'}
                         </button>
                     </div>
                 </div>
