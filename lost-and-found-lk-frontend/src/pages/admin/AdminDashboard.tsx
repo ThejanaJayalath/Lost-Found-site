@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Search, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, LogOut } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, LogOut } from 'lucide-react';
 import Logo from '../../components/Logo';
 
 interface UserDetail {
