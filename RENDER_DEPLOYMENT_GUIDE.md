@@ -1,99 +1,95 @@
-# Render Deployment Guide (Free & No Credit Card)
+# Render Deployment Guide (Full Stack)
 
-Since Oracle Cloud isn't an option, **Render** is the best alternative. It allows you to host your Spring Boot backend for free without a credit card.
+**Render** is a great choice because you can host **BOTH** your Backend (Spring Boot) and Frontend (React/Vite) for free.
 
 ## 📋 Prerequisites
 
 1. **GitHub Account**
-2. **Git installed** on your computer
-3. **Your project pushed to GitHub**
+2. **Git installed**
+3. **Two Repositories** (Recommended):
+   - One for Backend (`lost-and-found-backend`)
+   - One for Frontend (`lost-and-found-frontend`)
 
 ---
 
-## 🚀 Option 1: Deploy to Render (Permanent Cloud Hosting)
+## 🚀 Part 1: Deploy Backend (Spring Boot)
 
-### Step 1: Push Your Code to GitHub
-
-If you haven't already pushed your code to GitHub, do this now:
-
-1. Create a new repository on GitHub (e.g., `lost-and-found-backend`).
-2. Run these commands in your backend folder (`c:\Lost-Found-site\lost-and-found-lk-backend`):
-
+### 1. Push Backend Code to GitHub
+Run inside `c:\Lost-Found-site\lost-and-found-lk-backend`:
 ```powershell
 git init
 git add .
-git commit -m "Initial commit for Render"
+git commit -m "Initial backend commit"
 git branch -M main
 git remote add origin https://github.com/YOUR_USERNAME/lost-and-found-backend.git
 git push -u origin main
 ```
 
-### Step 2: Create Service on Render
+### 2. Create Backend Service on Render
+1. Go to [dashboard.render.com](https://dashboard.render.com)
+2. Click **New +** → **Web Service**
+3. Select your **Backend Repository**
+4. **Settings:**
+   - **Name:** `lost-and-found-backend`
+   - **Runtime:** `Docker`
+   - **Instance Type:** Free
+5. **Environment Variables:**
+   - `SPRING_DATA_MONGODB_URI`: (Your MongoDB Connection String)
+   - `JWT_SECRET`: (Your Secret Key)
+   - `SERVER_PORT`: `8082`
+6. Click **Create Web Service**
 
-1. Go to [render.com](https://render.com) and sign up (use "Continue with GitHub").
-2. Click **"New +"** → **"Web Service"**.
-3. Select **"Build and deploy from a Git repository"**.
-4. Connect your GitHub account and select your `lost-and-found-backend` repository.
-
-### Step 3: Configure Render
-
-- **Name:** `lost-and-found-backend`
-- **Region:** Choose the one closest to you (e.g., Singapore or Frankfurt).
-- **Branch:** `main`
-- **Runtime:** `Docker` (It should detect the Dockerfile I created).
-- **Instance Type:** **Free** (0.1 CPU, 512MB RAM).
-
-### Step 4: Environment Variables
-
-Scroll down to **"Environment Variables"** and add these:
-
-| Key | Value |
-|-----|-------|
-| `SPRING_DATA_MONGODB_URI` | `mongodb+srv://todoListApp:sinhalanews@cluster0.gdcsnzk.mongodb.net/lost_and_found?retryWrites=true&w=majority` |
-| `JWT_SECRET` | `5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437` |
-| `SERVER_PORT` | `8082` |
-
-### Step 5: Deploy
-
-1. Click **"Create Web Service"**.
-2. Render will start building your app (this takes 5-10 minutes).
-3. Once done, you'll get a URL like: `https://lost-and-found-backend.onrender.com`.
-
-> [!NOTE]
-> The free tier "spins down" after 15 minutes of inactivity. The first request after a break will take about 30-50 seconds to load.
+**✅ Save your Backend URL:** (e.g., `https://lost-and-found-backend.onrender.com`)
 
 ---
 
-## ⚡ Option 2: Ngrok (Instant Demo from Laptop)
+## 🎨 Part 2: Deploy Frontend (React/Vite)
 
-If you just want to show your project to someone **right now** without deploying code:
-
-1. **Download Ngrok:** [ngrok.com/download](https://ngrok.com/download)
-2. **Run your backend locally:**
-   ```powershell
-   .\mvnw.cmd spring-boot:run
-   ```
-3. **Open a new terminal and run Ngrok:**
-   ```powershell
-   ngrok http 8082
-   ```
-4. **Copy the Forwarding URL:** (e.g., `https://a1b2-c3d4.ngrok-free.app`)
-5. **Use this URL** in your frontend code as the backend API URL.
-
-**Note:** This only works while your laptop is on and the command is running.
-
----
-
-## 🔄 Update Your Frontend
-
-Once deployed (or using Ngrok), update your frontend API URL:
-
-**File:** `src/api/axios.ts` (or wherever you defined the base URL)
+### 1. Update Frontend API URL
+Before deploying, tell your frontend where the backend lives.
+Open `src/api/axios.ts` (or wherever you define the base URL) and change it:
 
 ```typescript
-// Change this:
-const BASE_URL = 'http://localhost:8082/api';
-
-// To your Render URL:
-const BASE_URL = 'https://lost-and-found-backend.onrender.com/api';
+// const BASE_URL = 'http://localhost:8082/api'; // OLD
+const BASE_URL = 'https://lost-and-found-backend.onrender.com/api'; // NEW (Your Render Backend URL)
 ```
+
+### 2. Push Frontend Code to GitHub
+Run inside `c:\Lost-Found-site\lost-and-found-lk-frontend`:
+```powershell
+git init
+git add .
+git commit -m "Initial frontend commit"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/lost-and-found-frontend.git
+git push -u origin main
+```
+
+### 3. Create Frontend Service on Render
+1. Go to [dashboard.render.com](https://dashboard.render.com)
+2. Click **New +** → **Static Site** (NOT Web Service)
+3. Select your **Frontend Repository**
+4. **Settings:**
+   - **Name:** `lost-and-found-frontend`
+   - **Branch:** `main`
+   - **Build Command:** `npm run build`
+   - **Publish Directory:** `dist`
+5. Click **Create Static Site**
+
+**✅ Your Frontend URL:** (e.g., `https://lost-and-found-frontend.onrender.com`)
+
+---
+
+## 🔄 Important Notes
+
+1. **Free Tier Spin-Down:** The **Backend** will go to sleep after 15 mins of inactivity. The first time you visit the site, it might take **30-60 seconds** to wake up. The **Frontend** (Static Site) will always be fast.
+2. **CORS:** If you get CORS errors, update your Backend's `application.properties` or `SecurityConfig.java` to allow the new Frontend URL (`https://lost-and-found-frontend.onrender.com`).
+
+---
+
+## ⚡ Alternative for Frontend: Vercel (Recommended)
+While Render works for frontends, **Vercel** is often faster and easier for React apps.
+1. Go to [vercel.com](https://vercel.com)
+2. "Add New Project" → Import from GitHub
+3. Select Frontend Repo → Deploy
+4. Done!
