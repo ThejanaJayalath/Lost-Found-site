@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { User, Mail, Phone, Edit2, Trash2, Box, CheckCircle } from 'lucide-react';
 import ReportLostModal from '../components/ReportLostModal';
 import ReportFoundModal from '../components/ReportFoundModal';
+import { getApiBaseUrl } from '../services/api';
 
 interface Post {
     id: string;
@@ -48,7 +49,7 @@ export default function Profile() {
     const fetchUserData = async () => {
         if (!user || !user.email) return;
         try {
-            const response = await fetch(`http://localhost:8082/api/users/${user.email}`);
+            const response = await fetch(`${getApiBaseUrl()}/users/${user.email}`);
             if (response.ok) {
                 const userData = await response.json();
                 if (userData.phoneNumber) {
@@ -63,10 +64,10 @@ export default function Profile() {
     const fetchUserPosts = async () => {
         if (!user) return;
         try {
-            const userResponse = await fetch(`http://localhost:8082/api/users/${user.email}`);
+            const userResponse = await fetch(`${getApiBaseUrl()}/users/${user.email}`);
             if (userResponse.ok) {
                 const userData = await userResponse.json();
-                const response = await fetch(`http://localhost:8082/api/posts/user/${userData.id}`);
+                const response = await fetch(`${getApiBaseUrl()}/posts/user/${userData.id}`);
                 if (response.ok) {
                     const data = await response.json();
                     setPosts(data);
@@ -80,7 +81,7 @@ export default function Profile() {
     const fetchFoundPosts = async () => {
         if (!user || !user.email) return;
         try {
-            const response = await fetch(`http://localhost:8082/api/interactions/user/${user.email}/found`);
+            const response = await fetch(`${getApiBaseUrl()}/interactions/user/${user.email}/found`);
             if (response.ok) {
                 const data = await response.json();
                 setFoundPosts(data);
@@ -93,7 +94,7 @@ export default function Profile() {
     const fetchNotifications = async () => {
         if (!user || !user.email) return;
         try {
-            const response = await fetch(`http://localhost:8082/api/interactions/user/${user.email}/claims`);
+            const response = await fetch(`${getApiBaseUrl()}/interactions/user/${user.email}/claims`);
             if (response.ok) {
                 const data = await response.json();
                 // Filter out already accepted/rejected if needed, or show all
@@ -108,7 +109,7 @@ export default function Profile() {
         if (!window.confirm("Are you sure you want to confirm this item return? This will mark the post as resolved.")) return;
 
         try {
-            const response = await fetch(`http://localhost:8082/api/interactions/${interactionId}/confirm`, {
+            const response = await fetch(`${getApiBaseUrl()}/interactions/${interactionId}/confirm`, {
                 method: 'POST'
             });
 
@@ -137,7 +138,7 @@ export default function Profile() {
     const handleDeletePost = async (postId: string) => {
         if (window.confirm('Are you sure you want to delete this post?')) {
             try {
-                await fetch(`http://localhost:8082/api/posts/${postId}`, {
+                await fetch(`${getApiBaseUrl()}/posts/${postId}`, {
                     method: 'DELETE',
                 });
                 setPosts(posts.filter(post => post.id !== postId));

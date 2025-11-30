@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
-import api from '../services/api';
+import api, { getApiBaseUrl } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 type ItemType = 'Phone' | 'Laptop' | 'Purse' | 'Wallet' | 'ID Card' | 'Document' | 'Pet' | 'Bag' | 'Other';
@@ -86,7 +86,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
             let userId = undefined;
             if (user?.email) {
                 try {
-                    const userResponse = await fetch(`http://localhost:8082/api/users/${user.email}`);
+                    const userResponse = await fetch(`${getApiBaseUrl()}/users/${user.email}`);
                     if (userResponse.ok) {
                         const userData = await userResponse.json();
                         userId = userData.id;

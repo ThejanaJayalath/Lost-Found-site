@@ -1,6 +1,7 @@
 import { X, MapPin, Calendar, Tag, Smartphone, Laptop, CreditCard, FileText, Briefcase, Dog, Clock, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { getApiBaseUrl } from '../services/api';
 
 interface Post {
     id: string;
@@ -63,7 +64,7 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('http://localhost:8082/api/interactions/found', {
+            const response = await fetch(`${getApiBaseUrl()}/interactions/found`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

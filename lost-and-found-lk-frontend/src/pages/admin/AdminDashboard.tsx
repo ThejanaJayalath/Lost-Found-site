@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, LogOut } from 'lucide-react';
 import Logo from '../../components/Logo';
+import { getApiBaseUrl } from '../../services/api';
 
 interface UserDetail {
     user: {
@@ -37,8 +38,8 @@ export default function AdminDashboard() {
         try {
             console.log('Fetching admin data...');
             const [statsRes, usersRes] = await Promise.all([
-                fetch('http://localhost:8082/api/admin/stats'),
-                fetch('http://localhost:8082/api/admin/users')
+                fetch(`${getApiBaseUrl()}/admin/stats`),
+                fetch(`${getApiBaseUrl()}/admin/users`)
             ]);
 
             console.log('Stats response status:', statsRes.status);
@@ -69,7 +70,7 @@ export default function AdminDashboard() {
 
     const toggleBlockUser = async (userId: string) => {
         try {
-            const res = await fetch(`http://localhost:8082/api/admin/users/${userId}/block`, { method: 'PUT' });
+            const res = await fetch(`${getApiBaseUrl()}/admin/users/${userId}/block`, { method: 'PUT' });
             if (res.ok) {
                 setUsers(users.map(u =>
                     u.user.id === userId ? { ...u, user: { ...u.user, blocked: !u.user.blocked } } : u
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
     const deleteUser = async (userId: string) => {
         if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
         try {
-            const res = await fetch(`http://localhost:8082/api/admin/users/${userId}`, { method: 'DELETE' });
+            const res = await fetch(`${getApiBaseUrl()}/admin/users/${userId}`, { method: 'DELETE' });
             if (res.ok) {
                 setUsers(users.filter(u => u.user.id !== userId));
             }
@@ -94,7 +95,7 @@ export default function AdminDashboard() {
 
     const toggleHidePost = async (postId: string) => {
         try {
-            const res = await fetch(`http://localhost:8082/api/admin/posts/${postId}/hide`, { method: 'PUT' });
+            const res = await fetch(`${getApiBaseUrl()}/admin/posts/${postId}/hide`, { method: 'PUT' });
             if (res.ok) {
                 // Update local state deeply
                 setUsers(users.map(u => ({
@@ -110,7 +111,7 @@ export default function AdminDashboard() {
     const deletePost = async (postId: string) => {
         if (!confirm('Are you sure you want to delete this post?')) return;
         try {
-            const res = await fetch(`http://localhost:8082/api/admin/posts/${postId}`, { method: 'DELETE' });
+            const res = await fetch(`${getApiBaseUrl()}/admin/posts/${postId}`, { method: 'DELETE' });
             if (res.ok) {
                 setUsers(users.map(u => ({
                     ...u,

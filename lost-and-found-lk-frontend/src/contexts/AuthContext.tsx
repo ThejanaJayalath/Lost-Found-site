@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { type User, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebase';
+import { getApiBaseUrl } from '../services/api';
 
 interface AuthContextType {
     user: User | null;
@@ -54,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 password: additionalData.password || null
             };
 
-            await fetch('http://localhost:8082/api/users', {
+            await fetch(`${getApiBaseUrl()}/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
