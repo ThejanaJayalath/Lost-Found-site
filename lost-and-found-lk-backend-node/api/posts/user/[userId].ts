@@ -1,6 +1,6 @@
-import { applyCors } from "../../../_cors";
-import { connectToDatabase } from "../../../../src/config/db";
-import { Post } from "../../../../src/models/Post";
+import { applyCors } from "../../_cors";
+import { connectToDatabase } from "../../../src/config/db";
+import { Post } from "../../../src/models/Post";
 import { Types } from "mongoose";
 
 export default async function handler(
