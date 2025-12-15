@@ -13,6 +13,12 @@ export interface IPost extends Document {
   isLost: boolean;
   user: Types.ObjectId;
   status: PostStatus;
+  // Optional fields used by the frontend for quick checks and extra info
+  imei?: string;
+  serialNumber?: string;
+  idNumber?: string;
+  phoneNumber?: string;
+  time?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +41,11 @@ const postSchema = new Schema<IPost>(
       enum: ["PENDING", "ACTIVE", "RESOLVED", "REJECTED"],
       default: "PENDING",
     },
+    imei: { type: String },
+    serialNumber: { type: String },
+    idNumber: { type: String },
+    phoneNumber: { type: String },
+    time: { type: String },
   },
   { timestamps: true },
 );

@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { env } from "./config/env";
 import { connectToDatabase } from "./config/db";
 import { healthRouter } from "./routes/health.routes";
+import { postsRouter } from "./routes/posts.routes";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use(morgan(env.nodeEnv === "development" ? "dev" : "combined"));
 
 app.use("/api/health", healthRouter);
+app.use("/api/posts", postsRouter);
 
 // TODO: mount actual routers here once implemented
 // app.use("/api/auth", authRouter);
