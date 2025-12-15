@@ -13,13 +13,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || env.cors.allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true, // allow all origins for now so frontend can call the API
     credentials: true,
   }),
 );
