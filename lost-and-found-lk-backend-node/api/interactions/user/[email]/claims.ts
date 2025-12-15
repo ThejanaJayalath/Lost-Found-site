@@ -1,7 +1,7 @@
-import { applyCors } from "../../../../_cors";
-import { connectToDatabase } from "../../../../../src/config/db";
-import { FoundInteraction } from "../../../../../src/models/FoundInteraction";
-import { Post } from "../../../../../src/models/Post";
+import { applyCors } from "../../../_cors";
+import { connectToDatabase } from "../../../../src/config/db";
+import { FoundInteraction } from "../../../../src/models/FoundInteraction";
+import { Post } from "../../../../src/models/Post";
 
 export default async function handler(req: any, res: any) {
   applyCors(req, res);
