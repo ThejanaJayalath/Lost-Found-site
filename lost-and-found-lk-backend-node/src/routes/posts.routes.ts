@@ -166,7 +166,7 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const post = await Post.create({
+    const post = new Post({
       title,
       description,
       location,
@@ -183,7 +183,9 @@ router.post("/", async (req, res) => {
       time,
     } as any);
 
-    res.status(201).json({ id: post._id.toString() });
+    const saved = await post.save();
+
+    res.status(201).json({ id: saved._id.toString() });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("Error creating post", err);
