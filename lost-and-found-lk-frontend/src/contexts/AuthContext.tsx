@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { type User, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { type User, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getApiBaseUrl } from '../services/api';
 
@@ -25,42 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Check for redirect result on mount (for Google sign-in)
-        getRedirectResult(auth)
-            .then((result) => {
-                if (result?.user) {
-                    syncUserWithBackend(result.user, { authProvider: 'google' });
-                }
-            })
-            .catch((error) => {
-                console.error('Error getting redirect result:', error);
-            });
-
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    const logout = () => {
-        return signOut(auth);
-    };
-
-    const googleSignIn = async () => {
-        try {
-            const provider = new GoogleAuthProvider();
-            // Use redirect instead of popup to avoid COOP issues
-            await signInWithRedirect(auth, provider);
-        } catch (error) {
-            console.error('Error initiating Google sign-in:', error);
-            throw error;
-        }
-    };
-
-    const syncUserWithBackend = async (user: User, additionalData: any = {}) => {
+    const syncUserWithBackend = useCallback(async (user: User, additionalData: any = {}) => {
         try {
             if (!user.email) {
                 console.warn('User email is missing, skipping backend sync');
@@ -106,6 +71,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error: any) {
             console.error('Error syncing user with backend:', error.message || error);
             // Don't throw - this is a background sync, shouldn't block auth
+        }
+    }, []);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setLoading(false);
+            // Note: User sync happens in the sign-in methods, not here
+            // to avoid unnecessary API calls on every auth state change
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const logout = () => {
+        return signOut(auth);
+    };
+
+    const googleSignIn = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            // Use popup - COOP warnings are harmless and don't break functionality
+            const result = await signInWithPopup(auth, provider);
+            await syncUserWithBackend(result.user, { authProvider: 'google' });
+        } catch (error: any) {
+            console.error('Error signing in with Google:', error);
+            throw error;
         }
     };
 
