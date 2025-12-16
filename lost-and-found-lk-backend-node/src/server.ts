@@ -10,7 +10,13 @@ import { postsRouter } from "./routes/posts.routes";
 
 const app = express();
 
-app.use(helmet());
+// Configure Helmet to allow Firebase Auth popups by not setting COOP headers
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: false, // Allow Firebase Auth popups
+    crossOriginEmbedderPolicy: false, // Allow cross-origin embeds
+  }),
+);
 app.use(
   cors({
     origin: true, // allow all origins for now so frontend can call the API
