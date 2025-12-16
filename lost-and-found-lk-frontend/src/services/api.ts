@@ -8,7 +8,7 @@ export const getApiBaseUrl = () => {
     // If VITE_API_URL is set and not empty, use it (remove trailing slash if present)
     if (apiUrl && typeof apiUrl === 'string' && apiUrl.trim()) {
         const url = apiUrl.trim().replace(/\/$/, '');
-        console.log('Using VITE_API_URL from environment:', url);
+        console.log('✅ Using VITE_API_URL from environment:', url);
         return url;
     }
     
@@ -19,12 +19,10 @@ export const getApiBaseUrl = () => {
         return devUrl;
     }
     
-    // In production, use Render backend as fallback
-    // IMPORTANT: Set VITE_API_URL in Vercel to override this
-    const fallbackUrl = 'https://lost-found-site.onrender.com/api';
-    console.warn('⚠️ VITE_API_URL is not set in production!');
-    console.warn('⚠️ Using fallback URL:', fallbackUrl);
-    console.warn('⚠️ To fix: Set VITE_API_URL in Vercel environment variables to:', fallbackUrl);
+    // In production, use relative URL to call Vercel serverless functions on same domain
+    // This will use /api/* routes which are handled by Vercel serverless functions
+    const fallbackUrl = '/api';
+    console.log('Production mode - using relative API path:', fallbackUrl);
     return fallbackUrl;
 };
 
