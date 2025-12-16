@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { type User, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { type User, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getApiBaseUrl } from '../services/api';
 
@@ -26,6 +26,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Check for redirect result on mount (for Google sign-in)
+        getRedirectResult(auth)
+            .then((result) => {
+                if (result?.user) {
+                    syncUserWithBackend(result.user, { authProvider: 'google' });
+                }
+            })
+            .catch((error) => {
+                console.error('Error getting redirect result:', error);
+            });
+
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
@@ -39,31 +50,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const googleSignIn = async () => {
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        await syncUserWithBackend(result.user, { authProvider: 'google' });
+        try {
+            const provider = new GoogleAuthProvider();
+            // Use redirect instead of popup to avoid COOP issues
+            await signInWithRedirect(auth, provider);
+        } catch (error) {
+            console.error('Error initiating Google sign-in:', error);
+            throw error;
+        }
     };
 
     const syncUserWithBackend = async (user: User, additionalData: any = {}) => {
         try {
+            if (!user.email) {
+                console.warn('User email is missing, skipping backend sync');
+                return;
+            }
+
+            const apiUrl = getApiBaseUrl();
+            if (!apiUrl) {
+                console.warn('API URL is not configured, skipping backend sync');
+                return;
+            }
+
             const userData = {
                 email: user.email,
-                name: user.displayName,
-                photoUrl: user.photoURL,
+                name: user.displayName || user.email,
                 phoneNumber: additionalData.phoneNumber || null,
-                authProvider: additionalData.authProvider || 'local',
-                password: additionalData.password || null
             };
 
-            await fetch(`${getApiBaseUrl()}/users`, {
+            const fullUrl = `${apiUrl}/users`;
+            console.log('Syncing user with backend:', fullUrl);
+
+            const response = await fetch(fullUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(userData),
+                credentials: 'include',
             });
-        } catch (error) {
-            console.error('Error syncing user with backend:', error);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorData;
+                try {
+                    errorData = JSON.parse(errorText);
+                } catch {
+                    errorData = { message: errorText };
+                }
+                console.error('Backend sync failed:', response.status, errorData);
+            } else {
+                console.log('User synced successfully with backend');
+            }
+        } catch (error: any) {
+            console.error('Error syncing user with backend:', error.message || error);
+            // Don't throw - this is a background sync, shouldn't block auth
         }
     };
 
