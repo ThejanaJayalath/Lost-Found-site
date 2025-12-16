@@ -1,28 +1,40 @@
 import axios from 'axios';
 
-// Get the API base URL from environment variable or fallback to localhost
+// Get the API base URL from environment variable or fallback
 export const getApiBaseUrl = () => {
+    // Check for environment variable (set at build time by Vite)
     const apiUrl = import.meta.env.VITE_API_URL;
     
-    // If VITE_API_URL is set, use it (remove trailing slash if present)
-    if (apiUrl && apiUrl.trim()) {
-        return apiUrl.trim().replace(/\/$/, '');
+    // If VITE_API_URL is set and not empty, use it (remove trailing slash if present)
+    if (apiUrl && typeof apiUrl === 'string' && apiUrl.trim()) {
+        const url = apiUrl.trim().replace(/\/$/, '');
+        console.log('Using VITE_API_URL from environment:', url);
+        return url;
     }
     
     // In development, use localhost
-    if (import.meta.env.DEV) {
-        return 'http://localhost:8082/api';
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+        const devUrl = 'http://localhost:8082/api';
+        console.log('Development mode - using localhost:', devUrl);
+        return devUrl;
     }
     
-    // In production, if no env var is set, use Render backend as fallback
-    // Update this to your actual Render backend URL
+    // In production, use Render backend as fallback
+    // IMPORTANT: Set VITE_API_URL in Vercel to override this
     const fallbackUrl = 'https://lost-found-site.onrender.com/api';
-    console.warn('VITE_API_URL is not set in production! Using fallback:', fallbackUrl);
-    console.warn('Please set VITE_API_URL in Vercel environment variables to:', fallbackUrl);
+    console.warn('⚠️ VITE_API_URL is not set in production!');
+    console.warn('⚠️ Using fallback URL:', fallbackUrl);
+    console.warn('⚠️ To fix: Set VITE_API_URL in Vercel environment variables to:', fallbackUrl);
     return fallbackUrl;
 };
 
 const baseURL = getApiBaseUrl();
+
+// Log the base URL on initialization
+console.log('API Base URL configured:', baseURL);
+console.log('VITE_API_URL from env:', import.meta.env.VITE_API_URL);
+console.log('Is DEV mode:', import.meta.env.DEV);
+console.log('Is PROD mode:', import.meta.env.PROD);
 
 const api = axios.create({
     baseURL: baseURL,
@@ -35,7 +47,9 @@ const api = axios.create({
 // Add request interceptor for debugging
 api.interceptors.request.use(
     (config) => {
-        console.log('API Request:', config.method?.toUpperCase(), config.url);
+        const fullUrl = config.baseURL ? `${config.baseURL}${config.url}` : config.url;
+        console.log('API Request:', config.method?.toUpperCase(), fullUrl);
+        console.log('Base URL:', config.baseURL, '| URL:', config.url);
         return config;
     },
     (error) => {
