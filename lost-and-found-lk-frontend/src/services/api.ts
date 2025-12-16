@@ -4,9 +4,9 @@ import axios from 'axios';
 export const getApiBaseUrl = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
     
-    // If VITE_API_URL is set, use it
-    if (apiUrl) {
-        return apiUrl;
+    // If VITE_API_URL is set, use it (remove trailing slash if present)
+    if (apiUrl && apiUrl.trim()) {
+        return apiUrl.trim().replace(/\/$/, '');
     }
     
     // In development, use localhost
@@ -14,16 +14,18 @@ export const getApiBaseUrl = () => {
         return 'http://localhost:8082/api';
     }
     
-    // In production, if no env var is set, this is an error
-    // But we'll return empty string to make it obvious
-    console.error('VITE_API_URL is not set in production!');
-    return '';
+    // In production, if no env var is set, use Render backend as fallback
+    // Update this to your actual Render backend URL
+    const fallbackUrl = 'https://lost-found-site.onrender.com/api';
+    console.warn('VITE_API_URL is not set in production! Using fallback:', fallbackUrl);
+    console.warn('Please set VITE_API_URL in Vercel environment variables to:', fallbackUrl);
+    return fallbackUrl;
 };
 
 const baseURL = getApiBaseUrl();
 
 const api = axios.create({
-    baseURL: baseURL || 'http://localhost:8082/api', // Fallback for safety
+    baseURL: baseURL,
     headers: {
         'Content-Type': 'application/json',
     },
