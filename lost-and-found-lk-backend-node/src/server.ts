@@ -7,6 +7,8 @@ import { env } from "./config/env";
 import { connectToDatabase } from "./config/db";
 import { healthRouter } from "./routes/health.routes";
 import { postsRouter } from "./routes/posts.routes";
+import { usersRouter } from "./routes/users.routes";
+import { interactionsRouter } from "./routes/interactions.routes";
 
 const app = express();
 
@@ -44,6 +46,8 @@ app.use(async (req, res, next) => {
 
 app.use("/api/health", healthRouter);
 app.use("/api/posts", postsRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/interactions", interactionsRouter);
 
 // TODO: mount actual routers here once implemented
 // app.use("/api/auth", authRouter);
