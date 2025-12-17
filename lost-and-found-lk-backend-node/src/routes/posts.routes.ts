@@ -172,7 +172,8 @@ router.post("/", async (req, res) => {
       isLost,
       userId,
       userName,
-      userInitial
+      userInitial,
+      images
     } = req.body;
 
     if (!userId) {
@@ -237,7 +238,7 @@ router.post("/", async (req, res) => {
       idNumber,
 
       contactPhone,
-      images: []
+      images: images || []
     });
 
     const saved = await post.save();
