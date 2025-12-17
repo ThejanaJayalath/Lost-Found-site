@@ -36,6 +36,7 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
     if (!post) return null;
 
     const getItemIcon = (type: string) => {
+        if (!type) return <Briefcase size={20} />;
         switch (type.toUpperCase()) {
             case 'PHONE': return <Smartphone size={20} />;
             case 'LAPTOP': return <Laptop size={20} />;

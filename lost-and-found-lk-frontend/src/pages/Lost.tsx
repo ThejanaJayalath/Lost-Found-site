@@ -91,7 +91,7 @@ export default function Lost({ onOpenLogin }: LostProps) {
             post.type.toLowerCase().includes(searchQuery.toLowerCase());
 
         const matchesDate = isDateInFilter(post.date, dateFilter);
-        const matchesCategory = categoryFilter === 'all' || post.type.toUpperCase() === categoryFilter.toUpperCase();
+        const matchesCategory = categoryFilter === 'all' || (post.type && post.type.toUpperCase() === categoryFilter.toUpperCase());
 
         return matchesSearch && matchesDate && matchesCategory;
     });
