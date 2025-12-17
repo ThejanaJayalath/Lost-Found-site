@@ -12,7 +12,7 @@ export type ItemType =
   | "BAG"
   | "OTHER";
 
-export type PostStatus = "PENDING" | "ACTIVE" | "RESOLVED" | "REJECTED" | "LOST" | "FOUND";
+export type PostStatus = "LOST" | "FOUND" | "RESOLVED";
 // Added LOST/FOUND to status just in case, though Java had them separate in query logic usually. 
 // Java PostStatus was likely just PENDING, ACTIVE, RESOLVED, REJECTED.
 // But user screenshots showed "RESOLVED".
@@ -78,7 +78,8 @@ const postSchema = new Schema<IPost>(
 
     status: {
       type: String,
-      default: "ACTIVE",
+      enum: ["LOST", "FOUND", "RESOLVED"],
+      default: "LOST", // Default to LOST if not specified
     },
 
     // User Data - String based to match legacy

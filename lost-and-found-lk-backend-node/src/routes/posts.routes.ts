@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { Types } from "mongoose";
 import { Post } from "../models/Post";
+import { User } from "../models/User";
 
 const router = Router();
 
@@ -11,26 +12,20 @@ router.get("/", async (req, res) => {
 
     const query: any = {};
 
-    // Legacy logic: Frontend sends "LOST" or "FOUND" in query, which maps to isLost boolean
-    if (status === "LOST") {
-      query.isLost = true;
-    } else if (status === "FOUND") {
-      query.isLost = false;
+    // Legacy Logic: 
+    // If status is provided (e.g. ?status=LOST), filter by that status.
+    // If NO status is provided, return all posts.
+    if (status) {
+      query.status = status;
     }
 
-    // In legacy, "status" field on DB was used for RESOLVED/ACTIVE.
-    // We assume default show ACTIVE unless specified otherwise.
-    // If frontend sends status=LOST, it means "Show me lost items that are ACTIVE".
-    query.status = "ACTIVE";
+    // NOTE: We REMOVED the "query.status = ACTIVE" default because 
+    // the legacy backend does not use "ACTIVE". It uses LOST/FOUND/RESOLVED.
 
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
       .lean();
 
-    // Map Mongo document to frontend shape
-    // Legacy frontend expects "id", not "_id"
-    // It also expects "type", not "itemType"
-    // And "contactPhone", not just "phoneNumber" (though check model)
     const mapped = posts.map((p: any) => ({
       id: p._id.toString(),
       title: p.title,
@@ -39,22 +34,16 @@ router.get("/", async (req, res) => {
       date: p.date,
       time: p.time,
       images: p.images || [],
-      type: p.itemType, // "PHONE", "LAPTOP" etc
-      status: p.status, // "ACTIVE", "RESOLVED"
+      type: p.itemType,
+      status: p.status,
       color: p.color,
-
-      // User info
       userId: p.userId,
       userName: p.userName,
       userInitial: p.userInitial,
-
-      // Type specific
       imei: p.imei,
       serialNumber: p.serialNumber,
       idNumber: p.idNumber,
-
-      // Contact
-      contactPhone: p.contactPhone || p.phoneNumber, // Fallback
+      contactPhone: p.contactPhone || p.phoneNumber,
     }));
 
     res.json(mapped);
@@ -77,20 +66,15 @@ router.get("/search", async (req, res) => {
       return res.status(400).json({ message: "Missing type or value" });
     }
 
-    const query: any = { status: "ACTIVE" };
+    // Legacy search matches logic: findByImeiIgnoreCaseAndStatus(..., PostStatus.LOST)
+    // So we must enforce status=LOST for searches.
+    const query: any = { status: "LOST" };
 
     if (type === "PHONE") {
       query.imei = value;
     } else if (type === "LAPTOP") {
       query.serialNumber = value;
-    } else {
-      // Generic search?
-      // Legacy code seemed strict on type
     }
-
-    // Also match correct itemType? 
-    // Legacy search logic: Post post = postService.searchLostDevice(type, value);
-    // It likely filtered by itemType too.
     query.itemType = type;
 
     const post = await Post.findOne(query).lean();
@@ -99,7 +83,6 @@ router.get("/search", async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    // Reuse mapping logic or simplify
     const p: any = post;
     const mapped = {
       id: p._id.toString(),
@@ -134,7 +117,6 @@ router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Legacy userId is a String, not necessarily ObjectId. Remove isValid check.
     if (!userId) {
       return res.status(400).json({ message: "Invalid user id" });
     }
@@ -179,17 +161,15 @@ router.post("/", async (req, res) => {
       description,
       location,
       date,
-      type, // "PHONE", "LAPTOP" etc
-      status, // "LOST", "FOUND" from frontend usually
-      color, // missing in previous implementation?
+      type,
+      status,
+      color,
       imei,
       serialNumber,
       idNumber,
       contactPhone,
       time,
-      isLost, // boolean
-
-      // User info now passed from frontend
+      isLost,
       userId,
       userName,
       userInitial
@@ -199,17 +179,43 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "userId is required" });
     }
 
-    // Determine isLost if not explicitly sent
-    let finalIsLost = isLost;
-    if (finalIsLost === undefined) {
-      if (status === "LOST") finalIsLost = true;
-      else if (status === "FOUND") finalIsLost = false;
-      else finalIsLost = true; // default
+    // Determine status (default to LOST if not provided)
+    // If logic: if "isLost" is true -> "LOST", else "FOUND". 
+    // Or just respect "status" field if valid.
+    let finalStatus = status;
+    if (!finalStatus) {
+      // Inference if missing
+      if (isLost === true) finalStatus = "LOST";
+      else if (isLost === false) finalStatus = "FOUND";
+      else finalStatus = "LOST";
     }
 
-    // Determine initial DB status
-    // Common flow: Created -> ACTIVE
-    const initialStatus = "ACTIVE";
+    // Determine isLost boolean for helper
+    let finalIsLost = isLost;
+    if (finalIsLost === undefined) {
+      if (finalStatus === "LOST") finalIsLost = true;
+      else finalIsLost = false;
+    }
+
+    // Look up user info if not sent from frontend (Legacy did this in Service)
+    let finalUserName = userName;
+    let finalUserInitial = userInitial;
+
+    if (!finalUserName) {
+      // Try to fetch from DB user collection if exists
+      try {
+        const user = await User.findById(userId);
+        if (user && user.name) {
+          finalUserName = user.name;
+          finalUserInitial = user.name.substring(0, 1).toUpperCase();
+        } else {
+          finalUserInitial = "U";
+        }
+      } catch (e) {
+        // ignore if user not found in DB, just save what we have
+        finalUserInitial = "U";
+      }
+    }
 
     const post = new Post({
       title,
@@ -217,22 +223,21 @@ router.post("/", async (req, res) => {
       location,
       date,
       time,
-      itemType: type, // Store directly
-      status: initialStatus,
+      itemType: type,
+      status: finalStatus,
       isLost: finalIsLost,
 
       userId,
-      userName, // Store if provided
-      userInitial,
+      userName: finalUserName,
+      userInitial: finalUserInitial,
 
-      // Details
       color,
       imei,
       serialNumber,
       idNumber,
 
       contactPhone,
-      images: [] // TODO: Image handling if frontend sends them
+      images: []
     });
 
     const saved = await post.save();
@@ -257,7 +262,6 @@ router.put("/:id", async (req, res) => {
       return res.status(400).json({ message: "Invalid post id" });
     }
 
-    // Logic: Just update whatever is sent
     const update = req.body;
 
     // Remap keys if needed
@@ -266,10 +270,13 @@ router.put("/:id", async (req, res) => {
       delete update.type;
     }
 
-    // Filter undefined
     Object.keys(update).forEach(
       (k) => update[k] === undefined && delete update[k],
     );
+
+    // If updating status, ensure isLost syncs
+    if (update.status === "LOST") update.isLost = true;
+    if (update.status === "FOUND" || update.status === "RESOLVED") update.isLost = false;
 
     const post = await Post.findByIdAndUpdate(id, update, {
       new: true,
