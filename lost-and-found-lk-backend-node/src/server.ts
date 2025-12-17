@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -50,10 +50,18 @@ app.use(async (req, res, next) => {
   }
 });
 
-app.use("/api/health", healthRouter);
-app.use("/api/posts", postsRouter);
-app.use("/api/users", usersRouter);
-app.use("/api/interactions", interactionsRouter);
+// Mount routers at legacy /api paths AND root paths to handle Vercel rewriting behavior
+// If Vercel rewrites /api/posts -> /api/index, req.url might be /api/posts OR /posts depending on config.
+// Supporting both ensures safety.
+
+const apiRouter = Router();
+apiRouter.use("/health", healthRouter);
+apiRouter.use("/posts", postsRouter);
+apiRouter.use("/users", usersRouter);
+apiRouter.use("/interactions", interactionsRouter);
+
+app.use("/api", apiRouter); // Handle /api/posts
+app.use("/", apiRouter);    // Handle /posts (in case prefix is stripped)
 
 // 404 Handler to debug route mismatch
 app.use((req, res) => {
