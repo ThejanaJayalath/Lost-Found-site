@@ -205,9 +205,9 @@ router.post("/", async (req, res) => {
       // Try to fetch from DB user collection if exists
       try {
         const user = await User.findById(userId);
-        if (user && user.name) {
-          finalUserName = user.name;
-          finalUserInitial = user.name.substring(0, 1).toUpperCase();
+        if (user && user.fullName) {
+          finalUserName = user.fullName;
+          finalUserInitial = user.fullName.substring(0, 1).toUpperCase();
         } else {
           finalUserInitial = "U";
         }
