@@ -10,6 +10,8 @@ import { postsRouter } from "./routes/posts.routes";
 
 const app = express();
 
+export default app;
+
 // Configure Helmet to allow Firebase Auth popups by not setting COOP headers
 app.use(
   helmet({
@@ -46,6 +48,8 @@ async function start() {
   });
 }
 
-void start();
+if (require.main === module) {
+  void start();
+}
 
 
