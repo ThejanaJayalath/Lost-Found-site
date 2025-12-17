@@ -28,6 +28,20 @@ app.use(
 app.use(express.json());
 app.use(morgan(env.nodeEnv === "development" ? "dev" : "combined"));
 
+// Middleware to ensure database connection
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (err) {
+    console.error("Database connection failed in middleware:", err);
+    res.status(500).json({
+      message: "Database connection error",
+      error: env.nodeEnv === "development" ? (err as Error).message : undefined,
+    });
+  }
+});
+
 app.use("/api/health", healthRouter);
 app.use("/api/posts", postsRouter);
 

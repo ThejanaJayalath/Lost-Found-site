@@ -47,7 +47,10 @@ router.get("/", async (req, res) => {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("Error fetching posts", err);
-    res.status(500).json({ message: "Failed to fetch posts" });
+    res.status(500).json({
+      message: "Failed to fetch posts",
+      error: (err as Error).message // Temporarily exposing error for debugging
+    });
   }
 });
 
