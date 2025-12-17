@@ -30,6 +30,12 @@ app.use(
 app.use(express.json());
 app.use(morgan(env.nodeEnv === "development" ? "dev" : "combined"));
 
+// Debug Middleware: Log all requests
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
+
 // Middleware to ensure database connection
 app.use(async (req, res, next) => {
   try {
@@ -48,6 +54,17 @@ app.use("/api/health", healthRouter);
 app.use("/api/posts", postsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/interactions", interactionsRouter);
+
+// 404 Handler to debug route mismatch
+app.use((req, res) => {
+  console.log(`404 Not Found: ${req.method} ${req.url}`);
+  res.status(404).json({
+    message: "Route not found",
+    path: req.url,
+    method: req.method,
+    availableRoutes: ["/api/health", "/api/posts", "/api/users", "/api/interactions"]
+  });
+});
 
 // TODO: mount actual routers here once implemented
 // app.use("/api/auth", authRouter);
