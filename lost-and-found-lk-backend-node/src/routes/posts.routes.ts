@@ -192,7 +192,10 @@ router.post("/", async (req, res) => {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("Error creating post", err);
-    res.status(500).json({ message: "Failed to create post" });
+    res.status(500).json({
+      message: "Failed to create post",
+      error: (err as Error).message
+    });
   }
 });
 
