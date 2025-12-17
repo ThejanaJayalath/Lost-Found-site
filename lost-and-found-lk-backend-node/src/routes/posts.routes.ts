@@ -169,15 +169,37 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Map frontend specific types to backend generic categories
+    let mappedType = type;
+    const upperType = type?.toUpperCase();
+    if (["PHONE", "LAPTOP", "TABLET", "WATCH"].includes(upperType)) {
+      mappedType = "ELECTRONICS";
+    } else if (["WALLET", "ID", "PASSPORT", "NIC"].includes(upperType)) {
+      mappedType = "DOCUMENTS";
+    } else if (["BAG", "SHOES"].includes(upperType)) {
+      mappedType = "CLOTHING";
+    } else {
+      mappedType = "OTHER";
+    }
+
+    // specific handling for "isLost" if not provided
+    // User seems to send status="LOST" or "FOUND"
+    let finalIsLost = isLost;
+    if (finalIsLost === undefined) {
+      if (status === "LOST") finalIsLost = true;
+      else if (status === "FOUND") finalIsLost = false;
+      else finalIsLost = true; // default
+    }
+
     const post = new Post({
       title,
       description,
       location,
       date,
-      itemType: type,
-      isLost,
+      itemType: mappedType,
+      isLost: finalIsLost,
       user: user._id,
-      status: status ?? "ACTIVE",
+      status: "ACTIVE", // Force status to ACTIVE for new posts, ignoring "LOST"/"FOUND" input
       // Optional extra fields – stored loosely on the document
       imei,
       serialNumber,
@@ -261,5 +283,3 @@ router.put("/:id", async (req, res) => {
 });
 
 export const postsRouter = router;
-
-
