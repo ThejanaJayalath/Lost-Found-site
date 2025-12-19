@@ -9,15 +9,33 @@ const router = Router();
 // Based on api/interactions/user/[email]/claims.ts
 router.get("/user/:email/claims", async (req, res) => {
     try {
-        // Original logic was querying ALL interactions and filtering in memory.
-        // Keeping it same to avoid breaking logic, but this is inefficient.
-        // Ideally should be: FoundInteraction.find({}).populate({path: 'post', match: { isLost: true }})
+        const { email } = req.params;
 
-        // Note: The original code didn't use the email param even though it was in the path!
-        // It returned ALL claims for lost posts. This looks like admin functionality or a bug, 
-        // but I will preserve the behavior for now as I don't know the intent.
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
 
-        const interactions = await FoundInteraction.find({})
+        // 1. Find User to get ID
+        const user = await import("../models/User").then(m => m.User.findOne({ email }).lean());
+
+        if (!user) {
+            // If user not found, they definitely have no posts/claims
+            return res.status(200).json([]);
+        }
+
+        // 2. Find all posts by this user
+        // Post.userId is string in model, user._id is ObjectId
+        const userPosts = await Post.find({ userId: user._id.toString() }).select('_id').lean();
+        const postIds = userPosts.map(p => p._id);
+
+        if (postIds.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        // 3. Find interactions for these posts
+        const interactions = await FoundInteraction.find({
+            post: { $in: postIds }
+        })
             .populate("post")
             .lean();
 
@@ -26,7 +44,8 @@ router.get("/user/:email/claims", async (req, res) => {
                 const post = i.post;
                 if (!post) return null;
 
-                // Only notify owners of LOST posts
+                // Double check (should be redundant due to query, but safe)
+                // Also ensure we only show claims for LOST items
                 if (!post.isLost) return null;
 
                 return {
@@ -34,8 +53,8 @@ router.get("/user/:email/claims", async (req, res) => {
                     postId: post._id.toString(),
                     finderName: i.finderName,
                     finderEmail: i.finderContact,
-                    finderPhone: i.finderContact,
-                    status: "PENDING",
+                    finderPhone: i.finderContact, // Mapping contact to phone as per original
+                    status: i.status || "PENDING", // Ensure status is returned
                 };
             })
             .filter(Boolean);
