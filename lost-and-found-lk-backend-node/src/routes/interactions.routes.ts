@@ -153,10 +153,13 @@ router.post("/:interactionId/confirm", async (req, res) => {
             return res.status(400).json({ message: "Invalid interaction id" });
         }
 
-        const interaction = await FoundInteraction.findById(interactionId).lean();
+        const interaction = await FoundInteraction.findById(interactionId);
         if (!interaction) {
             return res.status(404).json({ message: "Interaction not found" });
         }
+
+        interaction.status = "ACCEPTED";
+        await interaction.save();
 
         await Post.findByIdAndUpdate(interaction.post, {
             status: "RESOLVED",

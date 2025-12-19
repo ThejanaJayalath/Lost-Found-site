@@ -5,6 +5,7 @@ export interface IFoundInteraction extends Document {
   finderName: string;
   finderContact: string;
   message?: string;
+  status: string;
   createdAt: Date;
 }
 
@@ -14,6 +15,7 @@ const foundInteractionSchema = new Schema<IFoundInteraction>(
     finderName: { type: String, required: true },
     finderContact: { type: String, required: true },
     message: { type: String },
+    status: { type: String, default: "PENDING" },
   },
   { timestamps: { createdAt: true, updatedAt: false } },
 );
