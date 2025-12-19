@@ -69,6 +69,7 @@ export default function Navbar({ onOpenLogin }: NavbarProps) {
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center gap-3 focus:outline-none group"
                                 >
+                                    <span className="text-gray-300 font-medium mr-1">Hi {user.displayName?.split(' ')[0] || 'User'}</span>
                                     <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold neon-avatar transition-colors overflow-hidden">
                                         {user.photoURL ? (
                                             <img src={user.photoURL} alt={user.displayName || 'User'} className="w-full h-full object-cover" />
