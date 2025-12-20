@@ -72,3 +72,40 @@ adminRouter.get("/users", async (req, res) => {
         res.status(500).json({ message: "Failed to fetch users" });
     }
 });
+
+// PUT /posts/:id/hide - Toggle Hide Status
+adminRouter.put("/posts/:id/hide", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await Post.findById(id);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        post.hidden = !post.hidden;
+        await post.save();
+
+        res.json({ message: "Post visibility toggled", hidden: post.hidden });
+    } catch (error) {
+        console.error("Error toggling post visibility:", error);
+        res.status(500).json({ message: "Failed to update post" });
+    }
+});
+
+// DELETE /posts/:id - Delete Post
+adminRouter.delete("/posts/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedPost = await Post.findByIdAndDelete(id);
+
+        if (!deletedPost) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        res.json({ message: "Post deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting post:", error);
+        res.status(500).json({ message: "Failed to delete post" });
+    }
+});
