@@ -16,12 +16,12 @@ const AdminLogin = () => {
         const cleanPassword = password.trim();
 
         // TODO: Implement actual admin authentication logic here
-        if (cleanEmail === 'admin@example.com' && cleanPassword === 'admin123') {
+        if (cleanEmail === 'admin@traceback.com' && cleanPassword === 'Thejanaadmin2003@') {
             console.log('Login successful');
             localStorage.setItem('adminToken', 'true'); // Set auth token
             navigate('/admin/dashboard');
         } else {
-            console.log('Login failed. Expected: admin@example.com / admin123');
+            console.log('Login failed.');
             alert('Invalid email or password');
         }
     };
