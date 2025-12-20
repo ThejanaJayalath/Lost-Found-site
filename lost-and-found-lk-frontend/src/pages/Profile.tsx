@@ -31,6 +31,7 @@ export default function Profile() {
     const [isFoundModalOpen, setIsFoundModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState<Post | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isBlocked, setIsBlocked] = useState(false);
 
     const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -65,6 +66,10 @@ export default function Profile() {
         if (!user || !user.email) return;
         try {
             const response = await fetch(`${getApiBaseUrl()}/users/${user.email}`);
+            if (response.status === 403) {
+                setIsBlocked(true);
+                return;
+            }
             if (response.ok) {
                 const userData = await response.json();
                 if (userData.phoneNumber) {
@@ -162,6 +167,33 @@ export default function Profile() {
             }
         }
     };
+
+    if (isBlocked) {
+        return (
+            <div className="min-h-screen bg-gray-900 px-4 md:px-8 py-8 pt-24 flex items-center justify-center">
+                <div className="max-w-md w-full bg-gray-800 border border-red-500/30 rounded-2xl p-8 text-center shadow-2xl">
+                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+                        <Trash2 size={40} className="text-red-500" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-white mb-4">Account Blocked</h1>
+                    <p className="text-gray-400 mb-8 leading-relaxed">
+                        Your account has been suspended due to violations of our community guidelines. You can no longer post items or access profile features.
+                    </p>
+                    <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6">
+                        <p className="text-sm text-red-200">
+                            If you believe this is a mistake, please contact support.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="w-full py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors"
+                    >
+                        Return Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-900 px-4 md:px-8 py-8 pt-24">
