@@ -206,15 +206,29 @@ router.post("/", async (req, res) => {
       // Try to fetch from DB user collection if exists
       try {
         const user = await User.findById(userId);
-        if (user && user.fullName) {
-          finalUserName = user.fullName;
-          finalUserInitial = user.fullName.substring(0, 1).toUpperCase();
+        if (user) {
+          if (user.blocked) {
+            return res.status(403).json({ message: "User is blocked" });
+          }
+          if (user.fullName) {
+            finalUserName = user.fullName;
+            finalUserInitial = user.fullName.substring(0, 1).toUpperCase();
+          } else {
+            finalUserInitial = "U";
+          }
         } else {
           finalUserInitial = "U";
         }
       } catch (e) {
         // ignore if user not found in DB, just save what we have
         finalUserInitial = "U";
+      }
+    } else {
+      // Even if username is provided, we should ideally verify the user is not blocked.
+      // However, for now let's assume valid userId lookup is sufficient or add an explicit check.
+      const user = await User.findById(userId);
+      if (user && user.blocked) {
+        return res.status(403).json({ message: "User is blocked" });
       }
     }
 

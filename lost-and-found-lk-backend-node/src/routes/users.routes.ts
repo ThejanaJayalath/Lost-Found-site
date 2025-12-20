@@ -23,6 +23,9 @@ router.post("/", async (req, res) => {
                 phoneNumber: phoneNumber || undefined,
             } as any);
         } else {
+            if (user.blocked) {
+                return res.status(403).json({ message: "User is blocked" });
+            }
             if (phoneNumber != null) {
                 user.phoneNumber = phoneNumber;
             }
@@ -61,6 +64,10 @@ router.get("/:email", async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.blocked) {
+            return res.status(403).json({ message: "User is blocked" });
         }
 
         return res.status(200).json({
