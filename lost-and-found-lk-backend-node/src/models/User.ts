@@ -8,6 +8,7 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   roles: string[];
+  blocked: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -17,6 +18,7 @@ const userSchema = new Schema<IUser>(
     fullName: { type: String, required: true },
     phoneNumber: { type: String },
     roles: { type: [String], default: ["USER"] },
+    blocked: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
