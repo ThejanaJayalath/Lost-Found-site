@@ -36,7 +36,7 @@ adminRouter.get("/users", async (req, res) => {
                 const posts = await Post.find({ userId: user._id.toString() }).sort({ createdAt: -1 });
 
                 // Determine latest activity (either last post or account creation)
-                const lastPostDate = posts.length > 0 ? posts[0].createdAt : null;
+                const lastPostDate = posts.length > 0 ? posts[0]?.createdAt : null;
                 const latestActivity = lastPostDate
                     ? new Date(lastPostDate).toLocaleDateString()
                     : new Date(user.createdAt || Date.now()).toLocaleDateString();
