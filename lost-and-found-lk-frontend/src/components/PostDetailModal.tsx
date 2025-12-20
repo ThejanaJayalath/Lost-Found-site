@@ -246,24 +246,52 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
                         <h2 className="text-3xl font-bold text-white mb-2">{post.title}</h2>
 
                         {/* Date & Time */}
-                        <div className="flex flex-wrap gap-3 text-sm text-gray-400 mb-6">
-                            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                                <Calendar size={14} />
-                                <span>{post.date ? new Date(post.date).toLocaleDateString() : 'Date unknown'}</span>
+                        {/* items Details List */}
+                        <div className="bg-gray-800/30 rounded-xl p-5 border border-gray-700/50 mb-8 space-y-4">
+                            {/* Date */}
+                            <div className="flex flex-col md:flex-row border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-500 text-sm font-bold uppercase tracking-wider w-36 shrink-0 flex items-center gap-2">
+                                    <Calendar size={14} />
+                                    {post.status === 'LOST' ? 'Lost Date' : 'Found Date'}
+                                </span>
+                                <span className="text-gray-200 font-medium">
+                                    {post.date ? new Date(post.date).toLocaleDateString() : 'Date unknown'}
+                                </span>
                             </div>
+
+                            {/* Time */}
                             {post.time && (
-                                <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                                    <Clock size={14} />
-                                    <span>{post.time}</span>
+                                <div className="flex flex-col md:flex-row border-b border-gray-700/50 pb-3">
+                                    <span className="text-gray-500 text-sm font-bold uppercase tracking-wider w-36 shrink-0 flex items-center gap-2">
+                                        <Clock size={14} />
+                                        {post.status === 'LOST' ? 'Lost Time' : 'Found Time'}
+                                    </span>
+                                    <span className="text-gray-200 font-medium">
+                                        {post.time}
+                                    </span>
                                 </div>
                             )}
-                            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                                <MapPin size={14} />
-                                <span>{post.location}</span>
+
+                            {/* Location */}
+                            <div className="flex flex-col md:flex-row border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-500 text-sm font-bold uppercase tracking-wider w-36 shrink-0 flex items-center gap-2">
+                                    <MapPin size={14} />
+                                    {post.status === 'LOST' ? 'Last Location' : 'Location Found'}
+                                </span>
+                                <span className="text-gray-200 font-medium">
+                                    {post.location}
+                                </span>
                             </div>
-                            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                                <Tag size={14} />
-                                <span>{post.color}</span>
+
+                            {/* Color */}
+                            <div className="flex flex-col md:flex-row">
+                                <span className="text-gray-500 text-sm font-bold uppercase tracking-wider w-36 shrink-0 flex items-center gap-2">
+                                    <Tag size={14} />
+                                    Color
+                                </span>
+                                <span className="text-gray-200 font-medium">
+                                    {post.color}
+                                </span>
                             </div>
                         </div>
 
