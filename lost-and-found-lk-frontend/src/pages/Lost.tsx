@@ -85,10 +85,10 @@ export default function Lost({ onOpenLogin }: LostProps) {
 
     const filteredPosts = posts.filter(post => {
         const matchesSearch =
-            post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            post.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            post.type.toLowerCase().includes(searchQuery.toLowerCase());
+            (post.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+            (post.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+            (post.location?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+            (post.type?.toLowerCase() || '').includes(searchQuery.toLowerCase());
 
         const matchesDate = isDateInFilter(post.date, dateFilter);
         const matchesCategory = categoryFilter === 'all' || (post.type && post.type.toUpperCase() === categoryFilter.toUpperCase());
