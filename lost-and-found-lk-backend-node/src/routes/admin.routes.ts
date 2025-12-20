@@ -26,14 +26,47 @@ adminRouter.get("/stats", async (req, res) => {
     }
 });
 
-// GET /users - List All Users
+// GET /users - List All Users with Details
 adminRouter.get("/users", async (req, res) => {
     try {
-        const users = await User.find({})
-            .select("-passwordHash") // Exclude password hash
-            .sort({ createdAt: -1 }); // Newest first
+        const users = await User.find({}).sort({ createdAt: -1 });
 
-        res.json(users);
+        const userDetails = await Promise.all(
+            users.map(async (user) => {
+                const posts = await Post.find({ userId: user._id.toString() }).sort({ createdAt: -1 });
+
+                // Determine latest activity (either last post or account creation)
+                const lastPostDate = posts.length > 0 ? posts[0].createdAt : null;
+                const latestActivity = lastPostDate
+                    ? new Date(lastPostDate).toLocaleDateString()
+                    : new Date(user.createdAt || Date.now()).toLocaleDateString();
+
+                return {
+                    user: {
+                        id: user._id,
+                        name: user.fullName,
+                        email: user.email,
+                        photoUrl: "", // Placeholder as User model doesn't have photo
+                        authProvider: "email", // Placeholder
+                        blocked: false, // Placeholder as User model doesn't have blocked status yet
+                    },
+                    posts: posts.map(p => ({
+                        id: p._id,
+                        title: p.title,
+                        description: p.description,
+                        status: p.status,
+                        date: new Date(p.date).toLocaleDateString(),
+                        time: p.time,
+                        images: p.images,
+                        hidden: p.hidden || false
+                    })),
+                    postCount: posts.length,
+                    latestActivity: latestActivity,
+                };
+            })
+        );
+
+        res.json(userDetails);
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ message: "Failed to fetch users" });
