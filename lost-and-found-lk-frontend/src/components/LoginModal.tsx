@@ -28,7 +28,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
 
         try {
             // Check for admin credentials
-            if (email.trim().toLowerCase() === 'admin@example.com' && password.trim() === 'admin123') {
+            if (email.trim().toLowerCase() === 'admin@traceback.com' && password.trim() === 'Thejanaadmin2003@') {
                 localStorage.setItem('adminToken', 'true'); // Set auth token
                 navigate('/admin/dashboard');
                 onClose();
