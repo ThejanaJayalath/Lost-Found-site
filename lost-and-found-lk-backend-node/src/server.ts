@@ -9,6 +9,7 @@ import { healthRouter } from "./routes/health.routes";
 import { postsRouter } from "./routes/posts.routes";
 import { usersRouter } from "./routes/users.routes";
 import { interactionsRouter } from "./routes/interactions.routes";
+import { adminRouter } from "./routes/admin.routes";
 
 const app = express();
 
@@ -60,6 +61,7 @@ apiRouter.use("/health", healthRouter);
 apiRouter.use("/posts", postsRouter);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/interactions", interactionsRouter);
+apiRouter.use("/admin", adminRouter);
 
 app.use("/api", apiRouter); // Handle /api/posts
 app.use("/", apiRouter);    // Handle /posts (in case prefix is stripped)
@@ -71,7 +73,7 @@ app.use((req, res) => {
     message: "Route not found",
     path: req.url,
     method: req.method,
-    availableRoutes: ["/api/health", "/api/posts", "/api/users", "/api/interactions"]
+    availableRoutes: ["/api/health", "/api/posts", "/api/users", "/api/interactions", "/api/admin"]
   });
 });
 
