@@ -1,5 +1,5 @@
 import { X, MapPin, Calendar, Tag, Smartphone, Laptop, CreditCard, FileText, Briefcase, Dog, Clock, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getApiBaseUrl } from '../services/api';
 
@@ -32,6 +32,12 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (post) {
+            setCurrentImageIndex(0);
+        }
+    }, [post]);
 
     if (!post) return null;
 

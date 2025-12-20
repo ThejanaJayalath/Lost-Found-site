@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
   try {
     const { status } = req.query as { status?: string };
 
-    const query: any = {};
+    const query: any = { hidden: { $ne: true } };
 
     // Legacy Logic: 
     // If status is provided (e.g. ?status=LOST), filter by that status.
@@ -68,7 +68,7 @@ router.get("/search", async (req, res) => {
 
     // Legacy search matches logic: findByImeiIgnoreCaseAndStatus(..., PostStatus.LOST)
     // So we must enforce status=LOST for searches.
-    const query: any = { status: "LOST" };
+    const query: any = { status: "LOST", hidden: { $ne: true } };
 
     if (type === "PHONE") {
       query.imei = value;
