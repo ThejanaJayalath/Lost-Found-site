@@ -151,3 +151,39 @@ adminRouter.delete("/posts/:id", async (req, res) => {
         res.status(500).json({ message: "Failed to delete post" });
     }
 });
+
+// POST /posts/:id/approve-facebook - Manually approve/trigger Facebook Post
+import { postToFacebook } from "../utils/facebookService";
+
+adminRouter.post("/posts/:id/approve-facebook", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await Post.findById(id);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        // Optional: you can check if already posted.
+        // if (post.facebookStatus === "POSTED") {
+        //     return res.status(400).json({ message: "Already posted to Facebook" });
+        // }
+
+        const fbPostId = await postToFacebook(post);
+
+        post.facebookStatus = "POSTED";
+        post.facebookPostId = fbPostId;
+        await post.save();
+
+        res.json({ message: "Post published to Facebook", id: fbPostId });
+
+    } catch (error: any) {
+        console.error("Error posting to Facebook:", error);
+
+        // Update status to FAILED
+        const { id } = req.params;
+        await Post.findByIdAndUpdate(id, { facebookStatus: "FAILED" });
+
+        res.status(500).json({ message: error.message || "Failed to post to Facebook" });
+    }
+});
