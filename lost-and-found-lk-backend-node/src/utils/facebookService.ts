@@ -17,15 +17,32 @@ export const postToFacebook = async (post: IPost, customCaption?: string): Promi
         message: caption
     };
 
-    // If images exist, use the first image and the /photos endpoint
+    // Helper function to check if URL is valid HTTP/HTTPS
+    const isValidHttpUrl = (urlString: string): boolean => {
+        try {
+            const url = new URL(urlString);
+            return url.protocol === 'http:' || url.protocol === 'https:';
+        } catch {
+            return false;
+        }
+    };
+
+    // If images exist and are valid URLs, use the first image and the /photos endpoint
     if (post.images && post.images.length > 0) {
-        url = `https://graph.facebook.com/${GRAPH_API_VERSION}/me/photos`;
-        body = {
-            access_token: FACEBOOK_PAGE_ACCESS_TOKEN,
-            url: post.images[0], // Use the first image
-            caption: caption,
-            // 'published': true is default, but good to be explicit if needed
-        };
+        const imageUrl = post.images[0];
+
+        // Validate that the image URL is a proper HTTP/HTTPS URL
+        if (imageUrl && isValidHttpUrl(imageUrl)) {
+            url = `https://graph.facebook.com/${GRAPH_API_VERSION}/me/photos`;
+            body = {
+                access_token: FACEBOOK_PAGE_ACCESS_TOKEN,
+                url: imageUrl,
+                caption: caption,
+            };
+        } else {
+            console.warn(`Invalid image URL for Facebook: ${imageUrl}. Posting as text-only.`);
+            // Fall back to text-only post if image URL is invalid
+        }
     }
 
     // Prepare form data or JSON. 
