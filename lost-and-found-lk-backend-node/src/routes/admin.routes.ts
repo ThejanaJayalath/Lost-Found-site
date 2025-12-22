@@ -58,7 +58,9 @@ adminRouter.get("/users", async (req, res) => {
                         date: new Date(p.date).toLocaleDateString(),
                         time: p.time,
                         images: p.images,
-                        hidden: p.hidden || false
+                        hidden: p.hidden || false,
+                        facebookStatus: p.facebookStatus,
+                        facebookPostId: p.facebookPostId
                     })),
                     postCount: posts.length,
                     latestActivity: latestActivity,

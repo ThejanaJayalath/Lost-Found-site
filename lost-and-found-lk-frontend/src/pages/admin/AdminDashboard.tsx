@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, LogOut } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, LogOut, Facebook } from 'lucide-react';
 import Logo from '../../components/Logo';
 import { getApiBaseUrl } from '../../services/api';
 
@@ -23,6 +23,7 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState<UserDetail[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedUser, setExpandedUser] = useState<string | null>(null);
+    const [postingToFb, setPostingToFb] = useState<{ [postId: string]: boolean }>({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -120,6 +121,35 @@ export default function AdminDashboard() {
             }
         } catch (error) {
             console.error('Error deleting post:', error);
+        }
+    };
+
+    const handleFacebookPost = async (postId: string) => {
+        if (!confirm('Post to Facebook Page?')) return;
+
+        setPostingToFb(prev => ({ ...prev, [postId]: true }));
+        try {
+            const res = await fetch(`${getApiBaseUrl()}/admin/posts/${postId}/approve-facebook`, { method: 'POST' });
+            const data = await res.json();
+
+            if (res.ok) {
+                alert('Success: ' + data.message);
+                setUsers(users.map(u => ({
+                    ...u,
+                    posts: u.posts.map(p => p.id === postId ? { ...p, facebookStatus: 'POSTED', facebookPostId: data.id } : p)
+                })));
+            } else {
+                alert('Error: ' + data.message);
+                setUsers(users.map(u => ({
+                    ...u,
+                    posts: u.posts.map(p => p.id === postId ? { ...p, facebookStatus: 'FAILED' } : p)
+                })));
+            }
+        } catch (error: any) {
+            console.error('Error posting to FB:', error);
+            alert('Network Error');
+        } finally {
+            setPostingToFb(prev => ({ ...prev, [postId]: false }));
         }
     };
 
@@ -230,12 +260,25 @@ export default function AdminDashboard() {
                                                                         {post.status}
                                                                     </span>
                                                                     {post.hidden && <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">HIDDEN</span>}
+                                                                    {post.facebookStatus === 'POSTED' && <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1"><Facebook size={10} /> FB</span>}
                                                                 </div>
                                                                 <p className="text-sm text-gray-400 line-clamp-1">{post.description}</p>
                                                                 <p className="text-xs text-gray-500 mt-1">{post.date} at {post.time}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => handleFacebookPost(post.id)}
+                                                                disabled={post.facebookStatus === 'POSTED' || postingToFb[post.id]}
+                                                                className={`p-2 rounded-lg transition-colors ${post.facebookStatus === 'POSTED' ? 'text-blue-500/50 cursor-not-allowed' : 'text-blue-400 hover:bg-blue-500/20 hover:text-blue-300'}`}
+                                                                title="Post to Facebook"
+                                                            >
+                                                                {postingToFb[post.id] ? (
+                                                                    <span className="animate-spin text-xs">↻</span>
+                                                                ) : (
+                                                                    <Facebook size={18} />
+                                                                )}
+                                                            </button>
                                                             <button
                                                                 onClick={() => toggleHidePost(post.id)}
                                                                 className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
