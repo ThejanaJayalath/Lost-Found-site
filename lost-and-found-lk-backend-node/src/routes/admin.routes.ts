@@ -60,7 +60,8 @@ adminRouter.get("/users", async (req, res) => {
                         images: p.images,
                         hidden: p.hidden || false,
                         facebookStatus: p.facebookStatus,
-                        facebookPostId: p.facebookPostId
+                        facebookPostId: p.facebookPostId,
+                        location: p.location
                     })),
                     postCount: posts.length,
                     latestActivity: latestActivity,
