@@ -171,7 +171,8 @@ adminRouter.post("/posts/:id/approve-facebook", async (req, res) => {
         //     return res.status(400).json({ message: "Already posted to Facebook" });
         // }
 
-        const fbPostId = await postToFacebook(post);
+        const { caption } = req.body;
+        const fbPostId = await postToFacebook(post, caption);
 
         post.facebookStatus = "POSTED";
         post.facebookPostId = fbPostId;

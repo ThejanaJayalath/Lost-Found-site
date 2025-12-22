@@ -5,12 +5,12 @@ const FACEBOOK_PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 // Graph API Version
 const GRAPH_API_VERSION = "v22.0";
 
-export const postToFacebook = async (post: IPost): Promise<string> => {
+export const postToFacebook = async (post: IPost, customCaption?: string): Promise<string> => {
     if (!FACEBOOK_PAGE_ACCESS_TOKEN) {
         throw new Error("FACEBOOK_PAGE_ACCESS_TOKEN is not configured");
     }
 
-    const caption = generatePostCaption(post);
+    const caption = customCaption || generatePostCaption(post);
     let url = `https://graph.facebook.com/${GRAPH_API_VERSION}/me/feed`;
     let body: any = {
         access_token: FACEBOOK_PAGE_ACCESS_TOKEN,
