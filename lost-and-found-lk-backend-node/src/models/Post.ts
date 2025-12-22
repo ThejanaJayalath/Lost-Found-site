@@ -17,6 +17,8 @@ export type PostStatus = "LOST" | "FOUND" | "RESOLVED";
 // Java PostStatus was likely just PENDING, ACTIVE, RESOLVED, REJECTED.
 // But user screenshots showed "RESOLVED".
 
+export type FacebookStatus = "PENDING" | "POSTED" | "FAILED";
+
 export interface IPost extends Document {
   title: string;
   description: string;
@@ -25,6 +27,10 @@ export interface IPost extends Document {
   time?: string; // Java has LocalTime, string is fine
   itemType: ItemType;
   status: PostStatus;
+
+  // Facebook Automation
+  facebookStatus?: FacebookStatus;
+  facebookPostId?: string;
 
   // User Info (Stored directly on post in legacy)
   userId: string;
@@ -81,6 +87,14 @@ const postSchema = new Schema<IPost>(
       enum: ["LOST", "FOUND", "RESOLVED"],
       default: "LOST", // Default to LOST if not specified
     },
+
+    // Facebook Automation
+    facebookStatus: {
+      type: String,
+      enum: ["PENDING", "POSTED", "FAILED"],
+      default: "PENDING",
+    },
+    facebookPostId: { type: String },
 
     // User Data - String based to match legacy
     userId: { type: String, required: true },
