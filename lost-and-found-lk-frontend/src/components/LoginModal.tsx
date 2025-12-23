@@ -3,7 +3,6 @@ import { X, Mail, Lock } from 'lucide-react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -17,7 +16,6 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { googleSignIn } = useAuth();
-    const navigate = useNavigate();
 
     if (!isOpen) return null;
 

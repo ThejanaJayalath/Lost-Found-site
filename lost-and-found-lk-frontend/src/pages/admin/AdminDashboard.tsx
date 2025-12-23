@@ -62,9 +62,10 @@ export default function AdminDashboard() {
         try {
             console.log('Fetching admin data...');
             const headers = getAuthHeaders();
-            const [statsRes, usersRes] = await Promise.all([
+            const [statsRes, usersRes, adminsRes] = await Promise.all([
                 fetch(`${getApiBaseUrl()}/admin/stats`, { headers }),
-                fetch(`${getApiBaseUrl()}/admin/users`, { headers })
+                fetch(`${getApiBaseUrl()}/admin/users`, { headers }),
+                fetch(`${getApiBaseUrl()}/admin/admins`, { headers }).catch(() => null) // Optional, might fail if endpoint doesn't exist yet
             ]);
 
             console.log('Stats response status:', statsRes.status);
@@ -711,8 +712,6 @@ function RolesTab({ admins, currentUser, onAddAdmin, onChangeEmail, onChangePass
                                                 <button
                                                     onClick={() => {
                                                         setShowChangePasswordModal(admin);
-                                                        setNewPassword('');
-                                                        setConfirmPassword('');
                                                     }}
                                                     className="p-2 hover:bg-green-500/20 rounded-lg text-green-400 transition-colors"
                                                     title="Change Password"
