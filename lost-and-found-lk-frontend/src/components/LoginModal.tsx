@@ -27,13 +27,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
         setLoading(true);
 
         try {
-            // Check for admin credentials
-            if (email.trim().toLowerCase() === 'admin@traceback.com' && password.trim() === 'Thejanaadmin2003@') {
-                localStorage.setItem('adminToken', 'true'); // Set auth token
-                navigate('/admin/dashboard');
-                onClose();
-                return;
-            }
+            // Admin login removed - use /admin/login page instead
 
             await signInWithEmailAndPassword(auth, email, password);
             onClose();

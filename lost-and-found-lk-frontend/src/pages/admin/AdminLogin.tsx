@@ -1,28 +1,49 @@
 import React, { useState } from 'react';
 import { Lock, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getApiBaseUrl } from '../../services/api';
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+        setLoading(true);
 
-        console.log('Attempting login with:', { email, password }); // Debug log
+        try {
+            const response = await fetch(`${getApiBaseUrl()}/auth/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email.trim().toLowerCase(),
+                    password: password.trim(),
+                }),
+            });
 
-        const cleanEmail = email.trim().toLowerCase();
-        const cleanPassword = password.trim();
+            const data = await response.json();
 
-        // TODO: Implement actual admin authentication logic here
-        if (cleanEmail === 'admin@traceback.com' && cleanPassword === 'Thejanaadmin2003@') {
-            console.log('Login successful');
-            localStorage.setItem('adminToken', 'true'); // Set auth token
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+
+            // Store tokens
+            localStorage.setItem('adminAccessToken', data.accessToken);
+            localStorage.setItem('adminRefreshToken', data.refreshToken);
+            
+            // Navigate to dashboard
             navigate('/admin/dashboard');
-        } else {
-            console.log('Login failed.');
-            alert('Invalid email or password');
+        } catch (err: any) {
+            console.error('Login error:', err);
+            setError(err.message || 'Invalid email or password');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -37,6 +58,12 @@ const AdminLogin = () => {
                         <h1 className="text-3xl font-bold text-white mb-2">Admin Access</h1>
                         <p className="text-gray-400">Enter your credentials to continue</p>
                     </div>
+
+                    {error && (
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg mb-4 text-sm">
+                            {error}
+                        </div>
+                    )}
 
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-4">
@@ -66,12 +93,13 @@ const AdminLogin = () => {
 
                         <button
                             type="submit"
-                            className="w-full py-3 text-white rounded-lg font-bold text-lg shadow-lg transform transition-transform hover:scale-[1.02]"
+                            disabled={loading}
+                            className="w-full py-3 text-white rounded-lg font-bold text-lg shadow-lg transform transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{
                                 background: 'linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%)'
                             }}
                         >
-                            Sign In
+                            {loading ? 'Signing in...' : 'Sign In'}
                         </button>
                     </form>
                 </div>

@@ -10,6 +10,7 @@ import { postsRouter } from "./routes/posts.routes";
 import { usersRouter } from "./routes/users.routes";
 import { interactionsRouter } from "./routes/interactions.routes";
 import { adminRouter } from "./routes/admin.routes";
+import { authRouter } from "./routes/auth.routes";
 
 const app = express();
 
@@ -61,6 +62,7 @@ apiRouter.use("/health", healthRouter);
 apiRouter.use("/posts", postsRouter);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/interactions", interactionsRouter);
+apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", adminRouter);
 
 app.use("/api", apiRouter); // Handle /api/posts

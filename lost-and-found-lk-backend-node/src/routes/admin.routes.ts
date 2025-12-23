@@ -1,8 +1,14 @@
 import { Router } from "express";
 import { User } from "../models/User";
 import { Post } from "../models/Post";
+import { requireAdmin, requireOwner } from "../middleware/auth.middleware";
+import { postToFacebook } from "../utils/facebookService";
+import bcrypt from "bcryptjs";
 
 export const adminRouter = Router();
+
+// Protect ALL admin routes with requireAdmin middleware
+adminRouter.use(requireAdmin);
 
 // GET /stats - Dashboard Statistics
 adminRouter.get("/stats", async (req, res) => {
@@ -156,8 +162,6 @@ adminRouter.delete("/posts/:id", async (req, res) => {
 });
 
 // POST /posts/:id/approve-facebook - Manually approve/trigger Facebook Post
-import { postToFacebook } from "../utils/facebookService";
-
 adminRouter.post("/posts/:id/approve-facebook", async (req, res) => {
     try {
         const { id } = req.params;
@@ -189,5 +193,195 @@ adminRouter.post("/posts/:id/approve-facebook", async (req, res) => {
         await Post.findByIdAndUpdate(id, { facebookStatus: "FAILED" });
 
         res.status(500).json({ message: error.message || "Failed to post to Facebook" });
+    }
+});
+
+// ==================== ADMIN MANAGEMENT ROUTES ====================
+
+// GET /admins - Get all admins and owners
+adminRouter.get("/admins", async (req, res) => {
+    try {
+        const admins = await User.find({
+            roles: { $in: ["ADMIN", "OWNER"] }
+        })
+            .select("-passwordHash")
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const adminList = admins.map((admin: any) => ({
+            id: admin._id.toString(),
+            email: admin.email,
+            name: admin.fullName,
+            roles: admin.roles || [],
+            createdAt: admin.createdAt,
+            updatedAt: admin.updatedAt,
+            blocked: admin.blocked || false,
+        }));
+
+        res.json(adminList);
+    } catch (error) {
+        console.error("Error fetching admins:", error);
+        res.status(500).json({ message: "Failed to fetch admins" });
+    }
+});
+
+// POST /admins - Create new admin (Admin or Owner can create)
+adminRouter.post("/admins", async (req, res) => {
+    try {
+        const { email, password, name } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+        if (existingUser) {
+            return res.status(400).json({ message: "User with this email already exists" });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create new admin user
+        const newAdmin = new User({
+            email: email.toLowerCase().trim(),
+            passwordHash: hashedPassword,
+            fullName: name || email.split("@")[0],
+            roles: ["ADMIN", "USER"],
+            blocked: false,
+        });
+
+        await newAdmin.save();
+
+        res.status(201).json({
+            message: "Admin created successfully",
+            admin: {
+                id: newAdmin._id.toString(),
+                email: newAdmin.email,
+                name: newAdmin.fullName,
+                roles: newAdmin.roles,
+            },
+        });
+    } catch (error: any) {
+        console.error("Error creating admin:", error);
+        res.status(500).json({ message: error.message || "Failed to create admin" });
+    }
+});
+
+// PUT /admins/:id/email - Change admin email
+adminRouter.put("/admins/:id/email", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        // Check if user is admin or owner
+        if (!user.roles || (!user.roles.includes("ADMIN") && !user.roles.includes("OWNER"))) {
+            return res.status(400).json({ message: "User is not an admin" });
+        }
+
+        // Check if email is already taken
+        const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+        if (existingUser && existingUser._id.toString() !== id) {
+            return res.status(400).json({ message: "Email already in use" });
+        }
+
+        user.email = email.toLowerCase().trim();
+        await user.save();
+
+        res.json({
+            message: "Email updated successfully",
+            admin: {
+                id: user._id.toString(),
+                email: user.email,
+                name: user.fullName,
+            },
+        });
+    } catch (error: any) {
+        console.error("Error updating admin email:", error);
+        res.status(500).json({ message: error.message || "Failed to update email" });
+    }
+});
+
+// PUT /admins/:id/password - Change admin password
+adminRouter.put("/admins/:id/password", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newPassword } = req.body;
+
+        if (!newPassword) {
+            return res.status(400).json({ message: "New password is required" });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: "Password must be at least 6 characters" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        // Check if user is admin or owner
+        if (!user.roles || (!user.roles.includes("ADMIN") && !user.roles.includes("OWNER"))) {
+            return res.status(400).json({ message: "User is not an admin" });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.passwordHash = hashedPassword;
+        await user.save();
+
+        res.json({ message: "Password updated successfully" });
+    } catch (error: any) {
+        console.error("Error updating admin password:", error);
+        res.status(500).json({ message: error.message || "Failed to update password" });
+    }
+});
+
+// DELETE /admins/:id - Remove admin (Only Owner can remove admins)
+adminRouter.delete("/admins/:id", requireOwner, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const currentUserId = req.user?.userId;
+
+        // Prevent owner from deleting themselves
+        if (currentUserId === id) {
+            return res.status(400).json({ message: "Cannot remove your own admin access" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        // Check if user is admin or owner
+        if (!user.roles || (!user.roles.includes("ADMIN") && !user.roles.includes("OWNER"))) {
+            return res.status(400).json({ message: "User is not an admin" });
+        }
+
+        // Remove ADMIN role (keep USER role if exists)
+        user.roles = user.roles.filter((role: string) => role !== "ADMIN" && role !== "OWNER");
+        
+        // If no roles left, add USER role
+        if (user.roles.length === 0) {
+            user.roles = ["USER"];
+        }
+
+        await user.save();
+
+        res.json({ message: "Admin access removed successfully" });
+    } catch (error: any) {
+        console.error("Error removing admin:", error);
+        res.status(500).json({ message: error.message || "Failed to remove admin" });
     }
 });
