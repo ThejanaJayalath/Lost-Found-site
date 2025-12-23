@@ -225,7 +225,7 @@ adminRouter.get("/admins", async (req, res) => {
     }
 });
 
-// POST /admins - Create new admin (Admin or Owner can create)
+// POST /admins - Create new admin or promote existing user to admin (Admin or Owner can create)
 adminRouter.post("/admins", async (req, res) => {
     try {
         const { email, password, name } = req.body;
@@ -236,14 +236,44 @@ adminRouter.post("/admins", async (req, res) => {
 
         // Check if user already exists
         const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+        
         if (existingUser) {
-            return res.status(400).json({ message: "User with this email already exists" });
+            // User exists - promote to admin if not already admin/owner
+            if (existingUser.roles && (existingUser.roles.includes("ADMIN") || existingUser.roles.includes("OWNER"))) {
+                return res.status(400).json({ message: "User is already an admin or owner" });
+            }
+
+            // Update password and add ADMIN role
+            const hashedPassword = await bcrypt.hash(password, 10);
+            existingUser.passwordHash = hashedPassword;
+            if (!existingUser.roles) {
+                existingUser.roles = [];
+            }
+            if (!existingUser.roles.includes("ADMIN")) {
+                existingUser.roles.push("ADMIN");
+            }
+            if (!existingUser.roles.includes("USER")) {
+                existingUser.roles.push("USER");
+            }
+            if (name) {
+                existingUser.fullName = name;
+            }
+            await existingUser.save();
+
+            return res.status(200).json({
+                message: "User promoted to admin successfully",
+                admin: {
+                    id: existingUser._id.toString(),
+                    email: existingUser.email,
+                    name: existingUser.fullName,
+                    roles: existingUser.roles,
+                },
+            });
         }
 
-        // Hash password
+        // User doesn't exist - create new admin user
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new admin user
         const newAdmin = new User({
             email: email.toLowerCase().trim(),
             passwordHash: hashedPassword,
@@ -264,7 +294,7 @@ adminRouter.post("/admins", async (req, res) => {
             },
         });
     } catch (error: any) {
-        console.error("Error creating admin:", error);
+        console.error("Error creating/promoting admin:", error);
         res.status(500).json({ message: error.message || "Failed to create admin" });
     }
 });
