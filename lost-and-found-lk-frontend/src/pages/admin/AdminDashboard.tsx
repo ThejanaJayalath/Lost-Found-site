@@ -356,34 +356,31 @@ export default function AdminDashboard() {
                 {activeTab === 'overview' && (
                     <div className="animate-fade-in space-y-6">
                         {/* Stats Cards */}
+                        {/* Stats Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <StatsCard
                                 icon={<Package className="text-orange-500" />}
                                 title="Lost Items"
                                 value={stats.lost}
                                 color="orange"
-                                trend={{ value: 8.5, isPositive: true }}
                             />
                             <StatsCard
                                 icon={<CheckCircle className="text-blue-500" />}
                                 title="Found Items"
                                 value={stats.found}
                                 color="blue"
-                                trend={{ value: 12.3, isPositive: true }}
                             />
                             <StatsCard
                                 icon={<CheckCircle className="text-purple-500" />}
                                 title="Resolved"
                                 value={stats.resolved}
                                 color="purple"
-                                trend={{ value: 5.2, isPositive: false }}
                             />
                             <StatsCard
                                 icon={<Users className="text-green-500" />}
                                 title="Total Users"
                                 value={stats.users}
                                 color="green"
-                                trend={{ value: 1.2, isPositive: true }}
                             />
                         </div>
 

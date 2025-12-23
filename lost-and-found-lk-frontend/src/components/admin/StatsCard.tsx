@@ -1,15 +1,13 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface StatsCardProps {
     title: string;
     value: number | string;
     icon: React.ReactNode;
-    trend?: { value: number; isPositive: boolean };
     color: 'orange' | 'blue' | 'purple' | 'green';
 }
 
-export default function StatsCard({ title, value, icon, trend, color }: StatsCardProps) {
+export default function StatsCard({ title, value, icon, color }: StatsCardProps) {
     const colorStyles = {
         orange: 'bg-orange-500',
         blue: 'bg-blue-500',
@@ -31,20 +29,14 @@ export default function StatsCard({ title, value, icon, trend, color }: StatsCar
             {/* Decorative bottom bar */}
             <div className={`absolute bottom-0 left-0 h-1 w-1/3 ${colorStyles[color]} rounded-tr-full`}></div>
 
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-2">
+                <div className="text-4xl font-bold text-white">{value}</div>
                 <div className={`p-3 rounded-xl ${colorStyles[color]} bg-opacity-10 ${textColors[color]}`}>
                     {icon}
                 </div>
-                {trend && (
-                    <div className={`flex items-center gap-1 text-xs font-bold ${trend.isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                        {trend.isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                        {trend.value}%
-                    </div>
-                )}
             </div>
 
-            <h3 className="text-gray-400 text-sm font-medium mb-1">{title}</h3>
-            <div className="text-3xl font-bold text-white">{value}</div>
+            <h3 className="text-gray-400 text-sm font-medium">{title}</h3>
         </div>
     );
 }
