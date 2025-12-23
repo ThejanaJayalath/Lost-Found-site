@@ -11,20 +11,18 @@ export interface JWTPayload {
  * Generate JWT access token
  */
 export const generateAccessToken = (payload: JWTPayload): string => {
-  const options: SignOptions = {
+  return jwt.sign(payload, env.jwt.secret, {
     expiresIn: env.jwt.accessTtl,
-  };
-  return jwt.sign(payload, env.jwt.secret, options);
+  } as SignOptions);
 };
 
 /**
  * Generate JWT refresh token
  */
 export const generateRefreshToken = (payload: JWTPayload): string => {
-  const options: SignOptions = {
+  return jwt.sign(payload, env.jwt.secret, {
     expiresIn: env.jwt.refreshTtl,
-  };
-  return jwt.sign(payload, env.jwt.secret, options);
+  } as SignOptions);
 };
 
 /**

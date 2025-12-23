@@ -67,7 +67,7 @@ export const requireAdmin = (
     req.user = decoded;
 
     // Check if user has ADMIN or OWNER role
-    if (!req.user.roles || (!req.user.roles.includes("ADMIN") && !req.user.roles.includes("OWNER"))) {
+    if (!req.user || !req.user.roles || (!req.user.roles.includes("ADMIN") && !req.user.roles.includes("OWNER"))) {
       res.status(403).json({ message: "Admin access required" });
       return;
     }
@@ -103,7 +103,7 @@ export const requireOwner = (
     req.user = decoded;
 
     // Check if user has OWNER role
-    if (!req.user.roles || !req.user.roles.includes("OWNER")) {
+    if (!req.user || !req.user.roles || !req.user.roles.includes("OWNER")) {
       res.status(403).json({ message: "Owner access required" });
       return;
     }

@@ -35,5 +35,5 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "exclude": ["api"]
+  "exclude": ["api", "scripts"]
 }
