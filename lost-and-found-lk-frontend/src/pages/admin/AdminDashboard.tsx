@@ -682,6 +682,9 @@ function RolesTab({ admins, currentUser, onAddAdmin, onChangeEmail, onChangePass
                             {admins.map((admin: any) => {
                                 const isCurrentUser = currentUser?.userId === admin.id;
                                 const isAdminRole = admin.roles?.includes('ADMIN') && !admin.roles?.includes('OWNER');
+                                const isTargetOwner = admin.roles?.includes('OWNER');
+                                // Admins cannot edit owners, only owners can edit owners
+                                const canEdit = isOwner || (isAdminRole && !isTargetOwner);
                                 
                                 return (
                                     <tr key={admin.id} className="hover:bg-[#2d2d2d]/50 transition-colors">
@@ -699,25 +702,29 @@ function RolesTab({ admins, currentUser, onAddAdmin, onChangeEmail, onChangePass
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setShowEditEmailModal(admin);
-                                                        setNewEmail(admin.email);
-                                                    }}
-                                                    className="p-2 hover:bg-blue-500/20 rounded-lg text-blue-400 transition-colors"
-                                                    title="Change Email"
-                                                >
-                                                    <Mail size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setShowChangePasswordModal(admin);
-                                                    }}
-                                                    className="p-2 hover:bg-green-500/20 rounded-lg text-green-400 transition-colors"
-                                                    title="Change Password"
-                                                >
-                                                    <Lock size={16} />
-                                                </button>
+                                                {canEdit && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => {
+                                                                setShowEditEmailModal(admin);
+                                                                setNewEmail(admin.email);
+                                                            }}
+                                                            className="p-2 hover:bg-blue-500/20 rounded-lg text-blue-400 transition-colors"
+                                                            title="Change Email"
+                                                        >
+                                                            <Mail size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setShowChangePasswordModal(admin);
+                                                            }}
+                                                            className="p-2 hover:bg-green-500/20 rounded-lg text-green-400 transition-colors"
+                                                            title="Change Password"
+                                                        >
+                                                            <Lock size={16} />
+                                                        </button>
+                                                    </>
+                                                )}
                                                 {isOwner && isAdminRole && !isCurrentUser && (
                                                     <button
                                                         onClick={() => onRemoveAdmin(admin.id)}

@@ -304,6 +304,8 @@ adminRouter.put("/admins/:id/email", async (req, res) => {
     try {
         const { id } = req.params;
         const { email } = req.body;
+        const currentUserId = req.user?.userId;
+        const currentUserRoles = req.user?.roles || [];
 
         if (!email) {
             return res.status(400).json({ message: "Email is required" });
@@ -317,6 +319,15 @@ adminRouter.put("/admins/:id/email", async (req, res) => {
         // Check if user is admin or owner
         if (!user.roles || (!user.roles.includes("ADMIN") && !user.roles.includes("OWNER"))) {
             return res.status(400).json({ message: "User is not an admin" });
+        }
+
+        // Security check: Admins cannot modify owner accounts
+        // Only owners can modify owner accounts (including their own)
+        const isTargetOwner = user.roles.includes("OWNER");
+        const isCurrentUserOwner = currentUserRoles.includes("OWNER");
+
+        if (isTargetOwner && !isCurrentUserOwner) {
+            return res.status(403).json({ message: "Only owner can modify owner accounts" });
         }
 
         // Check if email is already taken
@@ -347,6 +358,8 @@ adminRouter.put("/admins/:id/password", async (req, res) => {
     try {
         const { id } = req.params;
         const { newPassword } = req.body;
+        const currentUserId = req.user?.userId;
+        const currentUserRoles = req.user?.roles || [];
 
         if (!newPassword) {
             return res.status(400).json({ message: "New password is required" });
@@ -364,6 +377,15 @@ adminRouter.put("/admins/:id/password", async (req, res) => {
         // Check if user is admin or owner
         if (!user.roles || (!user.roles.includes("ADMIN") && !user.roles.includes("OWNER"))) {
             return res.status(400).json({ message: "User is not an admin" });
+        }
+
+        // Security check: Admins cannot modify owner accounts
+        // Only owners can modify owner accounts (including their own)
+        const isTargetOwner = user.roles.includes("OWNER");
+        const isCurrentUserOwner = currentUserRoles.includes("OWNER");
+
+        if (isTargetOwner && !isCurrentUserOwner) {
+            return res.status(403).json({ message: "Only owner can modify owner accounts" });
         }
 
         // Hash new password
