@@ -105,7 +105,12 @@ export default function AdminDashboard() {
                     console.error('Error parsing token:', e);
                 }
 
-                setStats(statsData);
+                setStats({
+                    lost: statsData.lostItems,
+                    found: statsData.foundItems,
+                    resolved: statsData.resolvedItems,
+                    users: statsData.totalUsers
+                });
                 setUsers(usersData);
             } else {
                 console.error('Failed to fetch data');
