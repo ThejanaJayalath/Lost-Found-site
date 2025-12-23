@@ -56,17 +56,17 @@ export default function AdminDashboard() {
         }
     }, [selectedPostForMeta]);
 
-    // Generate mock chart data when stats change
+    // Generate mock chart data
     useEffect(() => {
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         const mockData = days.map(day => ({
             name: day,
-            lost: Math.floor(Math.random() * (stats.lost / 2 || 10)),
-            found: Math.floor(Math.random() * (stats.found / 2 || 5)),
-            resolved: Math.floor(Math.random() * (stats.resolved / 2 || 3))
+            lost: Math.floor(Math.random() * 15) + 5,
+            found: Math.floor(Math.random() * 10) + 2,
+            resolved: Math.floor(Math.random() * 8) + 1
         }));
         setChartData(mockData);
-    }, [stats]);
+    }, []);
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('adminAccessToken');
