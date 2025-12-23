@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import api, { getApiBaseUrl } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { uploadMultipleImagesToFirebase } from '../utils/imageUpload';
+// Note: Function name kept for compatibility, but now uses Cloudinary
 
 type ItemType = 'Phone' | 'Laptop' | 'Purse' | 'Wallet' | 'ID Card' | 'Document' | 'Pet' | 'Bag' | 'Other';
 
@@ -15,7 +17,8 @@ interface ReportLostModalProps {
 export default function ReportLostModal({ isOpen, onClose, onSuccess, initialData }: ReportLostModalProps) {
     const { user } = useAuth();
     const [itemType, setItemType] = useState<ItemType>('Phone');
-    const [images, setImages] = useState<string[]>([]);
+    const [images, setImages] = useState<string[]>([]); // For preview (Base64 or URLs)
+    const [imageFiles, setImageFiles] = useState<File[]>([]); // Store original File objects for upload
     const [loading, setLoading] = useState(false);
 
     // Form State
@@ -43,7 +46,8 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
             setImei(initialData.imei || '');
             setSerialNumber(initialData.serialNumber || '');
             setIdNumber(initialData.idNumber || '');
-            setImages(initialData.images || []);
+            setImages(initialData.images || []); // These are already URLs if from existing post
+            setImageFiles([]); // Clear files when editing existing post
         } else {
             // Reset form when opening for new post
             setTitle('');
@@ -57,6 +61,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
             setSerialNumber('');
             setIdNumber('');
             setImages([]);
+            setImageFiles([]);
             setItemType('Phone');
         }
     }, [initialData, isOpen]);
@@ -66,6 +71,10 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+            // Store the original file for later upload to Firebase
+            setImageFiles([...imageFiles, file]);
+            
+            // Create preview using Base64 for immediate display
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (typeof reader.result === 'string') {
@@ -78,6 +87,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
 
     const removeImage = (index: number) => {
         setImages(images.filter((_, i) => i !== index));
+        setImageFiles(imageFiles.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async () => {
@@ -96,6 +106,30 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                 }
             }
 
+            // Handle image uploads to Firebase Storage
+            let imageUrls: string[] = [];
+            
+            if (initialData && initialData.images) {
+                // If editing, keep existing URLs that are already in Cloudinary/Firebase
+                const existingUrls = initialData.images.filter((img: string) => 
+                    img.startsWith('http://') || img.startsWith('https://')
+                );
+                imageUrls = [...existingUrls];
+            }
+
+            // Upload new images to Cloudinary
+            if (imageFiles.length > 0) {
+                try {
+                    const uploadedUrls = await uploadMultipleImagesToFirebase(imageFiles, 'lost-found-lk/posts');
+                    imageUrls = [...imageUrls, ...uploadedUrls];
+                } catch (error) {
+                    console.error('Error uploading images:', error);
+                    alert('Failed to upload images. Please try again.');
+                    setLoading(false);
+                    return;
+                }
+            }
+
             const payload = {
                 title,
                 description,
@@ -106,7 +140,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                 type: itemType.toUpperCase(),
                 status: 'LOST',
                 color,
-                images,
+                images: imageUrls, // Use Cloudinary URLs instead of Base64
                 imei: itemType === 'Phone' ? imei : undefined,
                 serialNumber: itemType === 'Laptop' ? serialNumber : undefined,
                 idNumber: (itemType === 'ID Card' || itemType === 'Other') ? idNumber : undefined,
@@ -127,6 +161,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
             setDate('');
             setTime('');
             setImages([]);
+            setImageFiles([]);
 
             if (onSuccess) onSuccess();
             onClose();
