@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, LogOut, Facebook, Mail, Lock, X } from 'lucide-react';
-import Logo from '../../components/Logo';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X } from 'lucide-react';
 import { getApiBaseUrl } from '../../services/api';
+import Sidebar from '../../components/admin/Sidebar';
+import StatsCard from '../../components/admin/StatsCard';
+import ActivityChart from '../../components/admin/ActivityChart';
 
 interface UserDetail {
     user: {
@@ -33,6 +35,10 @@ export default function AdminDashboard() {
     const [metaCaption, setMetaCaption] = useState('');
     const navigate = useNavigate();
 
+    // Mock data for chart - in a real app, this would come from the backend API
+    // We'll generate some data based on the stats we have
+    const [chartData, setChartData] = useState<any[]>([]);
+
     useEffect(() => {
         const token = localStorage.getItem('adminAccessToken');
         if (!token) {
@@ -50,6 +56,18 @@ export default function AdminDashboard() {
         }
     }, [selectedPostForMeta]);
 
+    // Generate mock chart data when stats change
+    useEffect(() => {
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const mockData = days.map(day => ({
+            name: day,
+            lost: Math.floor(Math.random() * (stats.lost / 2 || 10)),
+            found: Math.floor(Math.random() * (stats.found / 2 || 5)),
+            resolved: Math.floor(Math.random() * (stats.resolved / 2 || 3))
+        }));
+        setChartData(mockData);
+    }, [stats]);
+
     const getAuthHeaders = () => {
         const token = localStorage.getItem('adminAccessToken');
         return {
@@ -65,23 +83,18 @@ export default function AdminDashboard() {
             const [statsRes, usersRes, adminsRes] = await Promise.all([
                 fetch(`${getApiBaseUrl()}/admin/stats`, { headers }),
                 fetch(`${getApiBaseUrl()}/admin/users`, { headers }),
-                fetch(`${getApiBaseUrl()}/admin/admins`, { headers }).catch(() => null) // Optional, might fail if endpoint doesn't exist yet
+                fetch(`${getApiBaseUrl()}/admin/admins`, { headers }).catch(() => null)
             ]);
-
-            console.log('Stats response status:', statsRes.status);
-            console.log('Users response status:', usersRes.status);
 
             if (statsRes.ok && usersRes.ok) {
                 const statsData = await statsRes.json();
                 const usersData = await usersRes.json();
-                
-                // Fetch admins if endpoint is available
+
                 if (adminsRes && adminsRes.ok) {
                     const adminsData = await adminsRes.json();
                     setAdmins(adminsData);
                 }
-                
-                // Get current user info from token (decode JWT payload)
+
                 try {
                     const token = localStorage.getItem('adminAccessToken');
                     if (token) {
@@ -148,7 +161,6 @@ export default function AdminDashboard() {
                 headers: getAuthHeaders(),
             });
             if (res.ok) {
-                // Update local state deeply
                 setUsers(users.map(u => ({
                     ...u,
                     posts: u.posts.map(p => p.id === postId ? { ...p, hidden: !p.hidden } : p)
@@ -326,98 +338,58 @@ export default function AdminDashboard() {
     if (loading) return <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-white">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-[#0f0f0f] text-white">
-            {/* Navbar */}
-            <nav className="bg-[#1c1c1c] border-b border-gray-800 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-                <div className="flex items-center gap-3">
-                    <Logo />
-                    <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider border border-blue-500/20">Admin</span>
-                </div>
+        <div className="flex bg-[#0f0f0f] text-white min-h-screen">
+            {/* Sidebar */}
+            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} handleLogout={handleLogout} />
 
-                {/* Tabs */}
-                <div className="flex bg-black/20 p-1 rounded-lg border border-gray-800">
-                    <button
-                        onClick={() => setActiveTab('overview')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'overview' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        Overview
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('tracks')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'tracks' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        Tracks
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('meta')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'meta' ? 'bg-blue-900/20 text-blue-400' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        Meta
-                    </button>
-                    <button
-                        onClick={() => {
-                            setActiveTab('roles');
-                            fetchAdmins();
-                        }}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'roles' ? 'bg-purple-900/20 text-purple-400' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        Roles
-                    </button>
+            {/* Main Content */}
+            <div className="flex-1 p-8 overflow-y-auto h-screen">
+                {/* Header / Top Bar */}
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-2xl font-bold">Hello, {currentUser?.roles?.includes('OWNER') ? 'Owner' : 'Admin'}!</h1>
+                        <p className="text-gray-400 text-sm">Welcome back to Lost & Found Dashboard</p>
+                    </div>
                 </div>
-
-                <div className="flex items-center gap-4">
-                    <button onClick={handleLogout} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-                        <LogOut size={18} />
-                        Sign Out
-                    </button>
-                </div>
-            </nav>
-
-            <div className="max-w-7xl mx-auto px-4 py-8">
 
                 {/* 1. OVERVIEW TAB */}
                 {activeTab === 'overview' && (
-                    <div className="animate-fade-in">
-                        <h2 className="text-2xl font-bold mb-6">Dashboard Overview</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                            <StatCard icon={<Package className="text-blue-400" />} label="Lost Items" value={stats.lost} color="blue" />
-                            <StatCard icon={<CheckCircle className="text-green-400" />} label="Found Items" value={stats.found} color="green" />
-                            <StatCard icon={<CheckCircle className="text-purple-400" />} label="Resolved" value={stats.resolved} color="purple" />
-                            <StatCard icon={<Users className="text-orange-400" />} label="Total Users" value={stats.users} color="orange" />
+                    <div className="animate-fade-in space-y-6">
+                        {/* Stats Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <StatsCard
+                                icon={<Package className="text-orange-500" />}
+                                title="Lost Items"
+                                value={stats.lost}
+                                color="orange"
+                                trend={{ value: 8.5, isPositive: true }}
+                            />
+                            <StatsCard
+                                icon={<CheckCircle className="text-blue-500" />}
+                                title="Found Items"
+                                value={stats.found}
+                                color="blue"
+                                trend={{ value: 12.3, isPositive: true }}
+                            />
+                            <StatsCard
+                                icon={<CheckCircle className="text-purple-500" />}
+                                title="Resolved"
+                                value={stats.resolved}
+                                color="purple"
+                                trend={{ value: 5.2, isPositive: false }}
+                            />
+                            <StatsCard
+                                icon={<Users className="text-green-500" />}
+                                title="Total Users"
+                                value={stats.users}
+                                color="green"
+                                trend={{ value: 1.2, isPositive: true }}
+                            />
                         </div>
 
-                        {/* Simple Chart Visualization (CSS Bars) */}
-                        <div className="bg-[#1c1c1c] p-8 rounded-2xl border border-gray-800">
-                            <h3 className="text-lg font-bold mb-6 text-gray-300">Activity Distribution</h3>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm text-gray-400">
-                                        <span>Lost Items</span>
-                                        <span>{stats.lost}</span>
-                                    </div>
-                                    <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(stats.lost / (stats.lost + stats.found + stats.resolved || 1)) * 100}%` }}></div>
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm text-gray-400">
-                                        <span>Found Items</span>
-                                        <span>{stats.found}</span>
-                                    </div>
-                                    <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-green-500 rounded-full" style={{ width: `${(stats.found / (stats.lost + stats.found + stats.resolved || 1)) * 100}%` }}></div>
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm text-gray-400">
-                                        <span>Resolved</span>
-                                        <span>{stats.resolved}</span>
-                                    </div>
-                                    <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-purple-500 rounded-full" style={{ width: `${(stats.resolved / (stats.lost + stats.found + stats.resolved || 1)) * 100}%` }}></div>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Charts Area */}
+                        <div className="grid grid-cols-1">
+                            <ActivityChart data={chartData} />
                         </div>
                     </div>
                 )}
@@ -685,7 +657,7 @@ function RolesTab({ admins, currentUser, onAddAdmin, onChangeEmail, onChangePass
                                 const isTargetOwner = admin.roles?.includes('OWNER');
                                 // Admins cannot edit owners, only owners can edit owners
                                 const canEdit = isOwner || (isAdminRole && !isTargetOwner);
-                                
+
                                 return (
                                     <tr key={admin.id} className="hover:bg-[#2d2d2d]/50 transition-colors">
                                         <td className="px-6 py-4 text-sm text-white">{admin.email}</td>
@@ -802,207 +774,91 @@ function AddAdminModal({ onClose, onSubmit }: any) {
                 </div>
                 <form onSubmit={onSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            required
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
-                            placeholder="admin@example.com"
-                        />
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
+                        <input name="name" required className="w-full bg-black/50 border border-gray-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            required
-                            minLength={6}
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
-                            placeholder="Minimum 6 characters"
-                        />
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                        <input name="email" type="email" required className="w-full bg-black/50 border border-gray-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Name (Optional)</label>
-                        <input
-                            type="text"
-                            name="name"
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
-                            placeholder="Admin Name"
-                        />
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Password</label>
+                        <input name="password" type="password" required minLength={6} className="w-full bg-black/50 border border-gray-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                     </div>
-                    <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-                        >
-                            Create Admin
-                        </button>
-                    </div>
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors">
+                        Create Admin
+                    </button>
                 </form>
             </div>
         </div>
     );
 }
 
-// Edit Email Modal Component
+// Edit Email Modal
 function EditEmailModal({ admin, currentEmail, onClose, onSubmit, onEmailChange }: any) {
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800">
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-white">Change Email</h3>
+                    <h3 className="text-xl font-bold text-white">Change Email for {admin.name}</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-white">
                         <X size={24} />
                     </button>
                 </div>
                 <form onSubmit={onSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Current Email</label>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">New Email</label>
                         <input
                             type="email"
-                            value={admin.email}
-                            disabled
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-gray-500 cursor-not-allowed"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">New Email</label>
-                        <input
-                            type="email"
+                            required
                             value={currentEmail}
                             onChange={(e) => onEmailChange(e.target.value)}
-                            required
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                            placeholder="new@example.com"
+                            className="w-full bg-black/50 border border-gray-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         />
                     </div>
-                    <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
-                        >
-                            Update Email
-                        </button>
-                    </div>
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors">
+                        Update Email
+                    </button>
                 </form>
             </div>
         </div>
     );
 }
 
-// Change Password Modal Component
+// Change Password Modal
 function ChangePasswordModal({ admin, onClose, onSubmit }: any) {
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-        if (password.length < 6) {
-            alert('Password must be at least 6 characters');
-            return;
-        }
-        
         await onSubmit(password);
         setPassword('');
-        setConfirmPassword('');
     };
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800">
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-white">Change Password</h3>
+                    <h3 className="text-xl font-bold text-white">Change Password for {admin.name}</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-white">
                         <X size={24} />
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Admin</label>
-                        <input
-                            type="text"
-                            value={`${admin.name} (${admin.email})`}
-                            disabled
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-gray-500 cursor-not-allowed"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">New Password</label>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">New Password</label>
                         <input
                             type="password"
+                            required
+                            minLength={6}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            required
-                            minLength={6}
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                            placeholder="Minimum 6 characters"
+                            className="w-full bg-black/50 border border-gray-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Confirm Password</label>
-                        <input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                            minLength={6}
-                            className="w-full p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                            placeholder="Confirm new password"
-                        />
-                    </div>
-                    <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors"
-                        >
-                            Update Password
-                        </button>
-                    </div>
+                    <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition-colors">
+                        Update Password
+                    </button>
                 </form>
-            </div>
-        </div>
-    );
-}
-
-function StatCard({ icon, label, value, color }: { icon: any, label: string, value: number, color: string }) {
-    return (
-        <div className="bg-[#1c1c1c] p-6 rounded-2xl border border-gray-800 relative overflow-hidden group">
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-${color}-500/5 rounded-bl-full transition-transform group-hover:scale-110`}></div>
-            <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className={`p-2 rounded-lg bg-${color}-500/10`}>
-                        {icon}
-                    </div>
-                    <span className="text-gray-400 font-medium">{label}</span>
-                </div>
-                <div className="text-3xl font-bold text-white">{value}</div>
             </div>
         </div>
     );
