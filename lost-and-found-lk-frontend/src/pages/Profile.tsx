@@ -232,10 +232,7 @@ export default function Profile() {
         <div className="min-h-screen bg-gray-900 px-4 md:px-8 py-8 pt-24">
             <div className="max-w-5xl mx-auto">
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                        <p className="text-gray-400 animate-pulse">Loading profile...</p>
-                    </div>
+                    <div className="text-center py-12 text-gray-400">Loading...</div>
                 ) : (
                     <>
                         {/* Profile Header */}
