@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { Menu, X, LogOut, LogIn, User, Info, MessageSquare, Shield, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,6 +10,8 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onOpenLogin }: NavbarProps) {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -39,6 +41,11 @@ export default function Navbar({ onOpenLogin }: NavbarProps) {
         try {
             await logout();
             setShowLogoutConfirm(false);
+            
+            // Redirect to home if on Lost or Found pages
+            if (location.pathname === '/lost' || location.pathname === '/found') {
+                navigate('/');
+            }
         } catch (error) {
             console.error('Failed to logout', error);
         }
