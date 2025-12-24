@@ -25,9 +25,10 @@ interface Post {
 
 interface LostProps {
     onOpenLogin: () => void;
+    onOpenSignup?: () => void;
 }
 
-export default function Lost({ onOpenLogin }: LostProps) {
+export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -205,6 +206,7 @@ export default function Lost({ onOpenLogin }: LostProps) {
             <PostDetailModal
                 post={selectedPost}
                 onClose={() => setSelectedPost(null)}
+                onOpenSignup={onOpenSignup}
             />
         </div>
     );

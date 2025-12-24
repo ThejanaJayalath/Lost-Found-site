@@ -25,9 +25,10 @@ interface Post {
 
 interface FoundProps {
     onOpenLogin: () => void;
+    onOpenSignup?: () => void;
 }
 
-export default function Found({ onOpenLogin }: FoundProps) {
+export default function Found({ onOpenLogin, onOpenSignup }: FoundProps) {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -205,6 +206,7 @@ export default function Found({ onOpenLogin }: FoundProps) {
             <PostDetailModal
                 post={selectedPost}
                 onClose={() => setSelectedPost(null)}
+                onOpenSignup={onOpenSignup}
             />
         </div>
     );

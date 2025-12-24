@@ -24,13 +24,15 @@ interface Post {
 interface PostDetailModalProps {
     post: Post | null;
     onClose: () => void;
+    onOpenSignup?: () => void;
 }
 
-export default function PostDetailModal({ post, onClose }: PostDetailModalProps) {
+export default function PostDetailModal({ post, onClose, onOpenSignup }: PostDetailModalProps) {
     const { user } = useAuth();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showLoginRequired, setShowLoginRequired] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -57,6 +59,11 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
 
     const handleFoundClick = () => {
         if (post.status === 'LOST') {
+            // Check if user is logged in
+            if (!user || !user.email) {
+                setShowLoginRequired(true);
+                return;
+            }
             setShowConfirmation(true);
         } else {
             // Logic for 'Contact Owner' if needed, or just show phone
@@ -65,7 +72,8 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
 
     const handleConfirmFound = async () => {
         if (!user || !user.email) {
-            alert("Please log in to report this item as found.");
+            setShowConfirmation(false);
+            setShowLoginRequired(true);
             return;
         }
 
@@ -104,6 +112,41 @@ export default function PostDetailModal({ post, onClose }: PostDetailModalProps)
                 className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-gray-800 relative"
                 onClick={e => e.stopPropagation()}
             >
+                {/* Login Required Modal Overlay */}
+                {showLoginRequired && (
+                    <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+                        <div className="bg-gray-800 p-8 rounded-2xl max-w-md w-full border border-gray-700 text-center">
+                            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <AlertTriangle size={32} className="text-blue-500" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">Sign Up Required</h3>
+                            <p className="text-gray-400 mb-8">
+                                If you want to report this item as found, you should sign up first.
+                            </p>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setShowLoginRequired(false)}
+                                    className="flex-1 py-3 px-4 rounded-xl font-medium bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowLoginRequired(false);
+                                        onClose();
+                                        if (onOpenSignup) {
+                                            onOpenSignup();
+                                        }
+                                    }}
+                                    className="flex-1 py-3 px-4 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 transition-colors shadow-lg shadow-blue-500/20"
+                                >
+                                    Sign Up
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Confirmation Modal Overlay */}
                 {showConfirmation && (
                     <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-4">

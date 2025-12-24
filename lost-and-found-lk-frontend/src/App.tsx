@@ -45,8 +45,8 @@ function App() {
         <Layout onOpenLogin={openLogin} onOpenSignup={openSignup}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/lost" element={<Lost onOpenLogin={openLogin} />} />
-            <Route path="/found" element={<Found onOpenLogin={openLogin} />} />
+            <Route path="/lost" element={<Lost onOpenLogin={openLogin} onOpenSignup={openSignup} />} />
+            <Route path="/found" element={<Found onOpenLogin={openLogin} onOpenSignup={openSignup} />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
