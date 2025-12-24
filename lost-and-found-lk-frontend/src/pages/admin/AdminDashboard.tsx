@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search } from 'lucide-react';
 import { getApiBaseUrl } from '../../services/api';
 import Sidebar from '../../components/admin/Sidebar';
 import StatsCard from '../../components/admin/StatsCard';
@@ -20,6 +20,21 @@ interface UserDetail {
     latestActivity: string | null;
 }
 
+interface Post {
+    id: string;
+    title: string;
+    description: string;
+    status: 'LOST' | 'FOUND' | 'RESOLVED';
+    date: string;
+    time?: string;
+    images: string[];
+    hidden: boolean;
+    facebookStatus?: string;
+    facebookPostId?: string;
+    location: string;
+    createdAt?: Date | string;
+}
+
 export default function AdminDashboard() {
     const [stats, setStats] = useState({ lost: 0, found: 0, resolved: 0, users: 0 });
     const [users, setUsers] = useState<UserDetail[]>([]);
@@ -34,6 +49,11 @@ export default function AdminDashboard() {
     const [selectedPostForMeta, setSelectedPostForMeta] = useState<any | null>(null);
     const [metaCaption, setMetaCaption] = useState('');
     const navigate = useNavigate();
+
+    // Tracks tab filters and search
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeFilter, setActiveFilter] = useState<'all' | 'lost' | 'found' | 'resolved' | 'users'>('all');
+    const [sortBy, setSortBy] = useState<'latest-activity' | 'creation-date-desc' | 'creation-date-asc' | 'name-asc' | 'name-desc'>('latest-activity');
 
     // Mock data for chart - in a real app, this would come from the backend API
     // We'll generate some data based on the stats we have
@@ -340,6 +360,97 @@ export default function AdminDashboard() {
         }
     };
 
+    // Filter and sort users for Tracks tab
+    const getFilteredAndSortedUsers = () => {
+        let filtered = [...users];
+
+        // Apply search filter
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter(detail => 
+                detail.user.name.toLowerCase().includes(query) ||
+                detail.user.email.toLowerCase().includes(query) ||
+                detail.posts.some((post: Post) => 
+                    post.title.toLowerCase().includes(query) ||
+                    post.description.toLowerCase().includes(query)
+                )
+            );
+        }
+
+        // Apply status filter
+        if (activeFilter === 'lost') {
+            filtered = filtered.map(detail => ({
+                ...detail,
+                posts: detail.posts.filter((post: Post) => post.status === 'LOST')
+            })).filter(detail => detail.posts.length > 0);
+        } else if (activeFilter === 'found') {
+            filtered = filtered.map(detail => ({
+                ...detail,
+                posts: detail.posts.filter((post: Post) => post.status === 'FOUND')
+            })).filter(detail => detail.posts.length > 0);
+        } else if (activeFilter === 'resolved') {
+            filtered = filtered.map(detail => ({
+                ...detail,
+                posts: detail.posts.filter((post: Post) => post.status === 'RESOLVED')
+            })).filter(detail => detail.posts.length > 0);
+        } else if (activeFilter === 'users') {
+            // Show all users regardless of posts
+            filtered = filtered;
+        }
+
+        // Apply sorting
+        filtered.sort((a, b) => {
+            switch (sortBy) {
+                case 'latest-activity':
+                    if (!a.latestActivity && !b.latestActivity) return 0;
+                    if (!a.latestActivity) return 1;
+                    if (!b.latestActivity) return -1;
+                    return new Date(b.latestActivity).getTime() - new Date(a.latestActivity).getTime();
+                
+                case 'creation-date-desc':
+                    // Sort by latest post creation date, or user creation if no posts
+                    const aLatestPost = a.posts.length > 0 && a.posts[0]?.createdAt 
+                        ? new Date(a.posts[0].createdAt).getTime() 
+                        : 0;
+                    const bLatestPost = b.posts.length > 0 && b.posts[0]?.createdAt 
+                        ? new Date(b.posts[0].createdAt).getTime() 
+                        : 0;
+                    return bLatestPost - aLatestPost;
+                
+                case 'creation-date-asc':
+                    const aEarliestPost = a.posts.length > 0 && a.posts[0]?.createdAt 
+                        ? new Date(a.posts[0].createdAt).getTime() 
+                        : Date.now();
+                    const bEarliestPost = b.posts.length > 0 && b.posts[0]?.createdAt 
+                        ? new Date(b.posts[0].createdAt).getTime() 
+                        : Date.now();
+                    return aEarliestPost - bEarliestPost;
+                
+                case 'name-asc':
+                    return (a.user.name || '').localeCompare(b.user.name || '');
+                
+                case 'name-desc':
+                    return (b.user.name || '').localeCompare(a.user.name || '');
+                
+                default:
+                    return 0;
+            }
+        });
+
+        return filtered;
+    };
+
+    // Calculate filter counts
+    const getFilterCounts = () => {
+        const allPosts = users.flatMap(u => u.posts);
+        return {
+            lost: allPosts.filter((p: Post) => p.status === 'LOST').length,
+            found: allPosts.filter((p: Post) => p.status === 'FOUND').length,
+            resolved: allPosts.filter((p: Post) => p.status === 'RESOLVED').length,
+            users: users.length
+        };
+    };
+
     if (loading) return <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-white">Loading...</div>;
 
     return (
@@ -398,15 +509,121 @@ export default function AdminDashboard() {
 
                 {/* 2. TRACKS TAB (Old User Management) */}
                 {activeTab === 'tracks' && (
-                    <div className="animate-fade-in">
+                    <div className="animate-fade-in space-y-6">
+                        {/* Filter Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <button
+                                onClick={() => setActiveFilter(activeFilter === 'lost' ? 'all' : 'lost')}
+                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'lost' ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-gray-800'}`}
+                            >
+                                <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-orange-500 rounded-tr-full`}></div>
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="text-4xl font-bold text-white">{getFilterCounts().lost}</div>
+                                    <div className={`p-3 rounded-xl bg-orange-500 bg-opacity-10 text-orange-500`}>
+                                        <Package size={24} />
+                                    </div>
+                                </div>
+                                <h3 className="text-gray-400 text-sm font-medium">Lost Items</h3>
+                            </button>
+                            <button
+                                onClick={() => setActiveFilter(activeFilter === 'found' ? 'all' : 'found')}
+                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'found' ? 'border-blue-500/50 ring-2 ring-blue-500/20' : 'border-gray-800'}`}
+                            >
+                                <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-blue-500 rounded-tr-full`}></div>
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="text-4xl font-bold text-white">{getFilterCounts().found}</div>
+                                    <div className={`p-3 rounded-xl bg-blue-500 bg-opacity-10 text-blue-500`}>
+                                        <CheckCircle size={24} />
+                                    </div>
+                                </div>
+                                <h3 className="text-gray-400 text-sm font-medium">Found Items</h3>
+                            </button>
+                            <button
+                                onClick={() => setActiveFilter(activeFilter === 'resolved' ? 'all' : 'resolved')}
+                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'resolved' ? 'border-purple-500/50 ring-2 ring-purple-500/20' : 'border-gray-800'}`}
+                            >
+                                <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-purple-500 rounded-tr-full`}></div>
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="text-4xl font-bold text-white">{getFilterCounts().resolved}</div>
+                                    <div className={`p-3 rounded-xl bg-purple-500 bg-opacity-10 text-purple-500`}>
+                                        <CheckCircle size={24} />
+                                    </div>
+                                </div>
+                                <h3 className="text-gray-400 text-sm font-medium">Resolved</h3>
+                            </button>
+                            <button
+                                onClick={() => setActiveFilter(activeFilter === 'users' ? 'all' : 'users')}
+                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'users' ? 'border-green-500/50 ring-2 ring-green-500/20' : 'border-gray-800'}`}
+                            >
+                                <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-green-500 rounded-tr-full`}></div>
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="text-4xl font-bold text-white">{getFilterCounts().users}</div>
+                                    <div className={`p-3 rounded-xl bg-green-500 bg-opacity-10 text-green-500`}>
+                                        <Users size={24} />
+                                    </div>
+                                </div>
+                                <h3 className="text-gray-400 text-sm font-medium">Total Users</h3>
+                            </button>
+                        </div>
+
+                        {/* Search and Sort Bar */}
+                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
+                            <div className="flex flex-col md:flex-row gap-4 items-center">
+                                {/* Search Bar */}
+                                <div className="flex-1 w-full md:w-auto relative">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                                    <input
+                                        type="text"
+                                        placeholder="Search users, emails, or posts..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500"
+                                    />
+                                </div>
+
+                                {/* Sort Dropdown */}
+                                <div className="flex items-center gap-3">
+                                    <label className="text-sm text-gray-400 whitespace-nowrap">Sort by:</label>
+                                    <select
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value as any)}
+                                        className="px-4 py-2.5 bg-black/50 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 cursor-pointer"
+                                    >
+                                        <option value="latest-activity">Latest Activity</option>
+                                        <option value="creation-date-desc">Creation Date (Newest First)</option>
+                                        <option value="creation-date-asc">Creation Date (Oldest First)</option>
+                                        <option value="name-asc">Name (A-Z)</option>
+                                        <option value="name-desc">Name (Z-A)</option>
+                                    </select>
+                                </div>
+
+                                {/* Clear Filters Button */}
+                                {(searchQuery || activeFilter !== 'all') && (
+                                    <button
+                                        onClick={() => {
+                                            setSearchQuery('');
+                                            setActiveFilter('all');
+                                        }}
+                                        className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap"
+                                    >
+                                        Clear Filters
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* User List */}
                         <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden">
                             <div className="p-6 border-b border-gray-800 flex justify-between items-center">
                                 <h2 className="text-xl font-bold">Tracks / User Management</h2>
-                                <div className="text-sm text-gray-500">Sorted by Latest Activity</div>
+                                <div className="text-sm text-gray-500">
+                                    {getFilteredAndSortedUsers().length} {getFilteredAndSortedUsers().length === 1 ? 'user' : 'users'} found
+                                </div>
                             </div>
 
                             <div className="divide-y divide-gray-800">
-                                {users.map((detail) => (
+                                {getFilteredAndSortedUsers().length > 0 ? (
+                                    getFilteredAndSortedUsers().map((detail) => (
                                     <div key={detail.user.id} className="group hover:bg-white/5 transition-colors">
                                         <div className="p-6 flex items-center justify-between cursor-pointer" onClick={() => setExpandedUser(expandedUser === detail.user.id ? null : detail.user.id)}>
                                             <div className="flex items-center gap-4">
@@ -489,7 +706,13 @@ export default function AdminDashboard() {
                                             </div>
                                         )}
                                     </div>
-                                ))}
+                                    ))
+                                ) : (
+                                    <div className="p-12 text-center text-gray-500">
+                                        <Package size={48} className="mx-auto mb-4 opacity-20" />
+                                        <p>No users found matching your filters.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
