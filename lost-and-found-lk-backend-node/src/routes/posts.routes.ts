@@ -173,7 +173,8 @@ router.post("/", async (req, res) => {
       userId,
       userName,
       userInitial,
-      images
+      images,
+      requestFacebookPost
     } = req.body;
 
     if (!userId) {
@@ -232,6 +233,12 @@ router.post("/", async (req, res) => {
       }
     }
 
+    // Set Facebook status based on requestFacebookPost flag
+    let facebookStatus = undefined;
+    if (requestFacebookPost === true) {
+      facebookStatus = "PENDING";
+    }
+
     const post = new Post({
       title,
       description,
@@ -252,7 +259,8 @@ router.post("/", async (req, res) => {
       idNumber,
 
       contactPhone,
-      images: images || []
+      images: images || [],
+      facebookStatus: facebookStatus
     });
 
     const saved = await post.save();

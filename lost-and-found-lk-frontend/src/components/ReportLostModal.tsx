@@ -33,6 +33,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
     const [imei, setImei] = useState(initialData?.imei || '');
     const [serialNumber, setSerialNumber] = useState(initialData?.serialNumber || '');
     const [idNumber, setIdNumber] = useState(initialData?.idNumber || '');
+    const [requestFacebookPost, setRequestFacebookPost] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -64,6 +65,7 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
             setImages([]);
             setImageFiles([]);
             setItemType('Phone');
+            setRequestFacebookPost(false);
         }
     }, [initialData, isOpen]);
 
@@ -153,7 +155,8 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                 imei: itemType === 'Phone' ? imei : undefined,
                 serialNumber: itemType === 'Laptop' ? serialNumber : undefined,
                 idNumber: (itemType === 'ID Card' || itemType === 'Other') ? idNumber : undefined,
-                userId: userId
+                userId: userId,
+                requestFacebookPost: requestFacebookPost
             };
 
             if (initialData) {
@@ -360,6 +363,21 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
                                     </label>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Facebook Post Request Checkbox */}
+                        <div className="flex items-center gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                            <input
+                                type="checkbox"
+                                id="requestFacebookPost"
+                                checked={requestFacebookPost}
+                                onChange={(e) => setRequestFacebookPost(e.target.checked)}
+                                className="w-5 h-5 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+                            />
+                            <label htmlFor="requestFacebookPost" className="flex-1 text-sm text-gray-300 cursor-pointer">
+                                <span className="font-medium text-blue-400">Create Facebook post for this report</span>
+                                <span className="block text-xs text-gray-500 mt-1">Admin will review and approve your request to post on Facebook</span>
+                            </label>
                         </div>
                     </div>
                 </div>

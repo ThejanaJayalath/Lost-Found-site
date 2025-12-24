@@ -48,6 +48,7 @@ export default function AdminDashboard() {
     const [currentUser, setCurrentUser] = useState<any>(null); // Current logged-in user
     const [selectedPostForMeta, setSelectedPostForMeta] = useState<any | null>(null);
     const [metaCaption, setMetaCaption] = useState('');
+    const [metaSubTab, setMetaSubTab] = useState<'requests' | 'history'>('requests');
     const navigate = useNavigate();
 
     // Tracks tab filters and search
@@ -721,30 +722,96 @@ export default function AdminDashboard() {
                 {/* 3. META TAB */}
                 {activeTab === 'meta' && (
                     <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-8 h-[calc(100vh-140px)]">
-                        {/* Left: Pending List */}
+                        {/* Left: Post Requests & History */}
                         <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden flex flex-col">
                             <div className="p-6 border-b border-gray-800">
-                                <h2 className="text-xl font-bold">Meta Publishing Queue</h2>
-                                <p className="text-sm text-gray-500">Select an item to edit and publish</p>
+                                <div className="flex gap-2 mb-4">
+                                    <button
+                                        onClick={() => {
+                                            setMetaSubTab('requests');
+                                            setSelectedPostForMeta(null);
+                                        }}
+                                        className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+                                            metaSubTab === 'requests'
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-gray-800 text-gray-400 hover:text-white'
+                                        }`}
+                                    >
+                                        Post Requests
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setMetaSubTab('history');
+                                            setSelectedPostForMeta(null);
+                                        }}
+                                        className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+                                            metaSubTab === 'history'
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-gray-800 text-gray-400 hover:text-white'
+                                        }`}
+                                    >
+                                        Post History
+                                    </button>
+                                </div>
+                                <p className="text-sm text-gray-500">
+                                    {metaSubTab === 'requests' 
+                                        ? 'Review and approve Facebook post requests' 
+                                        : 'View all published Facebook posts'}
+                                </p>
                             </div>
                             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                                {users.flatMap(u => u.posts).filter(p => p.facebookStatus !== 'POSTED').map(post => (
-                                    <div
-                                        key={post.id}
-                                        onClick={() => setSelectedPostForMeta(post)}
-                                        className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedPostForMeta?.id === post.id ? 'bg-blue-500/10 border-blue-500' : 'bg-[#2d2d2d] border-gray-700 hover:border-gray-500'}`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            {post.images?.[0] ? <img src={post.images[0]} className="w-12 h-12 rounded object-cover" /> : <div className="w-12 h-12 rounded bg-gray-600"></div>}
-                                            <div>
-                                                <h4 className="font-bold text-white">{post.title}</h4>
-                                                <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
+                                {metaSubTab === 'requests' ? (
+                                    <>
+                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'PENDING').map(post => (
+                                            <div
+                                                key={post.id}
+                                                onClick={() => setSelectedPostForMeta(post)}
+                                                className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedPostForMeta?.id === post.id ? 'bg-blue-500/10 border-blue-500' : 'bg-[#2d2d2d] border-gray-700 hover:border-gray-500'}`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    {post.images?.[0] ? <img src={post.images[0]} className="w-12 h-12 rounded object-cover" /> : <div className="w-12 h-12 rounded bg-gray-600"></div>}
+                                                    <div className="flex-1">
+                                                        <h4 className="font-bold text-white">{post.title}</h4>
+                                                        <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
+                                                        <span className="inline-block mt-1 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Pending Approval</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                ))}
-                                {users.flatMap(u => u.posts).filter(p => p.facebookStatus !== 'POSTED').length === 0 && (
-                                    <div className="text-center text-gray-500 mt-10">No pending posts found.</div>
+                                        ))}
+                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'PENDING').length === 0 && (
+                                            <div className="text-center text-gray-500 mt-10">No post requests found.</div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'POSTED').map(post => (
+                                            <div
+                                                key={post.id}
+                                                onClick={() => setSelectedPostForMeta(post)}
+                                                className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedPostForMeta?.id === post.id ? 'bg-blue-500/10 border-blue-500' : 'bg-[#2d2d2d] border-gray-700 hover:border-gray-500'}`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    {post.images?.[0] ? <img src={post.images[0]} className="w-12 h-12 rounded object-cover" /> : <div className="w-12 h-12 rounded bg-gray-600"></div>}
+                                                    <div className="flex-1">
+                                                        <h4 className="font-bold text-white">{post.title}</h4>
+                                                        <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="inline-block text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded flex items-center gap-1">
+                                                                <Facebook size={10} />
+                                                                Published
+                                                            </span>
+                                                            {post.facebookPostId && (
+                                                                <span className="text-xs text-gray-500">ID: {post.facebookPostId}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'POSTED').length === 0 && (
+                                            <div className="text-center text-gray-500 mt-10">No published posts found.</div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -781,20 +848,35 @@ export default function AdminDashboard() {
                                             <p className="text-xs text-gray-500 mt-2 text-right">{metaCaption.length} characters</p>
                                         </div>
                                     </div>
-                                    <div className="p-6 border-t border-gray-800 bg-[#2d2d2d]">
-                                        <button
-                                            onClick={handleSubmitToFacebook}
-                                            disabled={postingToFb[selectedPostForMeta.id]}
-                                            className="w-full py-3 bg-[#1877F2] hover:bg-[#166fe5] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {postingToFb[selectedPostForMeta.id] ? 'Publishing...' : 'Publish to Facebook Now'}
-                                        </button>
-                                    </div>
+                                    {selectedPostForMeta.facebookStatus === 'PENDING' && (
+                                        <div className="p-6 border-t border-gray-800 bg-[#2d2d2d]">
+                                            <button
+                                                onClick={handleSubmitToFacebook}
+                                                disabled={postingToFb[selectedPostForMeta.id]}
+                                                className="w-full py-3 bg-[#1877F2] hover:bg-[#166fe5] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {postingToFb[selectedPostForMeta.id] ? 'Publishing...' : 'Approve & Publish to Facebook'}
+                                            </button>
+                                        </div>
+                                    )}
+                                    {selectedPostForMeta.facebookStatus === 'POSTED' && (
+                                        <div className="p-6 border-t border-gray-800 bg-[#2d2d2d]">
+                                            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 text-center">
+                                                <div className="flex items-center justify-center gap-2 text-green-400 mb-2">
+                                                    <Facebook size={18} />
+                                                    <span className="font-bold">Published to Facebook</span>
+                                                </div>
+                                                {selectedPostForMeta.facebookPostId && (
+                                                    <p className="text-xs text-gray-400">Post ID: {selectedPostForMeta.facebookPostId}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </>
                             ) : (
                                 <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
                                     <Package size={48} className="mb-4 opacity-20" />
-                                    <p>Select a post from the queue to edit and publish.</p>
+                                    <p>Select a post {metaSubTab === 'requests' ? 'request' : 'from history'} to edit and publish.</p>
                                 </div>
                             )}
                         </div>
