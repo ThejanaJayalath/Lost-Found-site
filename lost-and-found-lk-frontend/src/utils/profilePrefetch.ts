@@ -19,12 +19,9 @@ export const prefetchProfileData = async (userEmail: string): Promise<void> => {
     if (!userEmail) return;
 
     try {
-        // Start all API calls in parallel
-        const [userDataResponse, userResponse] = await Promise.all([
-            fetch(`${getApiBaseUrl()}/users/${userEmail}`),
-            fetch(`${getApiBaseUrl()}/users/${userEmail}`) // Need user ID for posts
-        ]);
-
+        // Fetch user data first to get user ID
+        const userResponse = await fetch(`${getApiBaseUrl()}/users/${userEmail}`);
+        
         if (!userResponse.ok) return;
 
         const userData = await userResponse.json();
