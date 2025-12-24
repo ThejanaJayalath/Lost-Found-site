@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Menu, Box } from 'lucide-react';
 import PostDetailModal from '../components/PostDetailModal';
 import PostCard from '../components/PostCard';
+import ReportLostModal from '../components/ReportLostModal';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -37,6 +38,7 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [dateFilter, setDateFilter] = useState('all');
     const [categoryFilter, setCategoryFilter] = useState('all');
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     const fetchPosts = async () => {
         try {
@@ -123,18 +125,17 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
                         </div>
 
                         {/* Report Button */}
-                        {/* Report Button */}
                         <button
                             onClick={() => {
                                 if (user) {
-                                    navigate('/profile');
+                                    setIsReportModalOpen(true);
                                 } else {
                                     onOpenLogin();
                                 }
                             }}
                             className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-8 py-3 rounded-lg shadow-lg shadow-red-500/20 transition-all transform hover:scale-105 flex items-center gap-2 font-medium text-lg"
                         >
-                            <span>Report</span>
+                            <span>Report Lost</span>
                             <Box size={20} />
                         </button>
                     </div>
@@ -207,6 +208,16 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
                 post={selectedPost}
                 onClose={() => setSelectedPost(null)}
                 onOpenSignup={onOpenSignup}
+            />
+
+            <ReportLostModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                onSuccess={() => {
+                    setIsReportModalOpen(false);
+                    fetchPosts(); // Refresh the posts list
+                    navigate('/profile'); // Navigate to profile after successful submission
+                }}
             />
         </div>
     );
