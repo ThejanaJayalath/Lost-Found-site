@@ -7,7 +7,8 @@ import PostListItem from '../components/PostListItem';
 import ReportLostModal from '../components/ReportLostModal';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { getViewPreference, saveViewPreference, ViewMode } from '../utils/viewPreference';
+import { getViewPreference, saveViewPreference } from '../utils/viewPreference';
+import type { ViewMode } from '../utils/viewPreference';
 
 interface Post {
     id: string;

@@ -7,7 +7,8 @@ import ReportFoundModal from '../components/ReportFoundModal';
 import ProfilePostListItem from '../components/ProfilePostListItem';
 import { getApiBaseUrl } from '../services/api';
 import { getCachedProfileData, clearProfileCache } from '../utils/profilePrefetch';
-import { getViewPreference, saveViewPreference, ViewMode } from '../utils/viewPreference';
+import { getViewPreference, saveViewPreference } from '../utils/viewPreference';
+import type { ViewMode } from '../utils/viewPreference';
 
 interface Post {
     id: string;
