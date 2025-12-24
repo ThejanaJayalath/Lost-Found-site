@@ -3,6 +3,7 @@ import { Upload, X } from 'lucide-react';
 import api, { getApiBaseUrl } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadMultipleImagesToFirebase } from '../utils/imageUpload';
+import { prefetchProfileData } from '../utils/profilePrefetch';
 // Note: Function name kept for compatibility, but now uses Cloudinary
 
 type ItemType = 'Phone' | 'Laptop' | 'Purse' | 'Wallet' | 'ID Card' | 'Document' | 'Pet' | 'Bag' | 'Other';
@@ -92,6 +93,14 @@ export default function ReportLostModal({ isOpen, onClose, onSuccess, initialDat
 
     const handleSubmit = async () => {
         setLoading(true);
+        
+        // Start prefetching profile data in the background immediately
+        if (user?.email) {
+            prefetchProfileData(user.email).catch(() => {
+                // Silently fail - prefetch is optional
+            });
+        }
+
         try {
             let userId = undefined;
             if (user?.email) {

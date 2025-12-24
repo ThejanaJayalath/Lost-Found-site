@@ -5,6 +5,7 @@ import { User, Mail, Phone, Edit2, Trash2, Box, CheckCircle } from 'lucide-react
 import ReportLostModal from '../components/ReportLostModal';
 import ReportFoundModal from '../components/ReportFoundModal';
 import { getApiBaseUrl } from '../services/api';
+import { getCachedProfileData, clearProfileCache } from '../utils/profilePrefetch';
 
 interface Post {
     id: string;
@@ -44,17 +45,49 @@ export default function Profile() {
 
             const loadData = async () => {
                 setIsLoading(true);
-                try {
-                    await Promise.all([
+                
+                // Check for cached data first
+                const cached = getCachedProfileData();
+                
+                if (cached) {
+                    // Use cached data immediately for instant display
+                    if (cached.userData?.phoneNumber) {
+                        setPhone(cached.userData.phoneNumber);
+                    }
+                    setPosts(cached.posts || []);
+                    setFoundPosts(cached.foundPosts || []);
+                    setNotifications(cached.notifications || []);
+                    
+                    // Clear cache after using it
+                    clearProfileCache();
+                    
+                    // Show content immediately (no loading state)
+                    setIsLoading(false);
+                    
+                    // Still fetch fresh data in background to ensure we have the latest
+                    // But don't wait for it - user sees cached data immediately
+                    Promise.all([
                         fetchUserData(),
                         fetchUserPosts(),
                         fetchFoundPosts(),
                         fetchNotifications()
-                    ]);
-                } catch (error) {
-                    console.error("Error loading profile data", error);
-                } finally {
-                    setIsLoading(false);
+                    ]).catch(error => {
+                        console.error("Error refreshing profile data", error);
+                    });
+                } else {
+                    // No cache, fetch normally
+                    try {
+                        await Promise.all([
+                            fetchUserData(),
+                            fetchUserPosts(),
+                            fetchFoundPosts(),
+                            fetchNotifications()
+                        ]);
+                    } catch (error) {
+                        console.error("Error loading profile data", error);
+                    } finally {
+                        setIsLoading(false);
+                    }
                 }
             };
 
