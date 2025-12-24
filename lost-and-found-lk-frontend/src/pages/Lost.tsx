@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Menu, Box } from 'lucide-react';
+import { Search, Menu, Box, Grid3x3, List } from 'lucide-react';
 import PostDetailModal from '../components/PostDetailModal';
 import PostCard from '../components/PostCard';
+import PostListItem from '../components/PostListItem';
 import ReportLostModal from '../components/ReportLostModal';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { getViewPreference, saveViewPreference, ViewMode } from '../utils/viewPreference';
 
 interface Post {
     id: string;
@@ -39,6 +41,7 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
     const [dateFilter, setDateFilter] = useState('all');
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [viewMode, setViewMode] = useState<ViewMode>(getViewPreference());
 
     const fetchPosts = async () => {
         try {
@@ -140,8 +143,39 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
                         </button>
                     </div>
 
-                    {/* Filters */}
-                    <div className="flex flex-wrap justify-center gap-4 mt-6">
+                    {/* View Toggle & Filters */}
+                    <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+                        {/* View Toggle */}
+                        <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-full p-1">
+                            <button
+                                onClick={() => {
+                                    setViewMode('grid');
+                                    saveViewPreference('grid');
+                                }}
+                                className={`p-2 rounded-full transition-all ${
+                                    viewMode === 'grid'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                }`}
+                                title="Grid View"
+                            >
+                                <Grid3x3 size={18} />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setViewMode('list');
+                                    saveViewPreference('list');
+                                }}
+                                className={`p-2 rounded-full transition-all ${
+                                    viewMode === 'list'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                }`}
+                                title="List View"
+                            >
+                                <List size={18} />
+                            </button>
+                        </div>
                         <select
                             value={dateFilter}
                             onChange={(e) => setDateFilter(e.target.value)}
@@ -178,7 +212,7 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
                     </div>
                 </div>
 
-                {/* Items Grid */}
+                {/* Items Grid/List */}
                 {loading ? (
                     <div className="text-center py-12 text-gray-400">Loading...</div>
                 ) : (
@@ -187,10 +221,20 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
                             <div className="text-center py-12 text-gray-500">
                                 No items found matching "{searchQuery}"
                             </div>
-                        ) : (
+                        ) : viewMode === 'grid' ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {filteredPosts.map((item) => (
                                     <PostCard
+                                        key={item.id}
+                                        post={item}
+                                        onClick={() => setSelectedPost(item)}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {filteredPosts.map((item) => (
+                                    <PostListItem
                                         key={item.id}
                                         post={item}
                                         onClick={() => setSelectedPost(item)}

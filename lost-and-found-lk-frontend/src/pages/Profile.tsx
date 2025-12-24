@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Mail, Phone, Edit2, Trash2, Box, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, Edit2, Trash2, Box, CheckCircle, Grid3x3, List } from 'lucide-react';
 import ReportLostModal from '../components/ReportLostModal';
 import ReportFoundModal from '../components/ReportFoundModal';
+import ProfilePostListItem from '../components/ProfilePostListItem';
 import { getApiBaseUrl } from '../services/api';
 import { getCachedProfileData, clearProfileCache } from '../utils/profilePrefetch';
+import { getViewPreference, saveViewPreference, ViewMode } from '../utils/viewPreference';
 
 interface Post {
     id: string;
@@ -33,6 +35,7 @@ export default function Profile() {
     const [editingPost, setEditingPost] = useState<Post | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isBlocked, setIsBlocked] = useState(false);
+    const [viewMode, setViewMode] = useState<ViewMode>(getViewPreference());
 
     const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -385,73 +388,127 @@ export default function Profile() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-                            {posts.map((post) => (
-                                <div key={post.id} className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-500/30 transition-all duration-300 group">
-                                    <div className="aspect-video bg-gray-700 relative overflow-hidden">
-                                        {post.images && post.images.length > 0 ? (
-                                            <img
-                                                src={post.images[0]}
-                                                alt={post.title}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-500">
-                                                <Box size={32} className="opacity-50" />
-                                            </div>
-                                        )}
-
-                                        {/* Overlay Actions */}
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
-                                            <button
-                                                onClick={() => {
-                                                    setEditingPost(post);
-                                                    if (post.status === 'FOUND') {
-                                                        setIsFoundModalOpen(true);
-                                                    } else {
-                                                        setIsReportModalOpen(true);
-                                                    }
-                                                }}
-                                                className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white backdrop-blur-md border border-white/20 transition-all transform hover:scale-110"
-                                                title="Edit Post"
-                                            >
-                                                <Edit2 size={20} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeletePost(post.id)}
-                                                className="p-3 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md border border-red-400/20 transition-all transform hover:scale-110"
-                                                title="Delete Post"
-                                            >
-                                                <Trash2 size={20} />
-                                            </button>
-                                        </div>
-
-                                        {/* Status Badge */}
-                                        <div className="absolute top-3 left-3">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur-md ${post.status === 'LOST'
-                                                ? 'bg-red-500/90 text-white'
-                                                : 'bg-green-500/90 text-white'
-                                                }`}>
-                                                {post.status}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="p-5">
-                                        <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">{post.title}</h3>
-                                        <p className="text-sm text-gray-400 line-clamp-2 mb-4 h-10">{post.description}</p>
-
-                                        <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-700 pt-4">
-                                            <span className="flex items-center gap-1">
-                                                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                                                {post.date}
-                                            </span>
-                                            <span className="truncate max-w-[150px]">{post.location}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                        {/* View Toggle */}
+                        <div className="flex items-center justify-end mb-6">
+                            <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-full p-1">
+                                <button
+                                    onClick={() => {
+                                        setViewMode('grid');
+                                        saveViewPreference('grid');
+                                    }}
+                                    className={`p-2 rounded-full transition-all ${
+                                        viewMode === 'grid'
+                                            ? 'bg-blue-500 text-white'
+                                            : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                    }`}
+                                    title="Grid View"
+                                >
+                                    <Grid3x3 size={18} />
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setViewMode('list');
+                                        saveViewPreference('list');
+                                    }}
+                                    className={`p-2 rounded-full transition-all ${
+                                        viewMode === 'list'
+                                            ? 'bg-blue-500 text-white'
+                                            : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                    }`}
+                                    title="List View"
+                                >
+                                    <List size={18} />
+                                </button>
+                            </div>
                         </div>
+
+                        {viewMode === 'grid' ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+                                {posts.map((post) => (
+                                    <div key={post.id} className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-500/30 transition-all duration-300 group">
+                                        <div className="aspect-video bg-gray-700 relative overflow-hidden">
+                                            {post.images && post.images.length > 0 ? (
+                                                <img
+                                                    src={post.images[0]}
+                                                    alt={post.title}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                                    <Box size={32} className="opacity-50" />
+                                                </div>
+                                            )}
+
+                                            {/* Overlay Actions */}
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingPost(post);
+                                                        if (post.status === 'FOUND') {
+                                                            setIsFoundModalOpen(true);
+                                                        } else {
+                                                            setIsReportModalOpen(true);
+                                                        }
+                                                    }}
+                                                    className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white backdrop-blur-md border border-white/20 transition-all transform hover:scale-110"
+                                                    title="Edit Post"
+                                                >
+                                                    <Edit2 size={20} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeletePost(post.id)}
+                                                    className="p-3 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md border border-red-400/20 transition-all transform hover:scale-110"
+                                                    title="Delete Post"
+                                                >
+                                                    <Trash2 size={20} />
+                                                </button>
+                                            </div>
+
+                                            {/* Status Badge */}
+                                            <div className="absolute top-3 left-3">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur-md ${post.status === 'LOST'
+                                                    ? 'bg-red-500/90 text-white'
+                                                    : 'bg-green-500/90 text-white'
+                                                    }`}>
+                                                    {post.status}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-5">
+                                            <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">{post.title}</h3>
+                                            <p className="text-sm text-gray-400 line-clamp-2 mb-4 h-10">{post.description}</p>
+
+                                            <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-700 pt-4">
+                                                <span className="flex items-center gap-1">
+                                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                                    {post.date}
+                                                </span>
+                                                <span className="truncate max-w-[150px]">{post.location}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-4 mb-16">
+                                {posts.map((post) => (
+                                    <ProfilePostListItem
+                                        key={post.id}
+                                        post={post}
+                                        onEdit={() => {
+                                            setEditingPost(post);
+                                            if (post.status === 'FOUND') {
+                                                setIsFoundModalOpen(true);
+                                            } else {
+                                                setIsReportModalOpen(true);
+                                            }
+                                        }}
+                                        onDelete={() => handleDeletePost(post.id)}
+                                    />
+                                ))}
+                            </div>
+                        )}
 
                         {posts.length === 0 && (
                             <div className="text-center py-16 bg-gray-800/50 rounded-2xl border border-dashed border-gray-700 mb-16">
