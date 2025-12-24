@@ -165,3 +165,5 @@ JWT_REFRESH_TTL=7d
 - User doesn't exist
 - User is blocked
 
+
+
