@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { LayoutDashboard, Users, FileText, Settings, LogOut, Menu, X, Facebook } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Menu, X, Facebook } from 'lucide-react';
 import Logo from '../../components/Logo';
 
 interface SidebarProps {
