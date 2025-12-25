@@ -113,3 +113,4 @@ export default function PostListItem({ post, onClick }: PostListItemProps) {
     );
 }
 
+
