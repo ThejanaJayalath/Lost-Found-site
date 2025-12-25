@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { getApiBaseUrl } from '../../services/api';
 import Sidebar from '../../components/admin/Sidebar';
 import StatsCard from '../../components/admin/StatsCard';
@@ -504,55 +505,162 @@ export default function AdminDashboard() {
                         {/* Post Status Overview */}
                         <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-4 md:p-6">
                             <h2 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">Post Status Overview</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                                {/* PENDING Status */}
-                                <div className="bg-[#2d2d2d] rounded-xl border border-gray-700 p-4 md:p-6 hover:border-yellow-500/50 transition-all">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex items-center gap-2 md:gap-3">
-                                            <div className="p-2 md:p-3 rounded-lg bg-yellow-500/10">
-                                                <Package className="text-yellow-500 w-5 h-5 md:w-6 md:h-6" />
-                                            </div>
-                                            <h3 className="text-sm md:text-base font-semibold text-gray-300">Pending</h3>
-                                        </div>
-                                    </div>
-                                    <div className="text-2xl md:text-3xl font-bold text-yellow-500">
-                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'PENDING').length}
-                                    </div>
-                                    <p className="text-xs md:text-sm text-gray-500 mt-2">Awaiting approval</p>
-                                </div>
+                            {(() => {
+                                const pendingCount = users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'PENDING').length;
+                                const postedCount = users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'POSTED').length;
+                                const failedCount = users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'FAILED').length;
+                                const total = pendingCount + postedCount + failedCount;
 
-                                {/* POSTED Status */}
-                                <div className="bg-[#2d2d2d] rounded-xl border border-gray-700 p-4 md:p-6 hover:border-green-500/50 transition-all">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex items-center gap-2 md:gap-3">
-                                            <div className="p-2 md:p-3 rounded-lg bg-green-500/10">
-                                                <CheckCircle className="text-green-500 w-5 h-5 md:w-6 md:h-6" />
-                                            </div>
-                                            <h3 className="text-sm md:text-base font-semibold text-gray-300">Posted</h3>
-                                        </div>
-                                    </div>
-                                    <div className="text-2xl md:text-3xl font-bold text-green-500">
-                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'POSTED').length}
-                                    </div>
-                                    <p className="text-xs md:text-sm text-gray-500 mt-2">Published to Facebook</p>
-                                </div>
+                                const chartData = [
+                                    { name: 'Pending', value: pendingCount, color: '#EAB308', icon: Package },
+                                    { name: 'Posted', value: postedCount, color: '#22C55E', icon: CheckCircle },
+                                    { name: 'Failed', value: failedCount, color: '#EF4444', icon: X },
+                                ].filter(item => item.value > 0);
 
-                                {/* FAILED Status */}
-                                <div className="bg-[#2d2d2d] rounded-xl border border-gray-700 p-4 md:p-6 hover:border-red-500/50 transition-all">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex items-center gap-2 md:gap-3">
-                                            <div className="p-2 md:p-3 rounded-lg bg-red-500/10">
-                                                <X className="text-red-500 w-5 h-5 md:w-6 md:h-6" />
+                                const CustomTooltip = ({ active, payload }: any) => {
+                                    if (active && payload && payload.length) {
+                                        const data = payload[0];
+                                        const percentage = total > 0 ? ((data.value / total) * 100).toFixed(1) : 0;
+                                        return (
+                                            <div className="bg-[#2d2d2d] border border-gray-700 p-3 md:p-4 rounded-xl shadow-xl">
+                                                <p className="text-white font-semibold text-sm md:text-base mb-2">{data.name}</p>
+                                                <p className="text-gray-300 text-xs md:text-sm">Count: <span className="font-bold" style={{ color: data.payload.fill }}>{data.value}</span></p>
+                                                <p className="text-gray-400 text-xs">Percentage: {percentage}%</p>
                                             </div>
-                                            <h3 className="text-sm md:text-base font-semibold text-gray-300">Failed</h3>
+                                        );
+                                    }
+                                    return null;
+                                };
+
+                                const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+                                    const RADIAN = Math.PI / 180;
+                                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                                    if (percent < 0.05) return null; // Don't show label if slice is too small
+
+                                    return (
+                                        <text
+                                            x={x}
+                                            y={y}
+                                            fill="white"
+                                            textAnchor={x > cx ? 'start' : 'end'}
+                                            dominantBaseline="central"
+                                            className="text-xs md:text-sm font-semibold"
+                                        >
+                                            {`${(percent * 100).toFixed(0)}%`}
+                                        </text>
+                                    );
+                                };
+
+                                if (total === 0) {
+                                    return (
+                                        <div className="flex flex-col items-center justify-center py-12 md:py-16">
+                                            <Package className="w-12 h-12 md:w-16 md:h-16 text-gray-600 mb-4" />
+                                            <p className="text-gray-500 text-sm md:text-base">No posts with Facebook status yet</p>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center">
+                                        {/* Donut Chart */}
+                                        <div className="w-full md:w-1/2 max-w-md">
+                                            <ResponsiveContainer width="100%" height={300}>
+                                                <PieChart>
+                                                    <defs>
+                                                        <linearGradient id="gradientPending" x1="0" y1="0" x2="1" y2="1">
+                                                            <stop offset="0%" stopColor="#FCD34D" stopOpacity={1} />
+                                                            <stop offset="100%" stopColor="#EAB308" stopOpacity={1} />
+                                                        </linearGradient>
+                                                        <linearGradient id="gradientPosted" x1="0" y1="0" x2="1" y2="1">
+                                                            <stop offset="0%" stopColor="#4ADE80" stopOpacity={1} />
+                                                            <stop offset="100%" stopColor="#22C55E" stopOpacity={1} />
+                                                        </linearGradient>
+                                                        <linearGradient id="gradientFailed" x1="0" y1="0" x2="1" y2="1">
+                                                            <stop offset="0%" stopColor="#F87171" stopOpacity={1} />
+                                                            <stop offset="100%" stopColor="#EF4444" stopOpacity={1} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <Pie
+                                                        data={chartData}
+                                                        cx="50%"
+                                                        cy="50%"
+                                                        labelLine={false}
+                                                        label={CustomLabel}
+                                                        outerRadius={100}
+                                                        innerRadius={60}
+                                                        fill="#8884d8"
+                                                        dataKey="value"
+                                                        stroke="#0f0f0f"
+                                                        strokeWidth={3}
+                                                    >
+                                                        {chartData.map((entry) => {
+                                                            const gradientId = entry.name === 'Pending' ? 'gradientPending' : entry.name === 'Posted' ? 'gradientPosted' : 'gradientFailed';
+                                                            return (
+                                                                <Cell key={`cell-${entry.name}`} fill={`url(#${gradientId})`} />
+                                                            );
+                                                        })}
+                                                    </Pie>
+                                                    <Tooltip content={<CustomTooltip />} />
+                                                </PieChart>
+                                            </ResponsiveContainer>
+                                        </div>
+
+                                        {/* Legend with Stats */}
+                                        <div className="w-full md:w-1/2 space-y-4">
+                                            {chartData.map((item, index) => {
+                                                const Icon = item.icon;
+                                                const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
+                                                return (
+                                                    <div
+                                                        key={item.name}
+                                                        className="bg-[#2d2d2d] rounded-xl border border-gray-700 p-4 md:p-5 hover:border-opacity-50 transition-all"
+                                                        style={{ borderColor: `${item.color}40` }}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-3 md:gap-4">
+                                                                <div
+                                                                    className="p-2 md:p-3 rounded-lg flex-shrink-0"
+                                                                    style={{ backgroundColor: `${item.color}20` }}
+                                                                >
+                                                                    <Icon className="w-5 h-5 md:w-6 md:h-6" style={{ color: item.color }} />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="text-sm md:text-base font-semibold text-gray-300">{item.name}</h3>
+                                                                    <p className="text-xs md:text-sm text-gray-500 mt-1">
+                                                                        {item.name === 'Pending' && 'Awaiting approval'}
+                                                                        {item.name === 'Posted' && 'Published to Facebook'}
+                                                                        {item.name === 'Failed' && 'Posting failed'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-xl md:text-2xl font-bold" style={{ color: item.color }}>
+                                                                    {item.value}
+                                                                </div>
+                                                                <div className="text-xs md:text-sm text-gray-500 mt-1">{percentage}%</div>
+                                                            </div>
+                                                        </div>
+                                                        {/* Progress Bar */}
+                                                        <div className="mt-3 md:mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full rounded-full transition-all duration-500"
+                                                                style={{
+                                                                    width: `${percentage}%`,
+                                                                    backgroundColor: item.color,
+                                                                    boxShadow: `0 0 10px ${item.color}40`,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
-                                    <div className="text-2xl md:text-3xl font-bold text-red-500">
-                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'FAILED').length}
-                                    </div>
-                                    <p className="text-xs md:text-sm text-gray-500 mt-2">Posting failed</p>
-                                </div>
-                            </div>
+                                );
+                            })()}
                         </div>
 
                         {/* Charts Area */}
