@@ -790,22 +790,23 @@ export default function AdminDashboard() {
                                                 onClick={() => setSelectedPostForMeta(post)}
                                                 className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedPostForMeta?.id === post.id ? 'bg-blue-500/10 border-blue-500' : 'bg-[#2d2d2d] border-gray-700 hover:border-gray-500'}`}
                                             >
-                                        <div className="flex items-center gap-3 md:gap-4">
-                                            {post.images?.[0] ? <img src={post.images[0]} className="w-10 h-10 md:w-12 md:h-12 rounded object-cover flex-shrink-0" /> : <div className="w-10 h-10 md:w-12 md:h-12 rounded bg-gray-600 flex-shrink-0"></div>}
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-white text-sm md:text-base truncate">{post.title}</h4>
-                                                <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
-                                                <div className="flex flex-wrap items-center gap-2 mt-1">
-                                                    <span className="inline-block text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded flex items-center gap-1">
-                                                        <Facebook size={10} />
-                                                        Published
-                                                    </span>
-                                                    {post.facebookPostId && (
-                                                        <span className="text-xs text-gray-500 truncate">ID: {post.facebookPostId}</span>
-                                                    )}
+                                                <div className="flex items-center gap-3 md:gap-4">
+                                                    {post.images?.[0] ? <img src={post.images[0]} className="w-10 h-10 md:w-12 md:h-12 rounded object-cover flex-shrink-0" /> : <div className="w-10 h-10 md:w-12 md:h-12 rounded bg-gray-600 flex-shrink-0"></div>}
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-bold text-white text-sm md:text-base truncate">{post.title}</h4>
+                                                        <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
+                                                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                                                            <span className="inline-block text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded flex items-center gap-1">
+                                                                <Facebook size={10} />
+                                                                Published
+                                                            </span>
+                                                            {post.facebookPostId && (
+                                                                <span className="text-xs text-gray-500 truncate">ID: {post.facebookPostId}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
                                         ))}
                                         {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'POSTED').length === 0 && (
                                             <div className="text-center text-gray-500 mt-10">No published posts found.</div>
