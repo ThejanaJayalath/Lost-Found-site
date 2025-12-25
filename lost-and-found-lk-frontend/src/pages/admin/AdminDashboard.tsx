@@ -455,17 +455,17 @@ export default function AdminDashboard() {
     if (loading) return <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-white">Loading...</div>;
 
     return (
-        <div className="flex bg-[#0f0f0f] text-white min-h-screen">
+        <div className="flex flex-col md:flex-row bg-[#0f0f0f] text-white min-h-screen">
             {/* Sidebar */}
             <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} handleLogout={handleLogout} />
 
             {/* Main Content */}
-            <div className="flex-1 p-8 overflow-y-auto h-screen">
+            <div className="flex-1 p-4 md:p-8 overflow-y-auto min-h-screen md:h-screen md:ml-0">
                 {/* Header / Top Bar */}
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between items-center mb-6 md:mb-8 mt-12 md:mt-0">
                     <div>
-                        <h1 className="text-2xl font-bold">Hello, {currentUser?.roles?.includes('OWNER') ? 'Owner' : 'Admin'}!</h1>
-                        <p className="text-gray-400 text-sm">Welcome back to Lost & Found Dashboard</p>
+                        <h1 className="text-xl md:text-2xl font-bold">Hello, {currentUser?.roles?.includes('OWNER') ? 'Owner' : 'Admin'}!</h1>
+                        <p className="text-gray-400 text-xs md:text-sm">Welcome back to Lost & Found Dashboard</p>
                     </div>
                 </div>
 
@@ -515,80 +515,80 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <button
                                 onClick={() => setActiveFilter(activeFilter === 'lost' ? 'all' : 'lost')}
-                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'lost' ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-gray-800'}`}
+                                className={`bg-[#1E1E1E] rounded-2xl p-4 md:p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'lost' ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-gray-800'}`}
                             >
                                 <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-orange-500 rounded-tr-full`}></div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <div className="text-4xl font-bold text-white">{getFilterCounts().lost}</div>
-                                    <div className={`p-3 rounded-xl bg-orange-500 bg-opacity-10 text-orange-500`}>
-                                        <Package size={24} />
+                                    <div className="text-3xl md:text-4xl font-bold text-white">{getFilterCounts().lost}</div>
+                                    <div className={`p-2 md:p-3 rounded-xl bg-orange-500 bg-opacity-10 text-orange-500`}>
+                                        <Package size={20} className="md:w-6 md:h-6" />
                                     </div>
                                 </div>
-                                <h3 className="text-gray-400 text-sm font-medium">Lost Items</h3>
+                                <h3 className="text-gray-400 text-xs md:text-sm font-medium">Lost Items</h3>
                             </button>
                             <button
                                 onClick={() => setActiveFilter(activeFilter === 'found' ? 'all' : 'found')}
-                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'found' ? 'border-blue-500/50 ring-2 ring-blue-500/20' : 'border-gray-800'}`}
+                                className={`bg-[#1E1E1E] rounded-2xl p-4 md:p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'found' ? 'border-blue-500/50 ring-2 ring-blue-500/20' : 'border-gray-800'}`}
                             >
                                 <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-blue-500 rounded-tr-full`}></div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <div className="text-4xl font-bold text-white">{getFilterCounts().found}</div>
-                                    <div className={`p-3 rounded-xl bg-blue-500 bg-opacity-10 text-blue-500`}>
-                                        <CheckCircle size={24} />
+                                    <div className="text-3xl md:text-4xl font-bold text-white">{getFilterCounts().found}</div>
+                                    <div className={`p-2 md:p-3 rounded-xl bg-blue-500 bg-opacity-10 text-blue-500`}>
+                                        <CheckCircle size={20} className="md:w-6 md:h-6" />
                                     </div>
                                 </div>
-                                <h3 className="text-gray-400 text-sm font-medium">Found Items</h3>
+                                <h3 className="text-gray-400 text-xs md:text-sm font-medium">Found Items</h3>
                             </button>
                             <button
                                 onClick={() => setActiveFilter(activeFilter === 'resolved' ? 'all' : 'resolved')}
-                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'resolved' ? 'border-purple-500/50 ring-2 ring-purple-500/20' : 'border-gray-800'}`}
+                                className={`bg-[#1E1E1E] rounded-2xl p-4 md:p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'resolved' ? 'border-purple-500/50 ring-2 ring-purple-500/20' : 'border-gray-800'}`}
                             >
                                 <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-purple-500 rounded-tr-full`}></div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <div className="text-4xl font-bold text-white">{getFilterCounts().resolved}</div>
-                                    <div className={`p-3 rounded-xl bg-purple-500 bg-opacity-10 text-purple-500`}>
-                                        <CheckCircle size={24} />
+                                    <div className="text-3xl md:text-4xl font-bold text-white">{getFilterCounts().resolved}</div>
+                                    <div className={`p-2 md:p-3 rounded-xl bg-purple-500 bg-opacity-10 text-purple-500`}>
+                                        <CheckCircle size={20} className="md:w-6 md:h-6" />
                                     </div>
                                 </div>
-                                <h3 className="text-gray-400 text-sm font-medium">Resolved</h3>
+                                <h3 className="text-gray-400 text-xs md:text-sm font-medium">Resolved</h3>
                             </button>
                             <button
                                 onClick={() => setActiveFilter(activeFilter === 'users' ? 'all' : 'users')}
-                                className={`bg-[#1E1E1E] rounded-2xl p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'users' ? 'border-green-500/50 ring-2 ring-green-500/20' : 'border-gray-800'}`}
+                                className={`bg-[#1E1E1E] rounded-2xl p-4 md:p-6 border transition-all relative overflow-hidden group hover:border-gray-700 ${activeFilter === 'users' ? 'border-green-500/50 ring-2 ring-green-500/20' : 'border-gray-800'}`}
                             >
                                 <div className={`absolute bottom-0 left-0 h-1 w-1/3 bg-green-500 rounded-tr-full`}></div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <div className="text-4xl font-bold text-white">{getFilterCounts().users}</div>
-                                    <div className={`p-3 rounded-xl bg-green-500 bg-opacity-10 text-green-500`}>
-                                        <Users size={24} />
+                                    <div className="text-3xl md:text-4xl font-bold text-white">{getFilterCounts().users}</div>
+                                    <div className={`p-2 md:p-3 rounded-xl bg-green-500 bg-opacity-10 text-green-500`}>
+                                        <Users size={20} className="md:w-6 md:h-6" />
                                     </div>
                                 </div>
-                                <h3 className="text-gray-400 text-sm font-medium">Total Users</h3>
+                                <h3 className="text-gray-400 text-xs md:text-sm font-medium">Total Users</h3>
                             </button>
                         </div>
 
                         {/* Search and Sort Bar */}
-                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
-                            <div className="flex flex-col md:flex-row gap-4 items-center">
+                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-4 md:p-6">
+                            <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-stretch md:items-center">
                                 {/* Search Bar */}
-                                <div className="flex-1 w-full md:w-auto relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                                <div className="flex-1 w-full relative">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                                     <input
                                         type="text"
                                         placeholder="Search users, emails, or posts..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500"
+                                        className="w-full pl-10 pr-4 py-2 md:py-2.5 bg-black/50 border border-gray-700 rounded-lg text-white text-sm md:text-base placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500"
                                     />
                                 </div>
 
                                 {/* Sort Dropdown */}
-                                <div className="flex items-center gap-3">
-                                    <label className="text-sm text-gray-400 whitespace-nowrap">Sort by:</label>
+                                <div className="flex items-center gap-2 md:gap-3">
+                                    <label className="text-xs md:text-sm text-gray-400 whitespace-nowrap">Sort by:</label>
                                     <select
                                         value={sortBy}
                                         onChange={(e) => setSortBy(e.target.value as any)}
-                                        className="px-4 py-2.5 bg-black/50 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 cursor-pointer"
+                                        className="flex-1 md:flex-none px-3 md:px-4 py-2 md:py-2.5 bg-black/50 border border-gray-700 rounded-lg text-white text-sm md:text-base focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 cursor-pointer"
                                     >
                                         <option value="latest-activity">Latest Activity</option>
                                         <option value="creation-date-desc">Creation Date (Newest First)</option>
@@ -615,9 +615,9 @@ export default function AdminDashboard() {
 
                         {/* User List */}
                         <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden">
-                            <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                                <h2 className="text-xl font-bold">Tracks / User Management</h2>
-                                <div className="text-sm text-gray-500">
+                            <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                                <h2 className="text-lg md:text-xl font-bold">Tracks / User Management</h2>
+                                <div className="text-xs md:text-sm text-gray-500">
                                     {getFilteredAndSortedUsers().length} {getFilteredAndSortedUsers().length === 1 ? 'user' : 'users'} found
                                 </div>
                             </div>
@@ -626,40 +626,40 @@ export default function AdminDashboard() {
                                 {getFilteredAndSortedUsers().length > 0 ? (
                                     getFilteredAndSortedUsers().map((detail) => (
                                     <div key={detail.user.id} className="group hover:bg-white/5 transition-colors">
-                                        <div className="p-6 flex items-center justify-between cursor-pointer" onClick={() => setExpandedUser(expandedUser === detail.user.id ? null : detail.user.id)}>
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${detail.user.blocked ? 'bg-red-900/20 text-red-500 border border-red-500/30' : 'bg-gray-700 text-white border border-gray-600'}`}>
+                                        <div className="p-4 md:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 cursor-pointer" onClick={() => setExpandedUser(expandedUser === detail.user.id ? null : detail.user.id)}>
+                                            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                                                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-lg font-bold flex-shrink-0 ${detail.user.blocked ? 'bg-red-900/20 text-red-500 border border-red-500/30' : 'bg-gray-700 text-white border border-gray-600'}`}>
                                                     {detail.user.photoUrl ? (
                                                         <img src={detail.user.photoUrl} alt="" className="w-full h-full rounded-full object-cover" />
                                                     ) : (
                                                         detail.user.name ? detail.user.name.substring(0, 2).toUpperCase() : 'U'
                                                     )}
                                                 </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <h3 className="font-bold text-lg">{detail.user.name || 'Unknown User'}</h3>
-                                                        {detail.user.blocked && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">BLOCKED</span>}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                        <h3 className="font-bold text-base md:text-lg truncate">{detail.user.name || 'Unknown User'}</h3>
+                                                        {detail.user.blocked && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full flex-shrink-0">BLOCKED</span>}
                                                     </div>
-                                                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                                                        <span>{detail.user.email}</span>
-                                                        <span>•</span>
+                                                    <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-400">
+                                                        <span className="truncate">{detail.user.email}</span>
+                                                        <span className="hidden md:inline">•</span>
                                                         <span>{detail.postCount} Posts</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-4">
-                                                <div className="text-right text-sm text-gray-500 mr-4">
-                                                    <div>Latest Activity</div>
+                                            <div className="flex items-center justify-between md:justify-end gap-4">
+                                                <div className="text-left md:text-right text-xs md:text-sm text-gray-500">
+                                                    <div className="hidden md:block">Latest Activity</div>
                                                     <div>{detail.latestActivity || 'Never'}</div>
                                                 </div>
-                                                {expandedUser === detail.user.id ? <ChevronUp size={20} className="text-gray-500" /> : <ChevronDown size={20} className="text-gray-500" />}
+                                                {expandedUser === detail.user.id ? <ChevronUp size={20} className="text-gray-500 flex-shrink-0" /> : <ChevronDown size={20} className="text-gray-500 flex-shrink-0" />}
                                             </div>
                                         </div>
 
                                         {/* Expanded Details */}
                                         {expandedUser === detail.user.id && (
-                                            <div className="px-6 pb-6 pl-20 bg-black/20 border-t border-gray-800/50">
-                                                <div className="py-4 flex gap-3 mb-4 border-b border-gray-800/50">
+                                            <div className="px-4 md:px-6 pb-4 md:pb-6 pl-4 md:pl-20 bg-black/20 border-t border-gray-800/50">
+                                                <div className="py-4 flex flex-wrap gap-2 md:gap-3 mb-4 border-b border-gray-800/50">
                                                     <button onClick={() => toggleBlockUser(detail.user.id)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${detail.user.blocked ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20' : 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20'}`}>
                                                         <Ban size={16} /> {detail.user.blocked ? 'Unblock' : 'Block'}
                                                     </button>
@@ -668,27 +668,27 @@ export default function AdminDashboard() {
                                                     </button>
                                                 </div>
 
-                                                <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">User Posts</h4>
+                                                <h4 className="text-xs md:text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">User Posts</h4>
                                                 {detail.posts.length > 0 ? (
                                                     <div className="grid grid-cols-1 gap-3">
                                                         {detail.posts.map(post => (
-                                                            <div key={post.id} className={`bg-[#2d2d2d] rounded-lg p-4 flex items-center justify-between border ${post.hidden ? 'border-red-500/30 opacity-60' : 'border-gray-700'}`}>
-                                                                <div className="flex items-center gap-4">
+                                                            <div key={post.id} className={`bg-[#2d2d2d] rounded-lg p-3 md:p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 border ${post.hidden ? 'border-red-500/30 opacity-60' : 'border-gray-700'}`}>
+                                                                <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                                                                     {post.images && post.images.length > 0 ? (
-                                                                        <img src={post.images[0]} alt="" className="w-16 h-16 rounded-md object-cover bg-black" />
+                                                                        <img src={post.images[0]} alt="" className="w-12 h-12 md:w-16 md:h-16 rounded-md object-cover bg-black flex-shrink-0" />
                                                                     ) : (
-                                                                        <div className="w-16 h-16 rounded-md bg-gray-800 flex items-center justify-center text-gray-600">No Img</div>
+                                                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-md bg-gray-800 flex items-center justify-center text-gray-600 text-xs flex-shrink-0">No Img</div>
                                                                     )}
-                                                                    <div>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <h5 className="font-bold text-white">{post.title}</h5>
-                                                                            <span className={`text-xs px-2 py-0.5 rounded-full ${post.status === 'LOST' ? 'bg-red-500/20 text-red-400' : post.status === 'FOUND' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>{post.status}</span>
-                                                                            {post.facebookStatus === 'POSTED' && <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1"><Facebook size={10} /> Published</span>}
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                                            <h5 className="font-bold text-white text-sm md:text-base truncate">{post.title}</h5>
+                                                                            <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${post.status === 'LOST' ? 'bg-red-500/20 text-red-400' : post.status === 'FOUND' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>{post.status}</span>
+                                                                            {post.facebookStatus === 'POSTED' && <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1 flex-shrink-0"><Facebook size={10} /> Published</span>}
                                                                         </div>
-                                                                        <p className="text-sm text-gray-400 line-clamp-1">{post.description}</p>
+                                                                        <p className="text-xs md:text-sm text-gray-400 line-clamp-1">{post.description}</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="flex gap-2">
+                                                                <div className="flex gap-2 justify-end md:justify-start">
                                                                     <button
                                                                         onClick={() => handleSendToMeta(post)}
                                                                         disabled={post.facebookStatus === 'POSTED'}
@@ -721,10 +721,10 @@ export default function AdminDashboard() {
 
                 {/* 3. META TAB */}
                 {activeTab === 'meta' && (
-                    <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-8 h-[calc(100vh-140px)]">
+                    <div className="animate-fade-in flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 min-h-[calc(100vh-200px)] md:h-[calc(100vh-140px)]">
                         {/* Left: Post Requests & History */}
-                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden flex flex-col">
-                            <div className="p-6 border-b border-gray-800">
+                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden flex flex-col min-h-[400px] md:min-h-0">
+                            <div className="p-4 md:p-6 border-b border-gray-800">
                                 <div className="flex gap-2 mb-4">
                                     <button
                                         onClick={() => {
@@ -768,10 +768,10 @@ export default function AdminDashboard() {
                                                 onClick={() => setSelectedPostForMeta(post)}
                                                 className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedPostForMeta?.id === post.id ? 'bg-blue-500/10 border-blue-500' : 'bg-[#2d2d2d] border-gray-700 hover:border-gray-500'}`}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    {post.images?.[0] ? <img src={post.images[0]} className="w-12 h-12 rounded object-cover" /> : <div className="w-12 h-12 rounded bg-gray-600"></div>}
-                                                    <div className="flex-1">
-                                                        <h4 className="font-bold text-white">{post.title}</h4>
+                                                <div className="flex items-center gap-3 md:gap-4">
+                                                    {post.images?.[0] ? <img src={post.images[0]} className="w-10 h-10 md:w-12 md:h-12 rounded object-cover flex-shrink-0" /> : <div className="w-10 h-10 md:w-12 md:h-12 rounded bg-gray-600 flex-shrink-0"></div>}
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-bold text-white text-sm md:text-base truncate">{post.title}</h4>
                                                         <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
                                                         <span className="inline-block mt-1 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Pending Approval</span>
                                                     </div>
@@ -790,23 +790,22 @@ export default function AdminDashboard() {
                                                 onClick={() => setSelectedPostForMeta(post)}
                                                 className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedPostForMeta?.id === post.id ? 'bg-blue-500/10 border-blue-500' : 'bg-[#2d2d2d] border-gray-700 hover:border-gray-500'}`}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    {post.images?.[0] ? <img src={post.images[0]} className="w-12 h-12 rounded object-cover" /> : <div className="w-12 h-12 rounded bg-gray-600"></div>}
-                                                    <div className="flex-1">
-                                                        <h4 className="font-bold text-white">{post.title}</h4>
-                                                        <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <span className="inline-block text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded flex items-center gap-1">
-                                                                <Facebook size={10} />
-                                                                Published
-                                                            </span>
-                                                            {post.facebookPostId && (
-                                                                <span className="text-xs text-gray-500">ID: {post.facebookPostId}</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                        <div className="flex items-center gap-3 md:gap-4">
+                                            {post.images?.[0] ? <img src={post.images[0]} className="w-10 h-10 md:w-12 md:h-12 rounded object-cover flex-shrink-0" /> : <div className="w-10 h-10 md:w-12 md:h-12 rounded bg-gray-600 flex-shrink-0"></div>}
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-bold text-white text-sm md:text-base truncate">{post.title}</h4>
+                                                <p className="text-xs text-gray-400">{post.status} • {post.date}</p>
+                                                <div className="flex flex-wrap items-center gap-2 mt-1">
+                                                    <span className="inline-block text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded flex items-center gap-1">
+                                                        <Facebook size={10} />
+                                                        Published
+                                                    </span>
+                                                    {post.facebookPostId && (
+                                                        <span className="text-xs text-gray-500 truncate">ID: {post.facebookPostId}</span>
+                                                    )}
                                                 </div>
                                             </div>
+                                        </div>
                                         ))}
                                         {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'POSTED').length === 0 && (
                                             <div className="text-center text-gray-500 mt-10">No published posts found.</div>
@@ -817,17 +816,17 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Right: Editor Preview */}
-                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 flex flex-col overflow-hidden">
+                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 flex flex-col overflow-hidden min-h-[500px] md:min-h-0">
                             {selectedPostForMeta ? (
                                 <>
-                                    <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-[#2d2d2d]">
-                                        <h3 className="font-bold">Post Preview</h3>
-                                        <div className="flex items-center gap-2 text-blue-400 text-sm">
-                                            <Facebook size={16} />
-                                            Target: Lost & Found LK Page
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                                            <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col md:flex-row md:justify-between md:items-center gap-2 bg-[#2d2d2d]">
+                                                <h3 className="font-bold text-sm md:text-base">Post Preview</h3>
+                                                <div className="flex items-center gap-2 text-blue-400 text-xs md:text-sm">
+                                                    <Facebook size={14} />
+                                                    Target: Lost & Found LK Page
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
                                         {/* Image Preview */}
                                         <div className="aspect-video bg-black rounded-lg flex items-center justify-center overflow-hidden border border-gray-800">
                                             {selectedPostForMeta.images?.[0] ? (
@@ -848,26 +847,26 @@ export default function AdminDashboard() {
                                             <p className="text-xs text-gray-500 mt-2 text-right">{metaCaption.length} characters</p>
                                         </div>
                                     </div>
-                                    {selectedPostForMeta.facebookStatus === 'PENDING' && (
-                                        <div className="p-6 border-t border-gray-800 bg-[#2d2d2d]">
+                                        {selectedPostForMeta.facebookStatus === 'PENDING' && (
+                                        <div className="p-4 md:p-6 border-t border-gray-800 bg-[#2d2d2d]">
                                             <button
                                                 onClick={handleSubmitToFacebook}
                                                 disabled={postingToFb[selectedPostForMeta.id]}
-                                                className="w-full py-3 bg-[#1877F2] hover:bg-[#166fe5] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="w-full py-2.5 md:py-3 bg-[#1877F2] hover:bg-[#166fe5] text-white rounded-xl font-bold text-sm md:text-base transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {postingToFb[selectedPostForMeta.id] ? 'Publishing...' : 'Approve & Publish to Facebook'}
                                             </button>
                                         </div>
                                     )}
                                     {selectedPostForMeta.facebookStatus === 'POSTED' && (
-                                        <div className="p-6 border-t border-gray-800 bg-[#2d2d2d]">
-                                            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 text-center">
+                                        <div className="p-4 md:p-6 border-t border-gray-800 bg-[#2d2d2d]">
+                                            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 md:p-4 text-center">
                                                 <div className="flex items-center justify-center gap-2 text-green-400 mb-2">
-                                                    <Facebook size={18} />
-                                                    <span className="font-bold">Published to Facebook</span>
+                                                    <Facebook size={16} />
+                                                    <span className="font-bold text-sm md:text-base">Published to Facebook</span>
                                                 </div>
                                                 {selectedPostForMeta.facebookPostId && (
-                                                    <p className="text-xs text-gray-400">Post ID: {selectedPostForMeta.facebookPostId}</p>
+                                                    <p className="text-xs text-gray-400 break-all">Post ID: {selectedPostForMeta.facebookPostId}</p>
                                                 )}
                                             </div>
                                         </div>
@@ -934,11 +933,11 @@ function RolesTab({ admins, currentUser, onAddAdmin, onChangeEmail, onChangePass
 
     return (
         <div className="animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Admin Management</h2>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                <h2 className="text-xl md:text-2xl font-bold">Admin Management</h2>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-sm md:text-base"
                 >
                     <Users size={18} />
                     Add New Admin
@@ -946,7 +945,75 @@ function RolesTab({ admins, currentUser, onAddAdmin, onChangeEmail, onChangePass
             </div>
 
             <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-gray-800">
+                    {admins.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500">No admins found.</div>
+                    ) : (
+                        admins.map((admin: any) => {
+                        const isCurrentUser = currentUser?.userId === admin.id;
+                        const isAdminRole = admin.roles?.includes('ADMIN') && !admin.roles?.includes('OWNER');
+                        const isTargetOwner = admin.roles?.includes('OWNER');
+                        const canEdit = isOwner || (isAdminRole && !isTargetOwner);
+
+                        return (
+                            <div key={admin.id} className="p-4 space-y-3">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h3 className="font-bold text-white text-sm">{admin.email}</h3>
+                                            {admin.roles?.includes('OWNER') ? (
+                                                <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded text-xs font-bold">OWNER</span>
+                                            ) : (
+                                                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs font-bold">ADMIN</span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-400">{admin.name}</p>
+                                        <p className="text-xs text-gray-500 mt-1">Created: {new Date(admin.createdAt).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                {canEdit && (
+                                    <div className="flex gap-2 pt-2 border-t border-gray-800">
+                                        <button
+                                            onClick={() => {
+                                                setShowEditEmailModal(admin);
+                                                setNewEmail(admin.email);
+                                            }}
+                                            className="flex-1 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg text-blue-400 transition-colors text-xs flex items-center justify-center gap-1"
+                                        >
+                                            <Mail size={14} />
+                                            Change Email
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowChangePasswordModal(admin);
+                                            }}
+                                            className="flex-1 px-3 py-2 bg-green-500/10 hover:bg-green-500/20 rounded-lg text-green-400 transition-colors text-xs flex items-center justify-center gap-1"
+                                        >
+                                            <Lock size={14} />
+                                            Change Password
+                                        </button>
+                                        {isOwner && !isCurrentUser && isAdminRole && (
+                                            <button
+                                                onClick={() => onRemoveAdmin(admin.id)}
+                                                className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-red-400 transition-colors text-xs"
+                                                title="Remove Admin"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {isCurrentUser && (
+                                    <p className="text-xs text-gray-500 italic">(Current User)</p>
+                                )}
+                            </div>
+                        );
+                    }))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-[#2d2d2d] border-b border-gray-800">
                             <tr>
@@ -1072,14 +1139,14 @@ function RolesTab({ admins, currentUser, onAddAdmin, onChangeEmail, onChangePass
 function AddAdminModal({ onClose, onSubmit }: any) {
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800">
-                <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-white">Add New Admin</h3>
+            <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800 max-h-[90vh] overflow-y-auto">
+                <div className="p-4 md:p-6 border-b border-gray-800 flex justify-between items-center sticky top-0 bg-[#1c1c1c]">
+                    <h3 className="text-lg md:text-xl font-bold text-white">Add New Admin</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-white">
                         <X size={24} />
                     </button>
                 </div>
-                <form onSubmit={onSubmit} className="p-6 space-y-4">
+                <form onSubmit={onSubmit} className="p-4 md:p-6 space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
                         <input name="name" required className="w-full bg-black/50 border border-gray-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" />
@@ -1105,14 +1172,14 @@ function AddAdminModal({ onClose, onSubmit }: any) {
 function EditEmailModal({ admin, currentEmail, onClose, onSubmit, onEmailChange }: any) {
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800">
-                <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-white">Change Email for {admin.name}</h3>
+            <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800 max-h-[90vh] overflow-y-auto">
+                <div className="p-4 md:p-6 border-b border-gray-800 flex justify-between items-center sticky top-0 bg-[#1c1c1c]">
+                    <h3 className="text-lg md:text-xl font-bold text-white">Change Email for {admin.name}</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-white">
                         <X size={24} />
                     </button>
                 </div>
-                <form onSubmit={onSubmit} className="p-6 space-y-4">
+                <form onSubmit={onSubmit} className="p-4 md:p-6 space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-1">New Email</label>
                         <input
@@ -1143,14 +1210,14 @@ function ChangePasswordModal({ admin, onClose, onSubmit }: any) {
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800">
-                <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-white">Change Password for {admin.name}</h3>
+            <div className="bg-[#1c1c1c] rounded-2xl w-full max-w-md border border-gray-800 max-h-[90vh] overflow-y-auto">
+                <div className="p-4 md:p-6 border-b border-gray-800 flex justify-between items-center sticky top-0 bg-[#1c1c1c]">
+                    <h3 className="text-lg md:text-xl font-bold text-white">Change Password for {admin.name}</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-white">
                         <X size={24} />
                     </button>
                 </div>
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-1">New Password</label>
                         <input

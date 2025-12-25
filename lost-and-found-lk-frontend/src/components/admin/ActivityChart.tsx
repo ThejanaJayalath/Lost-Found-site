@@ -32,10 +32,10 @@ export default function ActivityChart({ data }: ActivityChartProps) {
     };
 
     return (
-        <div className="bg-[#1E1E1E] rounded-2xl p-6 border border-gray-800 h-[400px]">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">Activity Overview</h3>
-                <div className="flex gap-4">
+        <div className="bg-[#1E1E1E] rounded-2xl p-4 md:p-6 border border-gray-800 h-[300px] md:h-[400px]">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 mb-4 md:mb-6">
+                <h3 className="text-lg md:text-xl font-bold text-white">Activity Overview</h3>
+                <div className="flex flex-wrap gap-3 md:gap-4">
                     <div className="flex items-center gap-2 text-xs text-gray-400">
                         <span className="w-2 h-2 rounded-full bg-orange-500"></span> Lost
                     </div>

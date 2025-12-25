@@ -25,18 +25,18 @@ export default function StatsCard({ title, value, icon, color }: StatsCardProps)
 
 
     return (
-        <div className="bg-[#1E1E1E] rounded-2xl p-6 border border-gray-800 relative overflow-hidden group hover:border-gray-700 transition-colors">
+        <div className="bg-[#1E1E1E] rounded-2xl p-4 md:p-6 border border-gray-800 relative overflow-hidden group hover:border-gray-700 transition-colors">
             {/* Decorative bottom bar */}
             <div className={`absolute bottom-0 left-0 h-1 w-1/3 ${colorStyles[color]} rounded-tr-full`}></div>
 
             <div className="flex justify-between items-start mb-2">
-                <div className="text-4xl font-bold text-white">{value}</div>
-                <div className={`p-3 rounded-xl ${colorStyles[color]} bg-opacity-10 ${textColors[color]}`}>
+                <div className="text-3xl md:text-4xl font-bold text-white">{value}</div>
+                <div className={`p-2 md:p-3 rounded-xl ${colorStyles[color]} bg-opacity-10 ${textColors[color]}`}>
                     {icon}
                 </div>
             </div>
 
-            <h3 className="text-gray-400 text-sm font-medium">{title}</h3>
+            <h3 className="text-gray-400 text-xs md:text-sm font-medium">{title}</h3>
         </div>
     );
 }
