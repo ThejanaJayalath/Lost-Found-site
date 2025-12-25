@@ -610,7 +610,7 @@ export default function AdminDashboard() {
 
                                         {/* Legend with Stats */}
                                         <div className="w-full md:w-1/2 space-y-4">
-                                            {chartData.map((item, index) => {
+                                            {chartData.map((item) => {
                                                 const Icon = item.icon;
                                                 const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
                                                 return (
