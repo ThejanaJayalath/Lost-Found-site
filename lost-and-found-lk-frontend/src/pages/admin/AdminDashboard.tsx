@@ -501,6 +501,60 @@ export default function AdminDashboard() {
                             />
                         </div>
 
+                        {/* Post Status Overview */}
+                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-4 md:p-6">
+                            <h2 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">Post Status Overview</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                                {/* PENDING Status */}
+                                <div className="bg-[#2d2d2d] rounded-xl border border-gray-700 p-4 md:p-6 hover:border-yellow-500/50 transition-all">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2 md:gap-3">
+                                            <div className="p-2 md:p-3 rounded-lg bg-yellow-500/10">
+                                                <Package className="text-yellow-500 w-5 h-5 md:w-6 md:h-6" />
+                                            </div>
+                                            <h3 className="text-sm md:text-base font-semibold text-gray-300">Pending</h3>
+                                        </div>
+                                    </div>
+                                    <div className="text-2xl md:text-3xl font-bold text-yellow-500">
+                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'PENDING').length}
+                                    </div>
+                                    <p className="text-xs md:text-sm text-gray-500 mt-2">Awaiting approval</p>
+                                </div>
+
+                                {/* POSTED Status */}
+                                <div className="bg-[#2d2d2d] rounded-xl border border-gray-700 p-4 md:p-6 hover:border-green-500/50 transition-all">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2 md:gap-3">
+                                            <div className="p-2 md:p-3 rounded-lg bg-green-500/10">
+                                                <CheckCircle className="text-green-500 w-5 h-5 md:w-6 md:h-6" />
+                                            </div>
+                                            <h3 className="text-sm md:text-base font-semibold text-gray-300">Posted</h3>
+                                        </div>
+                                    </div>
+                                    <div className="text-2xl md:text-3xl font-bold text-green-500">
+                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'POSTED').length}
+                                    </div>
+                                    <p className="text-xs md:text-sm text-gray-500 mt-2">Published to Facebook</p>
+                                </div>
+
+                                {/* FAILED Status */}
+                                <div className="bg-[#2d2d2d] rounded-xl border border-gray-700 p-4 md:p-6 hover:border-red-500/50 transition-all">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2 md:gap-3">
+                                            <div className="p-2 md:p-3 rounded-lg bg-red-500/10">
+                                                <X className="text-red-500 w-5 h-5 md:w-6 md:h-6" />
+                                            </div>
+                                            <h3 className="text-sm md:text-base font-semibold text-gray-300">Failed</h3>
+                                        </div>
+                                    </div>
+                                    <div className="text-2xl md:text-3xl font-bold text-red-500">
+                                        {users.flatMap(u => u.posts).filter(p => p.facebookStatus === 'FAILED').length}
+                                    </div>
+                                    <p className="text-xs md:text-sm text-gray-500 mt-2">Posting failed</p>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Charts Area */}
                         <div className="grid grid-cols-1">
                             <ActivityChart data={chartData} />
