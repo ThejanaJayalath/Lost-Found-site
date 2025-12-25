@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { LayoutDashboard, Users, FileText, Settings, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Settings, LogOut, Menu, X, Facebook } from 'lucide-react';
 import Logo from '../../components/Logo';
 
 interface SidebarProps {
@@ -15,7 +15,7 @@ export default function Sidebar({ activeTab, setActiveTab, handleLogout }: Sideb
     const menuItems = [
         { id: 'overview', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { id: 'tracks', label: 'Tracks', icon: <Users size={20} /> },
-        { id: 'meta', label: 'Meta', icon: <FileText size={20} /> },
+        { id: 'meta', label: 'Meta', icon: <Facebook size={20} /> },
         { id: 'roles', label: 'Roles', icon: <Settings size={20} /> },
     ];
 
