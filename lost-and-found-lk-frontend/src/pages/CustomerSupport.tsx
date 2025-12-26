@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
     HelpCircle, 
     Mail, 
@@ -85,6 +85,11 @@ export default function CustomerSupport() {
         message: ''
     });
     const [formSubmitted, setFormSubmitted] = useState(false);
+
+    // Scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
 
     const filteredFAQs = selectedCategory === 'All' 
         ? faqs 
