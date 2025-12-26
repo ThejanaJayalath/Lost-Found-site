@@ -28,10 +28,10 @@ export default function Footer() {
                 <div>
                     <h3 className="font-bold text-lg mb-4 text-white">Site</h3>
                     <ul className="space-y-2 text-gray-400">
-                        <li><a href="#" className="hover:text-cyan-400 transition-colors">Lost</a></li>
-                        <li><a href="#" className="hover:text-cyan-400 transition-colors">Report Lost</a></li>
-                        <li><a href="#" className="hover:text-cyan-400 transition-colors">Found</a></li>
-                        <li><a href="#" className="hover:text-cyan-400 transition-colors">Report Found</a></li>
+                        <li><Link to="/lost" className="hover:text-cyan-400 transition-colors">Lost</Link></li>
+                        <li><Link to="/lost" className="hover:text-cyan-400 transition-colors">Report Lost</Link></li>
+                        <li><Link to="/found" className="hover:text-cyan-400 transition-colors">Found</Link></li>
+                        <li><Link to="/found" className="hover:text-cyan-400 transition-colors">Report Found</Link></li>
                     </ul>
                 </div>
 
