@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Lost from './pages/Lost';
 import Found from './pages/Found';
 import Profile from './pages/Profile';
+import CustomerSupport from './pages/CustomerSupport';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { AuthProvider } from './contexts/AuthContext';
@@ -48,6 +49,7 @@ function App() {
             <Route path="/lost" element={<Lost onOpenLogin={openLogin} onOpenSignup={openSignup} />} />
             <Route path="/found" element={<Found onOpenLogin={openLogin} onOpenSignup={openSignup} />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/support" element={<CustomerSupport />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>

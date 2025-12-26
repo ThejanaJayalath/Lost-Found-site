@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Facebook, Github, Twitter, Instagram } from 'lucide-react';
 import Logo from './Logo';
 
@@ -38,7 +39,7 @@ export default function Footer() {
                 <div>
                     <h3 className="font-bold text-lg mb-4 text-white">Help</h3>
                     <ul className="space-y-2 text-gray-400">
-                        <li><a href="#" className="hover:text-cyan-400 transition-colors">Customer Support</a></li>
+                        <li><Link to="/support" className="hover:text-cyan-400 transition-colors">Customer Support</Link></li>
                         <li><a href="#" className="hover:text-cyan-400 transition-colors">Terms & Conditions</a></li>
                         <li><a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a></li>
                     </ul>
