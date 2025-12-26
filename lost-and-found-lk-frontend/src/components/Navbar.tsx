@@ -101,18 +101,18 @@ export default function Navbar({ onOpenLogin }: NavbarProps) {
                                                     <User size={18} />
                                                     <span>Profile</span>
                                                 </Link>
-                                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors text-left">
+                                                <Link to="/" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                                                     <Info size={18} />
                                                     <span>About Us</span>
-                                                </button>
-                                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors text-left">
+                                                </Link>
+                                                <Link to="/support" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                                                     <MessageSquare size={18} />
                                                     <span>Feedback</span>
-                                                </button>
-                                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors text-left">
+                                                </Link>
+                                                <Link to="/privacy" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                                                     <Shield size={18} />
                                                     <span>Privacy Policies</span>
-                                                </button>
+                                                </Link>
 
                                                 <div className="h-px bg-gray-800 my-2"></div>
 
