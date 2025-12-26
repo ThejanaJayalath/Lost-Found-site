@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
     Scale, 
     Mail, 
@@ -336,13 +337,13 @@ export default function TermsAndConditions() {
                         <p className="text-gray-300 mb-4">
                             Learn how we collect, use, and protect your personal information. Our Privacy Policy explains our data practices in detail.
                         </p>
-                        <a
-                            href="#"
+                        <Link
+                            to="/privacy"
                             className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-2"
                         >
                             View Privacy Policy
                             <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
-                        </a>
+                        </Link>
                     </div>
 
                     <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-6">
@@ -353,13 +354,13 @@ export default function TermsAndConditions() {
                         <p className="text-gray-300 mb-4">
                             Have questions about our terms or need assistance? Visit our Customer Support page for help and answers to common questions.
                         </p>
-                        <a
-                            href="/support"
+                        <Link
+                            to="/support"
                             className="text-purple-400 hover:text-purple-300 font-semibold inline-flex items-center gap-2"
                         >
                             Visit Support
                             <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </main>
