@@ -65,6 +65,7 @@ export default function Navbar({ onOpenLogin }: NavbarProps) {
                         <Link to="/" className="hover:text-white transition-colors text-sm uppercase tracking-wide">Home</Link>
                         <Link to="/lost" className="hover:text-white transition-colors text-sm uppercase tracking-wide">Lost</Link>
                         <Link to="/found" className="hover:text-white transition-colors text-sm uppercase tracking-wide">Found</Link>
+                        <Link to="/about" className="hover:text-white transition-colors text-sm uppercase tracking-wide">About Us</Link>
                         {user && <Link to="/profile" className="hover:text-white transition-colors text-sm uppercase tracking-wide">Profile</Link>}
                     </div>
 
@@ -157,6 +158,7 @@ export default function Navbar({ onOpenLogin }: NavbarProps) {
                         <Link to="/" className="text-gray-300 hover:text-white py-2 text-lg" onClick={() => setIsMenuOpen(false)}>Home</Link>
                         <Link to="/lost" className="text-gray-300 hover:text-white py-2 text-lg" onClick={() => setIsMenuOpen(false)}>Lost</Link>
                         <Link to="/found" className="text-gray-300 hover:text-white py-2 text-lg" onClick={() => setIsMenuOpen(false)}>Found</Link>
+                        <Link to="/about" className="text-gray-300 hover:text-white py-2 text-lg" onClick={() => setIsMenuOpen(false)}>About Us</Link>
                         {user && <Link to="/profile" className="text-gray-300 hover:text-white py-2 text-lg" onClick={() => setIsMenuOpen(false)}>Profile</Link>}
 
                         <div className="border-t border-gray-800 pt-6 mt-2">
