@@ -11,6 +11,7 @@ import { usersRouter } from "./routes/users.routes";
 import { interactionsRouter } from "./routes/interactions.routes";
 import { adminRouter } from "./routes/admin.routes";
 import { authRouter } from "./routes/auth.routes";
+import { supportRouter } from "./routes/support.routes";
 
 const app = express();
 
@@ -64,6 +65,7 @@ apiRouter.use("/users", usersRouter);
 apiRouter.use("/interactions", interactionsRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", adminRouter);
+apiRouter.use("/support", supportRouter);
 
 app.use("/api", apiRouter); // Handle /api/posts
 app.use("/", apiRouter);    // Handle /posts (in case prefix is stripped)

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { User } from "../models/User";
 import { Post } from "../models/Post";
+import { SupportMessage } from "../models/SupportMessage";
 import { requireAdmin, requireOwner } from "../middleware/auth.middleware";
 import { postToFacebook } from "../utils/facebookService";
 import bcrypt from "bcryptjs";
@@ -436,5 +437,30 @@ adminRouter.delete("/admins/:id", requireOwner, async (req, res) => {
     } catch (error: any) {
         console.error("Error removing admin:", error);
         res.status(500).json({ message: error.message || "Failed to remove admin" });
+    }
+});
+
+// GET /support - Get all support messages
+adminRouter.get("/support", async (req, res) => {
+    try {
+        const messages = await SupportMessage.find({})
+            .sort({ createdAt: -1 }) // Newest first
+            .lean();
+
+        const formattedMessages = messages.map((msg: any) => ({
+            id: msg._id.toString(),
+            name: msg.name,
+            email: msg.email,
+            subject: msg.subject,
+            message: msg.message,
+            status: msg.status,
+            createdAt: msg.createdAt,
+            updatedAt: msg.updatedAt,
+        }));
+
+        res.json(formattedMessages);
+    } catch (error) {
+        console.error("Error fetching support messages:", error);
+        res.status(500).json({ message: "Failed to fetch support messages" });
     }
 });

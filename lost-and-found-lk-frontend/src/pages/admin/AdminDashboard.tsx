@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { getApiBaseUrl } from '../../services/api';
 import Sidebar from '../../components/admin/Sidebar';
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
     const [postingToFb, setPostingToFb] = useState<{ [postId: string]: boolean }>({});
 
     // New State for Tabs and Meta
-    const [activeTab, setActiveTab] = useState<'overview' | 'tracks' | 'meta' | 'roles'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'tracks' | 'meta' | 'roles' | 'messages'>('overview');
     const [admins, setAdmins] = useState<any[]>([]);
     const [currentUser, setCurrentUser] = useState<any>(null); // Current logged-in user
     const [selectedPostForMeta, setSelectedPostForMeta] = useState<any | null>(null);
@@ -61,6 +61,11 @@ export default function AdminDashboard() {
     // We'll generate some data based on the stats we have
     const [chartData, setChartData] = useState<any[]>([]);
 
+    // Support Messages state
+    const [supportMessages, setSupportMessages] = useState<any[]>([]);
+    const [messagesLoading, setMessagesLoading] = useState(false);
+    const [selectedMessage, setSelectedMessage] = useState<any | null>(null);
+
     useEffect(() => {
         const token = localStorage.getItem('adminAccessToken');
         if (!token) {
@@ -69,6 +74,32 @@ export default function AdminDashboard() {
         }
         fetchData();
     }, [navigate]);
+
+    // Fetch support messages when Messages tab is active
+    useEffect(() => {
+        if (activeTab === 'messages') {
+            fetchSupportMessages();
+        }
+    }, [activeTab]);
+
+    const fetchSupportMessages = async () => {
+        setMessagesLoading(true);
+        try {
+            const headers = getAuthHeaders();
+            const response = await fetch(`${getApiBaseUrl()}/admin/support`, { headers });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setSupportMessages(data);
+            } else {
+                console.error('Failed to fetch support messages');
+            }
+        } catch (error) {
+            console.error('Error fetching support messages:', error);
+        } finally {
+            setMessagesLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (selectedPostForMeta) {
@@ -1055,6 +1086,97 @@ export default function AdminDashboard() {
                         onChangePassword={handleChangeAdminPassword}
                         onRemoveAdmin={handleRemoveAdmin}
                     />
+                )}
+
+                {/* 5. MESSAGES TAB */}
+                {activeTab === 'messages' && (
+                    <div className="animate-fade-in">
+                        <div className="mb-6">
+                            <h2 className="text-2xl font-bold mb-2">Support Messages</h2>
+                            <p className="text-gray-400 text-sm">View and manage customer support messages</p>
+                        </div>
+
+                        {messagesLoading ? (
+                            <div className="flex items-center justify-center py-12">
+                                <div className="text-gray-400">Loading messages...</div>
+                            </div>
+                        ) : supportMessages.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                                <MessageSquare size={48} className="mb-4 opacity-20" />
+                                <p>No support messages yet</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Messages List */}
+                                <div className="lg:col-span-1 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+                                    {supportMessages.map((msg) => (
+                                        <div
+                                            key={msg.id}
+                                            onClick={() => setSelectedMessage(msg)}
+                                            className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                                                selectedMessage?.id === msg.id
+                                                    ? 'bg-orange-500/10 border-orange-500/50'
+                                                    : 'bg-[#1E1E1E] border-gray-800 hover:border-gray-700'
+                                            }`}
+                                        >
+                                            <div className="flex items-start justify-between mb-2">
+                                                <h3 className="font-semibold text-white text-sm truncate">{msg.name}</h3>
+                                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                                    msg.status === 'new' ? 'bg-blue-500/20 text-blue-400' :
+                                                    msg.status === 'replied' ? 'bg-green-500/20 text-green-400' :
+                                                    'bg-gray-500/20 text-gray-400'
+                                                }`}>
+                                                    {msg.status}
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-400 text-xs mb-2 truncate">{msg.subject}</p>
+                                            <p className="text-gray-500 text-xs">{new Date(msg.createdAt).toLocaleDateString()}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Message Detail */}
+                                <div className="lg:col-span-2">
+                                    {selectedMessage ? (
+                                        <div className="bg-[#1E1E1E] rounded-lg border border-gray-800 p-6">
+                                            <div className="flex items-start justify-between mb-6">
+                                                <div>
+                                                    <h3 className="text-xl font-bold mb-2">{selectedMessage.subject}</h3>
+                                                    <div className="space-y-1 text-sm text-gray-400">
+                                                        <p><strong className="text-white">From:</strong> {selectedMessage.name}</p>
+                                                        <p><strong className="text-white">Email:</strong> <a href={`mailto:${selectedMessage.email}`} className="text-cyan-400 hover:underline">{selectedMessage.email}</a></p>
+                                                        <p><strong className="text-white">Date:</strong> {new Date(selectedMessage.createdAt).toLocaleString()}</p>
+                                                        <p><strong className="text-white">Status:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                                            selectedMessage.status === 'new' ? 'bg-blue-500/20 text-blue-400' :
+                                                            selectedMessage.status === 'replied' ? 'bg-green-500/20 text-green-400' :
+                                                            'bg-gray-500/20 text-gray-400'
+                                                        }`}>{selectedMessage.status}</span></p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => setSelectedMessage(null)}
+                                                    className="text-gray-400 hover:text-white"
+                                                >
+                                                    <X size={20} />
+                                                </button>
+                                            </div>
+                                            <div className="border-t border-gray-800 pt-6">
+                                                <h4 className="font-semibold mb-3 text-white">Message:</h4>
+                                                <div className="bg-[#2d2d2d] rounded-lg p-4 text-gray-300 whitespace-pre-wrap">
+                                                    {selectedMessage.message}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center py-12 text-gray-500 bg-[#1E1E1E] rounded-lg border border-gray-800">
+                                            <MessageSquare size={48} className="mb-4 opacity-20" />
+                                            <p>Select a message to view details</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
         </div>

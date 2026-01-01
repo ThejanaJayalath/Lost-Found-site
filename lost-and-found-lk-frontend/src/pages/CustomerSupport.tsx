@@ -85,6 +85,8 @@ export default function CustomerSupport() {
         message: ''
     });
     const [formSubmitted, setFormSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -95,13 +97,38 @@ export default function CustomerSupport() {
         ? faqs 
         : faqs.filter(faq => faq.category === selectedCategory);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would typically send the form data to your backend
-        console.log('Support request:', formData);
-        setFormSubmitted(true);
-        setFormData({ name: '', email: '', subject: '', message: '' });
-        setTimeout(() => setFormSubmitted(false), 5000);
+        setIsSubmitting(true);
+        setSubmitError(null);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8082/api'}/support`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to submit message');
+            }
+
+            // Success
+            setFormSubmitted(true);
+            setFormData({ name: '', email: '', subject: '', message: '' });
+            setTimeout(() => {
+                setFormSubmitted(false);
+            }, 5000);
+        } catch (error) {
+            console.error('Error submitting support message:', error);
+            setSubmitError(error instanceof Error ? error.message : 'Failed to submit message. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const toggleFAQ = (index: number) => {
@@ -269,6 +296,13 @@ export default function CustomerSupport() {
                         </div>
                     )}
 
+                    {submitError && (
+                        <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3">
+                            <AlertCircle className="w-6 h-6 text-red-400" />
+                            <p className="text-red-400">{submitError}</p>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -330,10 +364,11 @@ export default function CustomerSupport() {
                         </div>
                         <button
                             type="submit"
-                            className="group relative w-full md:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold text-white hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] flex items-center justify-center gap-2"
+                            disabled={isSubmitting}
+                            className="group relative w-full md:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold text-white hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Send className="w-5 h-5" />
-                            Send Message
+                            {isSubmitting ? 'Sending...' : 'Send Message'}
                         </button>
                     </form>
                 </div>
