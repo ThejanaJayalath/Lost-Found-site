@@ -187,8 +187,8 @@ export default function CustomerSupport() {
                             </div>
                             <h3 className="text-xl font-bold mb-2 text-white">Phone Support</h3>
                             <p className="text-gray-400 mb-3">Call us directly</p>
-                            <a href="tel:+94713731404" className="text-cyan-400 hover:text-cyan-300 font-semibold">
-                                +94 713 731 404
+                            <a href="tel:+94724041555" className="text-cyan-400 hover:text-cyan-300 font-semibold">
+                                +94 724 041 555
                             </a>
                             <p className="text-sm text-gray-500 mt-2">Mon - Fri, 9 AM - 6 PM</p>
                         </div>

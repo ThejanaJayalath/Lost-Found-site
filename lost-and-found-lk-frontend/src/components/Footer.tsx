@@ -13,7 +13,7 @@ export default function Footer() {
                     </div>
                     <div>
                         <h3 className="font-bold text-lg mb-2 text-white">Contact</h3>
-                        <p className="text-gray-400">Tel: +94 713731404</p>
+                        <p className="text-gray-400">Tel: +94 724 041 555</p>
                         <p className="text-gray-400">Email: trackback.help@gmail.com</p>
                         <div className="flex gap-4 mt-4 text-gray-400">
                             <Twitter size={20} className="hover:text-cyan-400 cursor-pointer transition-colors" />

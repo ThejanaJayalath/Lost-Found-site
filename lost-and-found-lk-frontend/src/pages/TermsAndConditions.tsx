@@ -105,7 +105,7 @@ const terms: TermSection[] = [
     {
         category: 'Contact',
         title: 'Contact Information',
-        content: 'If you have questions about these Terms & Conditions, please contact us at: Email: trackback.help@gmail.com | Phone: +94 713 731 404. We will respond to your inquiries within a reasonable timeframe.'
+        content: 'If you have questions about these Terms & Conditions, please contact us at: Email: trackback.help@gmail.com | Phone: +94 724 041 555. We will respond to your inquiries within a reasonable timeframe.'
     },
     {
         category: 'Legal',
@@ -317,9 +317,9 @@ export default function TermsAndConditions() {
                                         trackback.help@gmail.com
                                     </a>
                                     <br />
-                                    <a href="tel:+94713731404" className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-2">
+                                    <a href="tel:+94724041555" className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-2">
                                         <Phone className="w-4 h-4" />
-                                        +94 713 731 404
+                                        +94 724 041 555
                                     </a>
                                 </div>
                             </div>

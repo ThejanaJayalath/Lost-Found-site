@@ -251,8 +251,8 @@ export default function PrivacyPolicy() {
                             <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
                             <div>
                                 <p className="text-gray-400 text-sm">Phone</p>
-                                <a href="tel:+94713731404" className="text-cyan-400 hover:text-cyan-300 font-semibold">
-                                    +94 713 731 404
+                                <a href="tel:+94724041555" className="text-cyan-400 hover:text-cyan-300 font-semibold">
+                                    +94 724 041 555
                                 </a>
                             </div>
                         </div>
