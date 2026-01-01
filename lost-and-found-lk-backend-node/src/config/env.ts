@@ -19,7 +19,7 @@ export const env = {
   cors: {
     allowedOrigins:
       (process.env.APP_CORS_ALLOWEDORIGINS ??
-        "http://localhost:5173,https://lost-found-site.vercel.app")
+        "http://localhost:5173,https://lost-found-site.vercel.app,https://trackback.website,https://www.trackback.website")
         .split(",")
         .map((o) => o.trim())
         .filter(Boolean),
