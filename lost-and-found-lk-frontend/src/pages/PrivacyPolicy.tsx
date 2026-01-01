@@ -189,7 +189,7 @@ export default function PrivacyPolicy() {
                                 <li><strong className="text-white">Delete:</strong> Request deletion of your account and data</li>
                                 <li><strong className="text-white">Opt-out:</strong> Unsubscribe from non-essential communications</li>
                             </ul>
-                            <p className="mt-4">To exercise these rights, contact us at <a href="mailto:thejanajayalath2003@gmail.com" className="text-cyan-400 hover:text-cyan-300">thejanajayalath2003@gmail.com</a></p>
+                            <p className="mt-4">To exercise these rights, contact us at <a href="mailto:trackback.help@gmail.com" className="text-cyan-400 hover:text-cyan-300">trackback.help@gmail.com</a></p>
                         </div>
                     </div>
 
@@ -242,8 +242,8 @@ export default function PrivacyPolicy() {
                             <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
                             <div>
                                 <p className="text-gray-400 text-sm">Email</p>
-                                <a href="mailto:thejanajayalath2003@gmail.com" className="text-cyan-400 hover:text-cyan-300 font-semibold">
-                                    thejanajayalath2003@gmail.com
+                                <a href="mailto:trackback.help@gmail.com" className="text-cyan-400 hover:text-cyan-300 font-semibold">
+                                    trackback.help@gmail.com
                                 </a>
                             </div>
                         </div>

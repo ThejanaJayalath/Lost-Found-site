@@ -175,8 +175,8 @@ export default function CustomerSupport() {
                             </div>
                             <h3 className="text-xl font-bold mb-2 text-white">Email Support</h3>
                             <p className="text-gray-400 mb-3">Send us an email</p>
-                            <a href="mailto:thejanajayalath2003@gmail.com" className="text-cyan-400 hover:text-cyan-300 font-semibold break-all">
-                                thejanajayalath2003@gmail.com
+                            <a href="mailto:trackback.help@gmail.com" className="text-cyan-400 hover:text-cyan-300 font-semibold break-all">
+                                trackback.help@gmail.com
                             </a>
                             <p className="text-sm text-gray-500 mt-2">We respond within 24 hours</p>
                         </div>
@@ -366,7 +366,7 @@ export default function CustomerSupport() {
                             Found a bug or have a suggestion? Use the contact form above or email us directly. We appreciate your feedback!
                         </p>
                         <a
-                            href="mailto:thejanajayalath2003@gmail.com"
+                            href="mailto:trackback.help@gmail.com"
                             className="text-purple-400 hover:text-purple-300 font-semibold inline-flex items-center gap-2"
                         >
                             Email Us

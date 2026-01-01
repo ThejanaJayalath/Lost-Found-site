@@ -105,7 +105,7 @@ const terms: TermSection[] = [
     {
         category: 'Contact',
         title: 'Contact Information',
-        content: 'If you have questions about these Terms & Conditions, please contact us at: Email: thejanajayalath2003@gmail.com | Phone: +94 713 731 404. We will respond to your inquiries within a reasonable timeframe.'
+        content: 'If you have questions about these Terms & Conditions, please contact us at: Email: trackback.help@gmail.com | Phone: +94 713 731 404. We will respond to your inquiries within a reasonable timeframe.'
     },
     {
         category: 'Legal',
@@ -312,9 +312,9 @@ export default function TermsAndConditions() {
                                     If you have any questions about these Terms & Conditions, please contact us:
                                 </p>
                                 <div className="space-y-2">
-                                    <a href="mailto:thejanajayalath2003@gmail.com" className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-2">
+                                    <a href="mailto:trackback.help@gmail.com" className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-2">
                                         <Mail className="w-4 h-4" />
-                                        thejanajayalath2003@gmail.com
+                                        trackback.help@gmail.com
                                     </a>
                                     <br />
                                     <a href="tel:+94713731404" className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-2">
