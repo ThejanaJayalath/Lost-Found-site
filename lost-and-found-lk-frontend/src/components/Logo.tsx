@@ -12,7 +12,7 @@ export default function Logo({ className = "", showText = true }: LogoProps) {
             <div className="relative flex items-center justify-center">
                 <img 
                     src="/logo.png" 
-                    alt="TraceBack Logo" 
+                    alt="TrackBack Logo" 
                     className="h-10 w-auto object-contain"
                 />
             </div>
@@ -20,7 +20,7 @@ export default function Logo({ className = "", showText = true }: LogoProps) {
             {/* Text */}
             {showText && (
                 <span className="font-bold text-2xl tracking-tight text-white">
-                    Trace<span className="text-cyan-400">Back</span>
+                    Track<span className="text-cyan-400">Back</span>
                 </span>
             )}
         </div>

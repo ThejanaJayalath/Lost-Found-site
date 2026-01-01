@@ -25,12 +25,12 @@ const terms: TermSection[] = [
     {
         category: 'Acceptance',
         title: 'Acceptance of Terms',
-        content: 'By accessing and using TraceBack Lost & Found platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.'
+        content: 'By accessing and using TrackBack Lost & Found platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.'
     },
     {
         category: 'Acceptance',
         title: 'Service Description',
-        content: 'TraceBack is a community-driven platform that helps users report, search, and recover lost or found items. Our service facilitates connections between users who have lost items and those who have found them. We provide tools for reporting, searching, and matching items through various methods including IMEI matching for phones and serial number matching for laptops.'
+        content: 'TrackBack is a community-driven platform that helps users report, search, and recover lost or found items. Our service facilitates connections between users who have lost items and those who have found them. We provide tools for reporting, searching, and matching items through various methods including IMEI matching for phones and serial number matching for laptops.'
     },
     {
         category: 'User Accounts',
@@ -70,27 +70,27 @@ const terms: TermSection[] = [
     {
         category: 'Item Matching',
         title: 'Item Verification',
-        content: 'When a match is found, both parties are responsible for verifying the item details before meeting. We recommend meeting in a public place and verifying ownership through additional details. TraceBack is not responsible for disputes between users regarding item ownership or condition. We are not liable for any losses or damages resulting from item exchanges.'
+        content: 'When a match is found, both parties are responsible for verifying the item details before meeting. We recommend meeting in a public place and verifying ownership through additional details. TrackBack is not responsible for disputes between users regarding item ownership or condition. We are not liable for any losses or damages resulting from item exchanges.'
     },
     {
         category: 'Liability',
         title: 'Service Disclaimer',
-        content: 'TraceBack provides the platform "as is" without warranties of any kind. We do not guarantee that you will find your lost item or that matches are accurate. We are not responsible for the actions of other users, including fraud, misrepresentation, or failure to return items. Use of the service is at your own risk.'
+        content: 'TrackBack provides the platform "as is" without warranties of any kind. We do not guarantee that you will find your lost item or that matches are accurate. We are not responsible for the actions of other users, including fraud, misrepresentation, or failure to return items. Use of the service is at your own risk.'
     },
     {
         category: 'Liability',
         title: 'Limitation of Liability',
-        content: 'To the maximum extent permitted by law, TraceBack and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or use, arising from your use of the service. Our total liability shall not exceed the amount you paid to use the service (if any).'
+        content: 'To the maximum extent permitted by law, TrackBack and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or use, arising from your use of the service. Our total liability shall not exceed the amount you paid to use the service (if any).'
     },
     {
         category: 'Intellectual Property',
         title: 'Platform Ownership',
-        content: 'All content, features, and functionality of the TraceBack platform, including but not limited to text, graphics, logos, icons, images, and software, are owned by TraceBack and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works without our written permission.'
+        content: 'All content, features, and functionality of the TrackBack platform, including but not limited to text, graphics, logos, icons, images, and software, are owned by TrackBack and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works without our written permission.'
     },
     {
         category: 'Intellectual Property',
         title: 'User Content License',
-        content: 'By posting content on our platform, you grant TraceBack a non-exclusive, worldwide, royalty-free license to use, display, and distribute your content for the purpose of operating and promoting the service. You retain ownership of your content and can remove it at any time by deleting your posts.'
+        content: 'By posting content on our platform, you grant TrackBack a non-exclusive, worldwide, royalty-free license to use, display, and distribute your content for the purpose of operating and promoting the service. You retain ownership of your content and can remove it at any time by deleting your posts.'
     },
     {
         category: 'Modifications',
@@ -171,7 +171,7 @@ export default function TermsAndConditions() {
                         Terms & Conditions
                     </h1>
                     <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                        Please read these terms carefully before using TraceBack. By using our service, you agree to be bound by these terms.
+                        Please read these terms carefully before using TrackBack. By using our service, you agree to be bound by these terms.
                     </p>
                 </div>
 
@@ -299,7 +299,7 @@ export default function TermsAndConditions() {
                             <div>
                                 <h3 className="text-xl font-semibold text-white mb-2">Agreement to Terms</h3>
                                 <p className="text-gray-300 leading-relaxed">
-                                    By using TraceBack, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions. If you do not agree with any part of these terms, you must not use our service.
+                                    By using TrackBack, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions. If you do not agree with any part of these terms, you must not use our service.
                                 </p>
                             </div>
                         </div>

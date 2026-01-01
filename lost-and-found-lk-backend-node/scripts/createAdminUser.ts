@@ -9,7 +9,7 @@ import bcrypt from "bcryptjs";
 import { User } from "../src/models/User";
 import { env } from "../src/config/env";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@traceback.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@trackback.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Thejanaadmin2003@";
 const ADMIN_NAME = process.env.ADMIN_NAME || "Admin User";
 
