@@ -101,7 +101,7 @@ export default function Navbar({ onOpenLogin }: NavbarProps) {
                                                     <User size={18} />
                                                     <span>Profile</span>
                                                 </Link>
-                                                <Link to="/" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                                                <Link to="/about" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                                                     <Info size={18} />
                                                     <span>About Us</span>
                                                 </Link>

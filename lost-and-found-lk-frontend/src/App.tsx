@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import CustomerSupport from './pages/CustomerSupport';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import AboutUs from './pages/AboutUs';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { AuthProvider } from './contexts/AuthContext';
@@ -54,6 +55,7 @@ function App() {
             <Route path="/support" element={<CustomerSupport />} />
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>
