@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Mail, Lock, User } from 'lucide-react';
+import { X, Mail, Lock, User, Phone } from 'lucide-react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,7 @@ interface SignupModalProps {
 export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: SignupModalProps) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
@@ -21,12 +22,23 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
 
     if (!isOpen) return null;
 
+    const validatePhoneNumber = (phone: string): boolean => {
+        // Basic phone validation - accepts digits, spaces, dashes, parentheses, and + sign
+        const phoneRegex = /^[\d\s\-+()]+$/;
+        const digitsOnly = phone.replace(/\D/g, '');
+        return phoneRegex.test(phone) && digitsOnly.length >= 8 && digitsOnly.length <= 15;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
         if (password !== confirmPassword) {
             return setError('Passwords do not match');
+        }
+
+        if (phoneNumber.trim() && !validatePhoneNumber(phoneNumber)) {
+            return setError('Please enter a valid phone number (8-15 digits)');
         }
 
         setLoading(true);
@@ -38,7 +50,8 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
             });
             await syncUserWithBackend(userCredential.user, {
                 password: password,
-                authProvider: 'local'
+                authProvider: 'local',
+                phoneNumber: phoneNumber.trim() || null,
             });
             onClose();
         } catch (err: any) {
@@ -110,6 +123,23 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
                                         onChange={(e) => setEmail(e.target.value)}
                                     />
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">
+                                    Phone Number <span className="text-gray-500 text-xs">(Optional)</span>
+                                </label>
+                                <div className="relative group">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#40c9ff] transition-colors" size={20} />
+                                    <input
+                                        type="tel"
+                                        className="w-full pl-10 p-3 bg-[#2d2d2d] border border-gray-700 rounded-lg focus:border-[#40c9ff] focus:ring-1 focus:ring-[#40c9ff] outline-none text-white placeholder-gray-600 transition-all"
+                                        placeholder="+94 77 123 4567"
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Your phone number helps others contact you when they find your lost item</p>
                             </div>
 
                             <div>
