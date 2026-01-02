@@ -252,6 +252,7 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
             <PostDetailModal
                 post={selectedPost}
                 onClose={() => setSelectedPost(null)}
+                onOpenLogin={onOpenLogin}
                 onOpenSignup={onOpenSignup}
             />
 

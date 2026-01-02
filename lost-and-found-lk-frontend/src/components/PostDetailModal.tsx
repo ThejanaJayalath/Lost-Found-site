@@ -25,9 +25,10 @@ interface PostDetailModalProps {
     post: Post | null;
     onClose: () => void;
     onOpenSignup?: () => void;
+    onOpenLogin?: () => void;
 }
 
-export default function PostDetailModal({ post, onClose, onOpenSignup }: PostDetailModalProps) {
+export default function PostDetailModal({ post, onClose, onOpenSignup, onOpenLogin }: PostDetailModalProps) {
     const { user } = useAuth();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -119,9 +120,9 @@ export default function PostDetailModal({ post, onClose, onOpenSignup }: PostDet
                             <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <AlertTriangle size={32} className="text-blue-500" />
                             </div>
-                            <h3 className="text-2xl font-bold text-white mb-2">Sign Up Required</h3>
+                            <h3 className="text-2xl font-bold text-white mb-2">Login Required</h3>
                             <p className="text-gray-400 mb-8">
-                                If you want to report this item as found, you should sign up first.
+                                If you want to report this item as found, you should login first.
                             </p>
                             <div className="flex gap-4">
                                 <button
@@ -134,13 +135,13 @@ export default function PostDetailModal({ post, onClose, onOpenSignup }: PostDet
                                     onClick={() => {
                                         setShowLoginRequired(false);
                                         onClose();
-                                        if (onOpenSignup) {
-                                            onOpenSignup();
+                                        if (onOpenLogin) {
+                                            onOpenLogin();
                                         }
                                     }}
                                     className="flex-1 py-3 px-4 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 transition-colors shadow-lg shadow-blue-500/20"
                                 >
-                                    Sign Up
+                                    Login
                                 </button>
                             </div>
                         </div>

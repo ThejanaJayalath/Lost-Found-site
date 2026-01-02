@@ -252,6 +252,7 @@ export default function Found({ onOpenLogin, onOpenSignup }: FoundProps) {
             <PostDetailModal
                 post={selectedPost}
                 onClose={() => setSelectedPost(null)}
+                onOpenLogin={onOpenLogin}
                 onOpenSignup={onOpenSignup}
             />
 

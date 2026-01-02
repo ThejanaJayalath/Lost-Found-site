@@ -4,10 +4,11 @@ import { useState } from 'react';
 import QuickCheckModal from '../components/QuickCheckModal';
 
 interface HomeProps {
+    onOpenLogin?: () => void;
     onOpenSignup?: () => void;
 }
 
-export default function Home({ onOpenSignup }: HomeProps) {
+export default function Home({ onOpenLogin, onOpenSignup }: HomeProps) {
     const navigate = useNavigate();
     const [isQuickCheckOpen, setIsQuickCheckOpen] = useState(false);
 
@@ -131,7 +132,7 @@ export default function Home({ onOpenSignup }: HomeProps) {
             </main>
 
             {/* Quick Check Modal */}
-            <QuickCheckModal isOpen={isQuickCheckOpen} onClose={() => setIsQuickCheckOpen(false)} onOpenSignup={onOpenSignup} />
+            <QuickCheckModal isOpen={isQuickCheckOpen} onClose={() => setIsQuickCheckOpen(false)} onOpenLogin={onOpenLogin} onOpenSignup={onOpenSignup} />
         </div>
     );
 }
