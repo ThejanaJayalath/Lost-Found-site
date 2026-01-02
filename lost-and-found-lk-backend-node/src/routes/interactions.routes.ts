@@ -159,7 +159,7 @@ router.post("/found", async (req, res) => {
                     postDescription: post.description,
                     postLocation: post.location,
                     postDate: post.date,
-                    contactPhone: post.contactPhone,
+                    ...(post.contactPhone && { contactPhone: post.contactPhone }),
                 });
             } else {
                 console.warn(`⚠️  Could not find owner email for post ${postId}. User ID: ${post.userId}`);
