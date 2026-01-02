@@ -2,6 +2,8 @@ import { Router } from "express";
 import { Types } from "mongoose";
 import { FoundInteraction } from "../models/FoundInteraction";
 import { Post } from "../models/Post";
+import { User } from "../models/User";
+import { sendFoundItemNotification } from "../utils/emailService";
 
 const router = Router();
 
@@ -125,6 +127,11 @@ router.post("/found", async (req, res) => {
             return res.status(404).json({ message: "Post not found" });
         }
 
+        // Only send notifications for LOST items
+        if (!post.isLost || post.status !== "LOST") {
+            return res.status(400).json({ message: "Can only report found for LOST items" });
+        }
+
         const interaction = new FoundInteraction({
             post: post._id,
             finderName: finderEmail,
@@ -132,6 +139,35 @@ router.post("/found", async (req, res) => {
         } as any);
 
         await interaction.save();
+
+        // Send email notification to owner (don't fail if email fails)
+        try {
+            // Get owner's email from User model using post.userId
+            const owner = await User.findById(post.userId).lean();
+            
+            if (owner && owner.email) {
+                // Get finder's name if available
+                const finder = await User.findOne({ email: finderEmail }).lean();
+                const finderName = finder?.fullName || undefined;
+
+                await sendFoundItemNotification({
+                    ownerEmail: owner.email,
+                    ownerName: owner.fullName || "User",
+                    finderEmail: finderEmail,
+                    finderName: finderName,
+                    postTitle: post.title,
+                    postDescription: post.description,
+                    postLocation: post.location,
+                    postDate: post.date,
+                    contactPhone: post.contactPhone,
+                });
+            } else {
+                console.warn(`⚠️  Could not find owner email for post ${postId}. User ID: ${post.userId}`);
+            }
+        } catch (emailError) {
+            console.error("❌ Email notification failed, but interaction was saved:", emailError);
+            // Continue - interaction is saved even if email fails
+        }
 
         return res.status(201).json({ id: interaction._id.toString() });
     } catch (err: any) {
