@@ -106,33 +106,32 @@ export default function FirstTimeSignupModal({ isOpen, onClose }: FirstTimeSignu
                 {/* Content */}
                 <div className="overflow-y-auto">
                     <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                        {/* Important Rules Section */}
-                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+                        {/* Rules & Privacy Section */}
+                        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 space-y-3">
+                            {/* Important Rules */}
                             <div className="flex items-start gap-2">
-                                <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                                <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                                 <div>
-                                    <h3 className="text-sm font-bold text-yellow-400 mb-2">Important Rules</h3>
+                                    <h3 className="text-sm font-bold text-blue-400 mb-2">Important Rules</h3>
                                     <ul className="space-y-1.5 text-gray-300 text-xs">
                                         <li className="flex items-start gap-1.5">
-                                            <CheckCircle className="w-3 h-3 text-yellow-400 mt-0.5 flex-shrink-0" />
+                                            <CheckCircle className="w-3 h-3 text-blue-400 mt-0.5 flex-shrink-0" />
                                             <span><strong>Verify Before Meeting:</strong> Always verify item details before meeting.</span>
                                         </li>
                                         <li className="flex items-start gap-1.5">
-                                            <CheckCircle className="w-3 h-3 text-yellow-400 mt-0.5 flex-shrink-0" />
+                                            <CheckCircle className="w-3 h-3 text-blue-400 mt-0.5 flex-shrink-0" />
                                             <span><strong>Accurate Information:</strong> Provide truthful information when reporting items.</span>
                                         </li>
                                         <li className="flex items-start gap-1.5">
-                                            <CheckCircle className="w-3 h-3 text-yellow-400 mt-0.5 flex-shrink-0" />
+                                            <CheckCircle className="w-3 h-3 text-blue-400 mt-0.5 flex-shrink-0" />
                                             <span><strong>Safe Meetings:</strong> Meet in public places and bring a friend.</span>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Privacy Policy Summary */}
-                        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                            <div className="flex items-start gap-2">
+                            {/* Privacy Policy Summary */}
+                            <div className="flex items-start gap-2 pt-2 border-t border-blue-500/20">
                                 <Shield className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                                 <div>
                                     <h3 className="text-sm font-bold text-blue-400 mb-1">Privacy & Data Protection</h3>
