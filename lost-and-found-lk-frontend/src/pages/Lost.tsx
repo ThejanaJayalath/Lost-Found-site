@@ -253,7 +253,6 @@ export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
                 post={selectedPost}
                 onClose={() => setSelectedPost(null)}
                 onOpenLogin={onOpenLogin}
-                onOpenSignup={onOpenSignup}
             />
 
             <ReportLostModal

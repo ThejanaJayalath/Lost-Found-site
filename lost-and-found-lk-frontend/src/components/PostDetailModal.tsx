@@ -24,11 +24,10 @@ interface Post {
 interface PostDetailModalProps {
     post: Post | null;
     onClose: () => void;
-    onOpenSignup?: () => void;
     onOpenLogin?: () => void;
 }
 
-export default function PostDetailModal({ post, onClose, onOpenSignup, onOpenLogin }: PostDetailModalProps) {
+export default function PostDetailModal({ post, onClose, onOpenLogin }: PostDetailModalProps) {
     const { user } = useAuth();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showConfirmation, setShowConfirmation] = useState(false);

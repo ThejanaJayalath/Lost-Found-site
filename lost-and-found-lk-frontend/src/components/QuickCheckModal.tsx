@@ -231,7 +231,6 @@ export default function QuickCheckModal({ isOpen, onClose, onOpenLogin, onOpenSi
                     post={selectedDetailPost}
                     onClose={() => setSelectedDetailPost(null)}
                     onOpenLogin={onOpenLogin}
-                    onOpenSignup={onOpenSignup}
                 />
             )}
         </>
