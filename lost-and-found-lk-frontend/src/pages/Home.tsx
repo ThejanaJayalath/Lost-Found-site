@@ -132,7 +132,7 @@ export default function Home({ onOpenLogin, onOpenSignup }: HomeProps) {
             </main>
 
             {/* Quick Check Modal */}
-            <QuickCheckModal isOpen={isQuickCheckOpen} onClose={() => setIsQuickCheckOpen(false)} onOpenLogin={onOpenLogin} onOpenSignup={onOpenSignup} />
+            <QuickCheckModal isOpen={isQuickCheckOpen} onClose={() => setIsQuickCheckOpen(false)} onOpenLogin={onOpenLogin} />
         </div>
     );
 }
