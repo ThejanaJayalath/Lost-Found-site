@@ -64,4 +64,28 @@
     z-index: -1;
     filter: blur(5px);
   }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232, 28, 255, 0.5) rgba(30, 30, 30, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(30, 30, 30, 0.3);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #e81cff 0%, #40c9ff 100%);
+    border-radius: 10px;
+    border: 1px solid rgba(30, 30, 30, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #f03cff 0%, #50d9ff 100%);
+  }
 }

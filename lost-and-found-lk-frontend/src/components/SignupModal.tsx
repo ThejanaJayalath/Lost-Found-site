@@ -77,7 +77,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto custom-scrollbar">
             <div className="magic-box w-full max-w-md my-auto">
                 <div className="bg-[#1c1c1c] rounded-[20px] w-full relative overflow-hidden flex flex-col max-h-[90vh]">
                     <div className="p-6 flex justify-between items-center relative z-10 flex-shrink-0">
@@ -87,7 +87,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
                         </button>
                     </div>
 
-                    <div className="p-6 md:p-8 pt-2 relative z-10 overflow-y-auto flex-1 min-h-0">
+                    <div className="p-6 md:p-8 pt-2 relative z-10 overflow-y-auto flex-1 min-h-0 custom-scrollbar">
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg mb-4 text-sm">
                                 {error}
