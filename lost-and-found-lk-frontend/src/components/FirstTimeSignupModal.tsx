@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Phone, FileText, Shield, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { X, Phone, Shield, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getApiBaseUrl } from '../services/api';
 import { Link } from 'react-router-dom';
