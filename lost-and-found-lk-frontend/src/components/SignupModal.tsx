@@ -77,24 +77,24 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="magic-box w-full max-w-md">
-                <div className="bg-[#1c1c1c] rounded-[20px] w-full h-full relative overflow-hidden flex flex-col">
-                    <div className="p-6 flex justify-between items-center relative z-10">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
+            <div className="magic-box w-full max-w-md my-auto">
+                <div className="bg-[#1c1c1c] rounded-[20px] w-full relative overflow-hidden flex flex-col max-h-[90vh]">
+                    <div className="p-6 flex justify-between items-center relative z-10 flex-shrink-0">
                         <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#e81cff] to-[#40c9ff]">Create Account</h2>
                         <button onClick={onClose} className="text-gray-400 hover:text-white p-2 hover:bg-white/10 rounded-full transition-colors">
                             <X size={24} />
                         </button>
                     </div>
 
-                    <div className="p-8 pt-2 relative z-10">
+                    <div className="p-6 md:p-8 pt-2 relative z-10 overflow-y-auto flex-1 min-h-0">
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg mb-4 text-sm">
                                 {error}
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
                                 <div className="relative group">
@@ -184,7 +184,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
                             </button>
                         </form>
 
-                        <div className="mt-6">
+                        <div className="mt-4 md:mt-6">
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">
                                     <div className="w-full border-t border-gray-700"></div>
@@ -221,7 +221,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
                             </button>
                         </div>
 
-                        <div className="mt-6 text-center text-sm text-gray-500">
+                        <div className="mt-4 md:mt-6 pb-2 text-center text-sm text-gray-500">
                             Already have an account?{' '}
                             <button onClick={onSwitchToLogin} className="text-[#40c9ff] font-medium hover:underline">
                                 Login
