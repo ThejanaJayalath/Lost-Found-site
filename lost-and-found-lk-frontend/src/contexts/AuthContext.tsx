@@ -3,12 +3,18 @@ import { type User, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithP
 import { auth } from '../firebase';
 import { getApiBaseUrl } from '../services/api';
 
+interface UserProfile {
+    phoneNumber?: string | null;
+    termsAgreed?: boolean;
+}
+
 interface AuthContextType {
     user: User | null;
     loading: boolean;
     logout: () => Promise<void>;
     googleSignIn: () => Promise<void>;
     syncUserWithBackend: (user: User, additionalData?: any) => Promise<void>;
+    checkUserProfile: (user: User) => Promise<UserProfile | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 email: user.email,
                 name: user.displayName || user.email,
                 phoneNumber: additionalData.phoneNumber || null,
+                termsAgreed: additionalData.termsAgreed || false,
             };
 
             const fullUrl = `${apiUrl}/users`;
@@ -71,6 +78,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error: any) {
             console.error('Error syncing user with backend:', error.message || error);
             // Don't throw - this is a background sync, shouldn't block auth
+        }
+    }, []);
+
+    const checkUserProfile = useCallback(async (user: User): Promise<UserProfile | null> => {
+        try {
+            if (!user.email) {
+                return null;
+            }
+
+            const apiUrl = getApiBaseUrl();
+            if (!apiUrl) {
+                return null;
+            }
+
+            const response = await fetch(`${apiUrl}/users/${user.email}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return {
+                    phoneNumber: data.phoneNumber || null,
+                    termsAgreed: data.termsAgreed || false,
+                };
+            }
+            return null;
+        } catch (error: any) {
+            console.error('Error checking user profile:', error.message || error);
+            return null;
         }
     }, []);
 
@@ -106,7 +146,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         logout,
         googleSignIn,
-        syncUserWithBackend
+        syncUserWithBackend,
+        checkUserProfile
     };
 
     return (

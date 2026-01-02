@@ -5,6 +5,7 @@ export interface IUser extends Document {
   passwordHash: string;
   fullName: string;
   phoneNumber?: string;
+  termsAgreed?: boolean;
   createdAt: Date;
   updatedAt: Date;
   roles: string[];
@@ -17,6 +18,7 @@ const userSchema = new Schema<IUser>(
     passwordHash: { type: String, required: false },
     fullName: { type: String, required: true },
     phoneNumber: { type: String },
+    termsAgreed: { type: Boolean, default: false },
     roles: { type: [String], default: ["USER"] },
     blocked: { type: Boolean, default: false },
   },
