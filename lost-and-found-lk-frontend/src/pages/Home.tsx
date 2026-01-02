@@ -5,10 +5,9 @@ import QuickCheckModal from '../components/QuickCheckModal';
 
 interface HomeProps {
     onOpenLogin?: () => void;
-    onOpenSignup?: () => void;
 }
 
-export default function Home({ onOpenLogin, onOpenSignup }: HomeProps) {
+export default function Home({ onOpenLogin }: HomeProps) {
     const navigate = useNavigate();
     const [isQuickCheckOpen, setIsQuickCheckOpen] = useState(false);
 
