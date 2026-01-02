@@ -7,13 +7,14 @@ import PostDetailModal from './PostDetailModal';
 interface QuickCheckModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onOpenSignup?: () => void;
 }
 
 type Step = 'SELECTION' | 'INPUT' | 'RESULT';
 type DeviceType = 'PHONE' | 'LAPTOP';
 
 
-export default function QuickCheckModal({ isOpen, onClose }: QuickCheckModalProps) {
+export default function QuickCheckModal({ isOpen, onClose, onOpenSignup }: QuickCheckModalProps) {
     const [step, setStep] = useState<Step>('SELECTION');
     const [deviceType, setDeviceType] = useState<DeviceType | null>(null);
     const [inputValue, setInputValue] = useState('');
@@ -228,6 +229,7 @@ export default function QuickCheckModal({ isOpen, onClose }: QuickCheckModalProp
                 <PostDetailModal
                     post={selectedDetailPost}
                     onClose={() => setSelectedDetailPost(null)}
+                    onOpenSignup={onOpenSignup}
                 />
             )}
         </>
