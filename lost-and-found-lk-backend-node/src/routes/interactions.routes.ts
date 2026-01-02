@@ -148,13 +148,13 @@ router.post("/found", async (req, res) => {
             if (owner && owner.email) {
                 // Get finder's name if available
                 const finder = await User.findOne({ email: finderEmail }).lean();
-                const finderName = finder?.fullName || undefined;
+                const finderName = finder?.fullName;
 
                 await sendFoundItemNotification({
                     ownerEmail: owner.email,
                     ownerName: owner.fullName || "User",
                     finderEmail: finderEmail,
-                    finderName: finderName,
+                    ...(finderName && { finderName }),
                     postTitle: post.title,
                     postDescription: post.description,
                     postLocation: post.location,
