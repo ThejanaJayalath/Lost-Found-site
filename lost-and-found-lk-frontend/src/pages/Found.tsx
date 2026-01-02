@@ -29,10 +29,9 @@ interface Post {
 
 interface FoundProps {
     onOpenLogin: () => void;
-    onOpenSignup?: () => void;
 }
 
-export default function Found({ onOpenLogin, onOpenSignup }: FoundProps) {
+export default function Found({ onOpenLogin }: FoundProps) {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);

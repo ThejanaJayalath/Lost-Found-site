@@ -29,10 +29,9 @@ interface Post {
 
 interface LostProps {
     onOpenLogin: () => void;
-    onOpenSignup?: () => void;
 }
 
-export default function Lost({ onOpenLogin, onOpenSignup }: LostProps) {
+export default function Lost({ onOpenLogin }: LostProps) {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);

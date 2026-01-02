@@ -82,8 +82,8 @@ function AppContent() {
       <Layout onOpenLogin={openLogin} onOpenSignup={openSignup}>
         <Routes>
           <Route path="/" element={<Home onOpenLogin={openLogin} onOpenSignup={openSignup} />} />
-          <Route path="/lost" element={<Lost onOpenLogin={openLogin} onOpenSignup={openSignup} />} />
-          <Route path="/found" element={<Found onOpenLogin={openLogin} onOpenSignup={openSignup} />} />
+          <Route path="/lost" element={<Lost onOpenLogin={openLogin} />} />
+          <Route path="/found" element={<Found onOpenLogin={openLogin} />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/support" element={<CustomerSupport />} />
           <Route path="/terms" element={<TermsAndConditions />} />
