@@ -1,4 +1,4 @@
-import { X, MapPin, Calendar, Tag, Smartphone, Laptop, CreditCard, FileText, Briefcase, Dog, Clock, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react';
+import { X, MapPin, Calendar, Tag, Smartphone, Laptop, CreditCard, FileText, Briefcase, Dog, Clock, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getApiBaseUrl } from '../services/api';
@@ -185,9 +185,17 @@ export default function PostDetailModal({ post, onClose, onOpenLogin }: PostDeta
                                 <CheckCircle size={32} className="text-green-500" />
                             </div>
                             <h3 className="text-2xl font-bold text-white mb-2">Thank You!</h3>
-                            <p className="text-gray-400 mb-6">
+                            <p className="text-gray-400 mb-4">
                                 Please contact the owner immediately to return the item.
                             </p>
+
+                            {/* Email Notification Message */}
+                            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-6 flex items-center justify-center gap-2">
+                                <Mail className="w-4 h-4 text-blue-400" />
+                                <p className="text-blue-400 text-sm font-medium">
+                                    Email notification sent successfully to the owner
+                                </p>
+                            </div>
 
                             <div className="bg-gray-700/50 p-6 rounded-xl border border-gray-600 mb-8">
                                 <p className="text-sm text-gray-400 uppercase tracking-wider mb-2">Owner's Contact</p>
