@@ -1,31 +1,28 @@
-import { Wrench } from 'lucide-react';
-
 export default function MaintenanceModeScreen() {
   return (
     <div className="fixed inset-0 bg-[#0f0f0f] flex items-center justify-center z-50">
       <div className="text-center px-4 max-w-md">
         {/* Animated Gear Container */}
         <div className="relative mb-8 flex justify-center">
-          <div className="relative gear-container">
+          <div className="relative gear-container" style={{ width: '200px', height: '200px' }}>
             {/* Glow Effect Background */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 bg-orange-500/20 rounded-full blur-3xl pulse-glow"></div>
+              <div className="w-40 h-40 bg-orange-500/20 rounded-full blur-3xl pulse-glow"></div>
             </div>
             
-            {/* Large Gear */}
-            <div className="relative gear-main">
-              <Wrench 
-                size={120} 
-                className="text-orange-500"
-              />
+            {/* Large Central Gear */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 gear-main">
+              <GearIcon size={120} color="#f97316" />
             </div>
             
-            {/* Small Gear Overlay */}
-            <div className="absolute -top-1 -right-1 gear-small">
-              <Wrench 
-                size={60} 
-                className="text-orange-400"
-              />
+            {/* Small Gear Top-Left */}
+            <div className="absolute top-0 left-0 gear-small-1">
+              <GearIcon size={70} color="#fb923c" />
+            </div>
+            
+            {/* Small Gear Bottom-Right */}
+            <div className="absolute bottom-0 right-0 gear-small-2">
+              <GearIcon size={70} color="#fb923c" />
             </div>
           </div>
         </div>
@@ -54,50 +51,51 @@ export default function MaintenanceModeScreen() {
       {/* CSS Animations */}
       <style>{`
         .gear-container {
-          width: 140px;
-          height: 140px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          position: relative;
         }
 
         .gear-main {
-          animation: gearSpin 4s ease-in-out infinite;
-          filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.5));
+          animation: gearSpinMain 3s linear infinite;
+          filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.6));
+          transform-origin: center center;
         }
 
-        .gear-small {
-          animation: gearSpinReverse 3s ease-in-out infinite;
-          filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.4));
+        .gear-small-1 {
+          animation: gearSpinSmall1 2s linear infinite;
+          filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.5));
+          transform-origin: center center;
         }
 
-        @keyframes gearSpin {
-          0%, 100% {
-            transform: rotate(0deg) scale(1);
+        .gear-small-2 {
+          animation: gearSpinSmall2 2s linear infinite;
+          filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.5));
+          transform-origin: center center;
+        }
+
+        @keyframes gearSpinMain {
+          from {
+            transform: translate(-50%, -50%) rotate(0deg);
           }
-          25% {
-            transform: rotate(90deg) scale(1.05);
-          }
-          50% {
-            transform: rotate(180deg) scale(1);
-          }
-          75% {
-            transform: rotate(270deg) scale(1.05);
+          to {
+            transform: translate(-50%, -50%) rotate(360deg);
           }
         }
 
-        @keyframes gearSpinReverse {
-          0%, 100% {
-            transform: rotate(0deg) scale(1);
+        @keyframes gearSpinSmall1 {
+          from {
+            transform: rotate(0deg);
           }
-          25% {
-            transform: rotate(-90deg) scale(1.08);
+          to {
+            transform: rotate(-360deg);
           }
-          50% {
-            transform: rotate(-180deg) scale(1);
+        }
+
+        @keyframes gearSpinSmall2 {
+          from {
+            transform: rotate(0deg);
           }
-          75% {
-            transform: rotate(-270deg) scale(1.08);
+          to {
+            transform: rotate(-360deg);
           }
         }
 
@@ -181,3 +179,48 @@ export default function MaintenanceModeScreen() {
   );
 }
 
+// Gear Icon Component - SVG Gear Shape
+function GearIcon({ size, color }: { size: number; color: string }) {
+  const center = size / 2;
+  const radius = size * 0.35;
+  const innerRadius = size * 0.15;
+  const teeth = 12;
+  const toothLength = size * 0.1;
+  
+  const points: string[] = [];
+  for (let i = 0; i < teeth * 2; i++) {
+    const angle = (i * Math.PI) / teeth;
+    const r = i % 2 === 0 ? radius : radius + toothLength;
+    const x = center + r * Math.cos(angle - Math.PI / 2);
+    const y = center + r * Math.sin(angle - Math.PI / 2);
+    points.push(`${x},${y}`);
+  }
+  
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {/* Outer gear shape */}
+      <polygon
+        points={points.join(' ')}
+        fill={color}
+        stroke={color}
+        strokeWidth="1"
+      />
+      {/* Inner circle */}
+      <circle
+        cx={center}
+        cy={center}
+        r={innerRadius}
+        fill="#0f0f0f"
+        stroke={color}
+        strokeWidth="2"
+      />
+      {/* Center dot */}
+      <circle
+        cx={center}
+        cy={center}
+        r={innerRadius * 0.4}
+        fill={color}
+      />
+    </svg>
+  );
+}
