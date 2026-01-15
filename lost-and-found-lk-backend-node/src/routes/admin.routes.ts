@@ -525,11 +525,16 @@ adminRouter.get("/system-health", async (req, res) => {
         let dbHealthy = false;
         
         try {
-            const dbStartTime = Date.now();
-            // Simple ping to check database response
-            await mongoose.connection.db.admin().ping();
-            dbResponseTime = Date.now() - dbStartTime;
-            dbHealthy = true;
+            if (mongoose.connection.db) {
+                const dbStartTime = Date.now();
+                // Simple ping to check database response
+                await mongoose.connection.db.admin().ping();
+                dbResponseTime = Date.now() - dbStartTime;
+                dbHealthy = true;
+            } else {
+                dbHealthy = false;
+                dbResponseTime = -1;
+            }
         } catch (error) {
             dbHealthy = false;
             dbResponseTime = -1;
@@ -538,13 +543,15 @@ adminRouter.get("/system-health", async (req, res) => {
         // Get database stats
         let dbStats = null;
         try {
-            const stats = await mongoose.connection.db.stats();
-            dbStats = {
-                collections: stats.collections || 0,
-                dataSize: stats.dataSize || 0,
-                storageSize: stats.storageSize || 0,
-                indexes: stats.indexes || 0
-            };
+            if (mongoose.connection.db) {
+                const stats = await mongoose.connection.db.stats();
+                dbStats = {
+                    collections: stats.collections || 0,
+                    dataSize: stats.dataSize || 0,
+                    storageSize: stats.storageSize || 0,
+                    indexes: stats.indexes || 0
+                };
+            }
         } catch (error) {
             console.error("Error fetching database stats:", error);
         }
