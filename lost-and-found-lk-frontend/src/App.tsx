@@ -53,9 +53,16 @@ function AppContent() {
   };
 
   // Check if user needs onboarding (missing phone or terms not agreed)
+  // Skip onboarding check for admin routes
   useEffect(() => {
     const checkOnboarding = async () => {
       if (loading || hasCheckedOnboarding) return;
+      
+      // Skip onboarding check for admin routes
+      if (location.pathname.startsWith('/admin')) {
+        setHasCheckedOnboarding(true);
+        return;
+      }
       
       if (user?.email) {
         const profile = await checkUserProfile(user);
@@ -72,7 +79,7 @@ function AppContent() {
     };
 
     checkOnboarding();
-  }, [user, loading, checkUserProfile, hasCheckedOnboarding]);
+  }, [user, loading, checkUserProfile, hasCheckedOnboarding, location.pathname]);
 
   // Reset check when user logs out
   useEffect(() => {
