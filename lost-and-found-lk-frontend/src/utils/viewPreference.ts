@@ -9,8 +9,13 @@ const STORAGE_KEY = 'post_view_preference';
 export const getViewPreference = (): ViewMode => {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved === 'grid' || saved === 'list') {
-            return saved;
+        // Only return saved preference if it's 'list', otherwise default to 'list'
+        if (saved === 'list') {
+            return 'list';
+        }
+        // If 'grid' is saved, clear it and default to 'list'
+        if (saved === 'grid') {
+            localStorage.removeItem(STORAGE_KEY);
         }
     } catch (e) {
         console.warn('Failed to read view preference:', e);
