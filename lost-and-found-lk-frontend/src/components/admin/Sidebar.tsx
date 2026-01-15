@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
-import { LayoutDashboard, Users, Settings, LogOut, Menu, X, Facebook, Mail } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Menu, X, Facebook, Mail, Wrench } from 'lucide-react';
 import Logo from '../../components/Logo';
 
 interface SidebarProps {
     activeTab: string;
-    setActiveTab: (tab: 'overview' | 'tracks' | 'meta' | 'roles' | 'messages') => void;
+    setActiveTab: (tab: 'overview' | 'tracks' | 'meta' | 'roles' | 'messages' | 'maintenance') => void;
     handleLogout: () => void;
 }
 
@@ -18,9 +18,10 @@ export default function Sidebar({ activeTab, setActiveTab, handleLogout }: Sideb
         { id: 'meta', label: 'Meta', icon: <Facebook size={20} /> },
         { id: 'messages', label: 'Messages', icon: <Mail size={20} /> },
         { id: 'roles', label: 'Roles', icon: <Settings size={20} /> },
+        { id: 'maintenance', label: 'Maintenance', icon: <Wrench size={20} /> },
     ];
 
-    const handleTabClick = (tab: 'overview' | 'tracks' | 'meta' | 'roles' | 'messages') => {
+    const handleTabClick = (tab: 'overview' | 'tracks' | 'meta' | 'roles' | 'messages' | 'maintenance') => {
         setActiveTab(tab);
         setIsMobileMenuOpen(false); // Close mobile menu when tab is selected
     };

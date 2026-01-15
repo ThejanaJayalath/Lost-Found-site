@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare, Wrench } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { getApiBaseUrl } from '../../services/api';
 import Sidebar from '../../components/admin/Sidebar';
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
     const [postingToFb, setPostingToFb] = useState<{ [postId: string]: boolean }>({});
 
     // New State for Tabs and Meta
-    const [activeTab, setActiveTab] = useState<'overview' | 'tracks' | 'meta' | 'roles' | 'messages'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'tracks' | 'meta' | 'roles' | 'messages' | 'maintenance'>('overview');
     const [admins, setAdmins] = useState<any[]>([]);
     const [currentUser, setCurrentUser] = useState<any>(null); // Current logged-in user
     const [selectedPostForMeta, setSelectedPostForMeta] = useState<any | null>(null);
@@ -1176,6 +1176,93 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* 6. MAINTENANCE TAB */}
+                {activeTab === 'maintenance' && (
+                    <div className="animate-fade-in">
+                        <div className="mb-6">
+                            <h2 className="text-2xl font-bold mb-2">Maintenance</h2>
+                            <p className="text-gray-400 text-sm">System maintenance and configuration tools</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Maintenance Card 1 */}
+                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="p-3 bg-orange-500/10 rounded-lg">
+                                        <Wrench className="text-orange-400" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">System Status</h3>
+                                        <p className="text-sm text-gray-400">Check system health</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-400 text-sm">Database</span>
+                                        <span className="text-green-400 text-sm font-medium">Online</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-400 text-sm">API Server</span>
+                                        <span className="text-green-400 text-sm font-medium">Online</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-400 text-sm">Storage</span>
+                                        <span className="text-green-400 text-sm font-medium">Online</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Maintenance Card 2 */}
+                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="p-3 bg-blue-500/10 rounded-lg">
+                                        <Settings className="text-blue-400" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">Cache Management</h3>
+                                        <p className="text-sm text-gray-400">Clear system cache</p>
+                                    </div>
+                                </div>
+                                <button className="w-full mt-4 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors text-sm font-medium">
+                                    Clear Cache
+                                </button>
+                            </div>
+
+                            {/* Maintenance Card 3 */}
+                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="p-3 bg-purple-500/10 rounded-lg">
+                                        <Package className="text-purple-400" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">Database Backup</h3>
+                                        <p className="text-sm text-gray-400">Create system backup</p>
+                                    </div>
+                                </div>
+                                <button className="w-full mt-4 px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg transition-colors text-sm font-medium">
+                                    Create Backup
+                                </button>
+                            </div>
+
+                            {/* Maintenance Card 4 */}
+                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="p-3 bg-green-500/10 rounded-lg">
+                                        <CheckCircle className="text-green-400" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">Logs</h3>
+                                        <p className="text-sm text-gray-400">View system logs</p>
+                                    </div>
+                                </div>
+                                <button className="w-full mt-4 px-4 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors text-sm font-medium">
+                                    View Logs
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
