@@ -6,6 +6,8 @@ import { Settings } from "../models/Settings";
 import { requireAdmin, requireOwner } from "../middleware/auth.middleware";
 import { postToFacebook } from "../utils/facebookService";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
+import { env } from "../config/env";
 
 export const adminRouter = Router();
 
@@ -504,3 +506,120 @@ adminRouter.put("/maintenance-mode", async (req, res) => {
         res.status(500).json({ message: "Failed to update maintenance mode" });
     }
 });
+
+// GET /system-health - Get system health status
+adminRouter.get("/system-health", async (req, res) => {
+    try {
+        const startTime = Date.now();
+        
+        // Check database connection
+        const dbStatus = mongoose.connection.readyState;
+        const dbStates = {
+            0: "disconnected",
+            1: "connected",
+            2: "connecting",
+            3: "disconnecting"
+        };
+        
+        let dbResponseTime = 0;
+        let dbHealthy = false;
+        
+        try {
+            const dbStartTime = Date.now();
+            // Simple ping to check database response
+            await mongoose.connection.db.admin().ping();
+            dbResponseTime = Date.now() - dbStartTime;
+            dbHealthy = true;
+        } catch (error) {
+            dbHealthy = false;
+            dbResponseTime = -1;
+        }
+
+        // Get database stats
+        let dbStats = null;
+        try {
+            const stats = await mongoose.connection.db.stats();
+            dbStats = {
+                collections: stats.collections || 0,
+                dataSize: stats.dataSize || 0,
+                storageSize: stats.storageSize || 0,
+                indexes: stats.indexes || 0
+            };
+        } catch (error) {
+            console.error("Error fetching database stats:", error);
+        }
+
+        // Platform information
+        const platform = {
+            nodeVersion: process.version,
+            platform: process.platform,
+            arch: process.arch,
+            environment: env.nodeEnv,
+            host: process.env.VERCEL ? "Vercel" : (process.env.RAILWAY_ENVIRONMENT ? "Railway" : "Unknown"),
+            region: process.env.VERCEL_REGION || "Unknown"
+        };
+
+        // Memory usage
+        const memoryUsage = process.memoryUsage();
+        const memory = {
+            used: Math.round(memoryUsage.heapUsed / 1024 / 1024), // MB
+            total: Math.round(memoryUsage.heapTotal / 1024 / 1024), // MB
+            external: Math.round(memoryUsage.external / 1024 / 1024), // MB
+            rss: Math.round(memoryUsage.rss / 1024 / 1024) // MB
+        };
+
+        // Uptime
+        const uptime = {
+            seconds: Math.floor(process.uptime()),
+            formatted: formatUptime(process.uptime())
+        };
+
+        // API response time
+        const apiResponseTime = Date.now() - startTime;
+
+        // Overall health status
+        const overallHealth = dbHealthy && dbStatus === 1 ? "healthy" : "degraded";
+
+        res.json({
+            status: overallHealth,
+            timestamp: new Date().toISOString(),
+            database: {
+                status: dbStates[dbStatus as keyof typeof dbStates] || "unknown",
+                connected: dbStatus === 1,
+                healthy: dbHealthy,
+                responseTime: dbResponseTime,
+                stats: dbStats
+            },
+            platform,
+            memory,
+            uptime,
+            api: {
+                responseTime: apiResponseTime
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching system health:", error);
+        res.status(500).json({ 
+            message: "Failed to fetch system health",
+            error: env.nodeEnv === "development" ? (error as Error).message : undefined
+        });
+    }
+});
+
+// Helper function to format uptime
+function formatUptime(seconds: number): string {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (days > 0) {
+        return `${days}d ${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+        return `${hours}h ${minutes}m ${secs}s`;
+    } else if (minutes > 0) {
+        return `${minutes}m ${secs}s`;
+    } else {
+        return `${secs}s`;
+    }
+}

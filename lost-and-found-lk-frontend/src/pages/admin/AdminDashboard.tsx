@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare, Wrench, Settings } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare, Wrench, Settings, RefreshCw } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { getApiBaseUrl } from '../../services/api';
 import Sidebar from '../../components/admin/Sidebar';
@@ -70,6 +70,10 @@ export default function AdminDashboard() {
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [maintenanceLoading, setMaintenanceLoading] = useState(false);
 
+    // System Health state
+    const [systemHealth, setSystemHealth] = useState<any>(null);
+    const [healthLoading, setHealthLoading] = useState(false);
+
     useEffect(() => {
         const token = localStorage.getItem('adminAccessToken');
         if (!token) {
@@ -90,6 +94,10 @@ export default function AdminDashboard() {
     useEffect(() => {
         if (activeTab === 'maintenance') {
             fetchMaintenanceMode();
+            fetchSystemHealth();
+            // Refresh system health every 30 seconds
+            const interval = setInterval(fetchSystemHealth, 30000);
+            return () => clearInterval(interval);
         }
     }, [activeTab]);
 
@@ -156,6 +164,33 @@ export default function AdminDashboard() {
         } finally {
             setMaintenanceLoading(false);
         }
+    };
+
+    const fetchSystemHealth = async () => {
+        setHealthLoading(true);
+        try {
+            const headers = getAuthHeaders();
+            const response = await fetch(`${getApiBaseUrl()}/admin/system-health`, { headers });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setSystemHealth(data);
+            } else {
+                console.error('Failed to fetch system health');
+            }
+        } catch (error) {
+            console.error('Error fetching system health:', error);
+        } finally {
+            setHealthLoading(false);
+        }
+    };
+
+    const formatBytes = (bytes: number) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     };
 
     useEffect(() => {
@@ -1289,31 +1324,170 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Maintenance Card 1 */}
+                            {/* System Status Card */}
                             <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-3 bg-green-500/10 rounded-lg">
-                                        <CheckCircle className="text-green-400" size={24} />
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-3 rounded-lg ${
+                                            systemHealth?.status === 'healthy' 
+                                                ? 'bg-green-500/10' 
+                                                : systemHealth?.status === 'degraded'
+                                                ? 'bg-yellow-500/10'
+                                                : 'bg-red-500/10'
+                                        }`}>
+                                            <CheckCircle className={
+                                                systemHealth?.status === 'healthy' 
+                                                    ? 'text-green-400' 
+                                                    : systemHealth?.status === 'degraded'
+                                                    ? 'text-yellow-400'
+                                                    : 'text-red-400'
+                                            } size={24} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white">System Status</h3>
+                                            <p className="text-sm text-gray-400">Real-time system health</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white">System Status</h3>
-                                        <p className="text-sm text-gray-400">Check system health</p>
-                                    </div>
+                                    <button
+                                        onClick={fetchSystemHealth}
+                                        disabled={healthLoading}
+                                        className={`p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors ${healthLoading ? 'animate-spin' : ''}`}
+                                        title="Refresh"
+                                    >
+                                        <RefreshCw size={18} />
+                                    </button>
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400 text-sm">Database</span>
-                                        <span className="text-green-400 text-sm font-medium">Online</span>
+                                
+                                {healthLoading && !systemHealth ? (
+                                    <div className="text-center py-4 text-gray-400 text-sm">Loading...</div>
+                                ) : systemHealth ? (
+                                    <div className="space-y-3">
+                                        {/* Overall Status */}
+                                        <div className="flex items-center justify-between p-3 bg-[#2d2d2d] rounded-lg">
+                                            <span className="text-gray-300 text-sm font-medium">Overall Status</span>
+                                            <span className={`text-sm font-bold px-2 py-1 rounded ${
+                                                systemHealth.status === 'healthy' 
+                                                    ? 'bg-green-500/20 text-green-400' 
+                                                    : 'bg-yellow-500/20 text-yellow-400'
+                                            }`}>
+                                                {systemHealth.status.toUpperCase()}
+                                            </span>
+                                        </div>
+
+                                        {/* Database */}
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-400 text-sm">Database</span>
+                                                <span className={`text-sm font-medium ${
+                                                    systemHealth.database?.connected && systemHealth.database?.healthy
+                                                        ? 'text-green-400' 
+                                                        : 'text-red-400'
+                                                }`}>
+                                                    {systemHealth.database?.connected && systemHealth.database?.healthy
+                                                        ? 'Connected' 
+                                                        : systemHealth.database?.status || 'Disconnected'}
+                                                </span>
+                                            </div>
+                                            {systemHealth.database?.responseTime !== undefined && systemHealth.database.responseTime >= 0 && (
+                                                <div className="flex items-center justify-between text-xs text-gray-500 pl-4">
+                                                    <span>Response Time</span>
+                                                    <span>{systemHealth.database.responseTime}ms</span>
+                                                </div>
+                                            )}
+                                            {systemHealth.database?.stats && (
+                                                <div className="text-xs text-gray-500 pl-4 space-y-1">
+                                                    <div className="flex justify-between">
+                                                        <span>Collections:</span>
+                                                        <span>{systemHealth.database.stats.collections}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span>Data Size:</span>
+                                                        <span>{formatBytes(systemHealth.database.stats.dataSize)}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="border-t border-gray-800 pt-2"></div>
+
+                                        {/* Platform */}
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-400 text-sm">Platform</span>
+                                                <span className="text-green-400 text-sm font-medium">{systemHealth.platform?.host || 'Unknown'}</span>
+                                            </div>
+                                            <div className="text-xs text-gray-500 pl-4 space-y-1">
+                                                <div className="flex justify-between">
+                                                    <span>Environment:</span>
+                                                    <span className="uppercase">{systemHealth.platform?.environment || 'Unknown'}</span>
+                                                </div>
+                                                {systemHealth.platform?.region && (
+                                                    <div className="flex justify-between">
+                                                        <span>Region:</span>
+                                                        <span>{systemHealth.platform.region}</span>
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between">
+                                                    <span>Node:</span>
+                                                    <span>{systemHealth.platform?.nodeVersion || 'Unknown'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-gray-800 pt-2"></div>
+
+                                        {/* Memory */}
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-400 text-sm">Memory Usage</span>
+                                                <span className="text-sm font-medium text-gray-300">
+                                                    {systemHealth.memory?.used}MB / {systemHealth.memory?.total}MB
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-gray-700 rounded-full h-2">
+                                                <div 
+                                                    className={`h-2 rounded-full ${
+                                                        (systemHealth.memory?.used / systemHealth.memory?.total) > 0.8
+                                                            ? 'bg-red-500'
+                                                            : (systemHealth.memory?.used / systemHealth.memory?.total) > 0.6
+                                                            ? 'bg-yellow-500'
+                                                            : 'bg-green-500'
+                                                    }`}
+                                                    style={{ 
+                                                        width: `${Math.min((systemHealth.memory?.used / systemHealth.memory?.total) * 100 || 0, 100)}%` 
+                                                    }}
+                                                ></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-gray-800 pt-2"></div>
+
+                                        {/* Uptime */}
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-400 text-sm">Uptime</span>
+                                            <span className="text-gray-300 text-sm font-medium">
+                                                {systemHealth.uptime?.formatted || 'Unknown'}
+                                            </span>
+                                        </div>
+
+                                        {/* API Response Time */}
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-400 text-sm">API Response</span>
+                                            <span className="text-gray-300 text-sm font-medium">
+                                                {systemHealth.api?.responseTime || 0}ms
+                                            </span>
+                                        </div>
+
+                                        {/* Last Updated */}
+                                        {systemHealth.timestamp && (
+                                            <div className="text-xs text-gray-500 text-center pt-2 border-t border-gray-800">
+                                                Last updated: {new Date(systemHealth.timestamp).toLocaleTimeString()}
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400 text-sm">API Server</span>
-                                        <span className="text-green-400 text-sm font-medium">Online</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400 text-sm">Storage</span>
-                                        <span className="text-green-400 text-sm font-medium">Online</span>
-                                    </div>
-                                </div>
+                                ) : (
+                                    <div className="text-center py-4 text-gray-400 text-sm">No data available</div>
+                                )}
                             </div>
 
                             {/* Maintenance Card 2 */}
