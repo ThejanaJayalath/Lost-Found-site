@@ -2,6 +2,7 @@ import { Router } from "express";
 import { User } from "../models/User";
 import { Post } from "../models/Post";
 import { SupportMessage } from "../models/SupportMessage";
+import { Settings } from "../models/Settings";
 import { requireAdmin, requireOwner } from "../middleware/auth.middleware";
 import { postToFacebook } from "../utils/facebookService";
 import bcrypt from "bcryptjs";
@@ -462,5 +463,44 @@ adminRouter.get("/support", async (req, res) => {
     } catch (error) {
         console.error("Error fetching support messages:", error);
         res.status(500).json({ message: "Failed to fetch support messages" });
+    }
+});
+
+// ==================== MAINTENANCE MODE ROUTES ====================
+
+// GET /maintenance-mode - Get maintenance mode status
+adminRouter.get("/maintenance-mode", async (req, res) => {
+    try {
+        const settings = await Settings.findOne({ key: "maintenanceMode" });
+        const isEnabled = settings?.value === true || false;
+        res.json({ enabled: isEnabled });
+    } catch (error) {
+        console.error("Error fetching maintenance mode:", error);
+        res.status(500).json({ message: "Failed to fetch maintenance mode status" });
+    }
+});
+
+// PUT /maintenance-mode - Toggle maintenance mode
+adminRouter.put("/maintenance-mode", async (req, res) => {
+    try {
+        const { enabled } = req.body;
+        
+        if (typeof enabled !== "boolean") {
+            return res.status(400).json({ message: "enabled must be a boolean" });
+        }
+
+        const settings = await Settings.findOneAndUpdate(
+            { key: "maintenanceMode" },
+            { value: enabled },
+            { upsert: true, new: true }
+        );
+
+        res.json({ 
+            message: `Maintenance mode ${enabled ? "enabled" : "disabled"}`,
+            enabled: settings.value 
+        });
+    } catch (error) {
+        console.error("Error updating maintenance mode:", error);
+        res.status(500).json({ message: "Failed to update maintenance mode" });
     }
 });

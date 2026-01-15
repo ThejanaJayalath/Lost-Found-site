@@ -66,6 +66,10 @@ export default function AdminDashboard() {
     const [messagesLoading, setMessagesLoading] = useState(false);
     const [selectedMessage, setSelectedMessage] = useState<any | null>(null);
 
+    // Maintenance Mode state
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
+    const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+
     useEffect(() => {
         const token = localStorage.getItem('adminAccessToken');
         if (!token) {
@@ -79,6 +83,13 @@ export default function AdminDashboard() {
     useEffect(() => {
         if (activeTab === 'messages') {
             fetchSupportMessages();
+        }
+    }, [activeTab]);
+
+    // Fetch maintenance mode status when Maintenance tab is active
+    useEffect(() => {
+        if (activeTab === 'maintenance') {
+            fetchMaintenanceMode();
         }
     }, [activeTab]);
 
@@ -98,6 +109,52 @@ export default function AdminDashboard() {
             console.error('Error fetching support messages:', error);
         } finally {
             setMessagesLoading(false);
+        }
+    };
+
+    const fetchMaintenanceMode = async () => {
+        try {
+            const headers = getAuthHeaders();
+            const response = await fetch(`${getApiBaseUrl()}/admin/maintenance-mode`, { headers });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setMaintenanceMode(data.enabled || false);
+            } else {
+                console.error('Failed to fetch maintenance mode');
+            }
+        } catch (error) {
+            console.error('Error fetching maintenance mode:', error);
+        }
+    };
+
+    const toggleMaintenanceMode = async () => {
+        if (!confirm(`Are you sure you want to ${maintenanceMode ? 'disable' : 'enable'} maintenance mode? ${maintenanceMode ? 'Users will be able to access the site again.' : 'All users will see the maintenance screen.'}`)) {
+            return;
+        }
+
+        setMaintenanceLoading(true);
+        try {
+            const headers = getAuthHeaders();
+            const response = await fetch(`${getApiBaseUrl()}/admin/maintenance-mode`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ enabled: !maintenanceMode })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setMaintenanceMode(data.enabled);
+                alert(`Maintenance mode ${data.enabled ? 'enabled' : 'disabled'} successfully`);
+            } else {
+                const errorData = await response.json();
+                alert('Error: ' + (errorData.message || 'Failed to update maintenance mode'));
+            }
+        } catch (error) {
+            console.error('Error toggling maintenance mode:', error);
+            alert('Network error: Failed to update maintenance mode');
+        } finally {
+            setMaintenanceLoading(false);
         }
     };
 
@@ -1187,12 +1244,56 @@ export default function AdminDashboard() {
                             <p className="text-gray-400 text-sm">System maintenance and configuration tools</p>
                         </div>
 
+                        {/* Maintenance Mode Toggle Card */}
+                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6 mb-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-4 rounded-xl ${maintenanceMode ? 'bg-orange-500/20' : 'bg-gray-500/10'}`}>
+                                        <Wrench className={maintenanceMode ? 'text-orange-400' : 'text-gray-400'} size={32} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white mb-1">Maintenance Mode</h3>
+                                        <p className="text-sm text-gray-400">
+                                            {maintenanceMode 
+                                                ? 'Site is currently in maintenance mode. Users will see the maintenance screen.' 
+                                                : 'Site is accessible to all users. Enable to show maintenance screen.'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className={`text-sm font-medium ${maintenanceMode ? 'text-orange-400' : 'text-gray-400'}`}>
+                                        {maintenanceMode ? 'ON' : 'OFF'}
+                                    </span>
+                                    <button
+                                        onClick={toggleMaintenanceMode}
+                                        disabled={maintenanceLoading}
+                                        className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#1c1c1c] ${
+                                            maintenanceMode ? 'bg-orange-500' : 'bg-gray-600'
+                                        } ${maintenanceLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        <span
+                                            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                                                maintenanceMode ? 'translate-x-9' : 'translate-x-1'
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                            {maintenanceMode && (
+                                <div className="mt-4 p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                                    <p className="text-sm text-orange-300">
+                                        ⚠️ <strong>Warning:</strong> When maintenance mode is enabled, all users (except admins) will see the maintenance screen and cannot access the site.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Maintenance Card 1 */}
                             <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-6">
                                 <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-3 bg-orange-500/10 rounded-lg">
-                                        <Wrench className="text-orange-400" size={24} />
+                                    <div className="p-3 bg-green-500/10 rounded-lg">
+                                        <CheckCircle className="text-green-400" size={24} />
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-white">System Status</h3>

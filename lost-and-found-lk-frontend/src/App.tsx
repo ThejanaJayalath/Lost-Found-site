@@ -16,6 +16,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal';
 import FirstTimeSignupModal from './components/FirstTimeSignupModal';
+import MaintenanceModeScreen from './components/MaintenanceModeScreen';
+import { getApiBaseUrl } from './services/api';
 
 function Layout({ children, onOpenLogin, onOpenSignup }: any) {
   const location = useLocation();
@@ -32,10 +34,13 @@ function Layout({ children, onOpenLogin, onOpenSignup }: any) {
 
 function AppContent() {
   const { user, loading, checkUserProfile } = useAuth();
+  const location = useLocation();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isFirstTimeModalOpen, setIsFirstTimeModalOpen] = useState(false);
   const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = useState(true);
 
   const openLogin = () => {
     setIsSignupOpen(false);
@@ -76,6 +81,38 @@ function AppContent() {
       setIsFirstTimeModalOpen(false);
     }
   }, [user]);
+
+  // Check maintenance mode on app load
+  useEffect(() => {
+    const checkMaintenanceMode = async () => {
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/health/maintenance-mode`);
+        if (response.ok) {
+          const data = await response.json();
+          setMaintenanceMode(data.enabled || false);
+        }
+      } catch (error) {
+        console.error('Error checking maintenance mode:', error);
+        // Default to false if there's an error
+        setMaintenanceMode(false);
+      } finally {
+        setCheckingMaintenance(false);
+      }
+    };
+
+    checkMaintenanceMode();
+    // Check every 30 seconds
+    const interval = setInterval(checkMaintenanceMode, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Check if current route is admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // Show maintenance screen if maintenance mode is enabled and user is not on admin route
+  if (!checkingMaintenance && maintenanceMode && !isAdminRoute) {
+    return <MaintenanceModeScreen />;
+  }
 
   return (
     <>
