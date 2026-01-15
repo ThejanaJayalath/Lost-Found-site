@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare, Wrench } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare, Wrench, Settings } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { getApiBaseUrl } from '../../services/api';
 import Sidebar from '../../components/admin/Sidebar';
