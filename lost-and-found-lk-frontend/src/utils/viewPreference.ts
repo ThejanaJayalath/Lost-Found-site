@@ -4,7 +4,7 @@ const STORAGE_KEY = 'post_view_preference';
 
 /**
  * Get the saved view preference from localStorage
- * Defaults to 'grid' if not set
+ * Defaults to 'list' if not set
  */
 export const getViewPreference = (): ViewMode => {
     try {
@@ -15,7 +15,7 @@ export const getViewPreference = (): ViewMode => {
     } catch (e) {
         console.warn('Failed to read view preference:', e);
     }
-    return 'grid'; // Default to grid view
+    return 'list'; // Default to list view
 };
 
 /**
