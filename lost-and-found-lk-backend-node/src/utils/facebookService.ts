@@ -1,14 +1,35 @@
 import { IPost } from "../models/Post";
 import { generatePostCaption } from "./facebookContent";
+import { Settings } from "../models/Settings";
 
-const FACEBOOK_PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 // Graph API Version
 const GRAPH_API_VERSION = "v22.0";
 
-export const postToFacebook = async (post: IPost, customCaption?: string): Promise<string> => {
-    if (!FACEBOOK_PAGE_ACCESS_TOKEN) {
-        throw new Error("FACEBOOK_PAGE_ACCESS_TOKEN is not configured");
+/**
+ * Helper to get the Facebook Page Access Token.
+ *
+ * Priority:
+ * 1. Environment variable (FACEBOOK_PAGE_ACCESS_TOKEN) - for backward compatibility
+ * 2. Settings collection (key: "facebookIntegration", value.pageAccessToken)
+ */
+const getFacebookPageAccessToken = async (): Promise<string> => {
+    const fromEnv = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+    if (fromEnv) {
+        return fromEnv;
     }
+
+    const settings = await Settings.findOne({ key: "facebookIntegration" }).lean();
+    const token = settings && (settings as any).value?.pageAccessToken;
+
+    if (!token || typeof token !== "string") {
+        throw new Error("Facebook page access token is not configured. Please update it in the admin panel.");
+    }
+
+    return token;
+};
+
+export const postToFacebook = async (post: IPost, customCaption?: string): Promise<string> => {
+    const FACEBOOK_PAGE_ACCESS_TOKEN = await getFacebookPageAccessToken();
 
     const caption = customCaption || generatePostCaption(post);
     let url = `https://graph.facebook.com/${GRAPH_API_VERSION}/me/feed`;

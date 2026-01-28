@@ -468,6 +468,68 @@ adminRouter.get("/support", async (req, res) => {
     }
 });
 
+// ==================== FACEBOOK INTEGRATION SETTINGS ====================
+
+// GET /facebook-settings - Get Facebook page integration status (admin view)
+adminRouter.get("/facebook-settings", async (req, res) => {
+    try {
+        const settings = await Settings.findOne({ key: "facebookIntegration" }).lean();
+
+        if (!settings) {
+            return res.json({
+                configured: false,
+                lastUpdatedAt: null,
+                // Do not send full token to frontend for security reasons
+                tokenPreview: null,
+            });
+        }
+
+        const value: any = settings.value || {};
+        const token: string | undefined = value.pageAccessToken;
+
+        res.json({
+            configured: !!token,
+            lastUpdatedAt: settings.updatedAt,
+            // Send only a small preview so admin can recognize which token is stored
+            tokenPreview: token ? `${token.slice(0, 6)}...${token.slice(-4)}` : null,
+        });
+    } catch (error) {
+        console.error("Error fetching Facebook settings:", error);
+        res.status(500).json({ message: "Failed to fetch Facebook settings" });
+    }
+});
+
+// PUT /facebook-settings - Update Facebook page access token
+adminRouter.put("/facebook-settings", async (req, res) => {
+    try {
+        const { pageAccessToken } = req.body as { pageAccessToken?: string };
+
+        if (!pageAccessToken || typeof pageAccessToken !== "string") {
+            return res.status(400).json({ message: "pageAccessToken is required" });
+        }
+
+        const settings = await Settings.findOneAndUpdate(
+            { key: "facebookIntegration" },
+            {
+                value: {
+                    pageAccessToken,
+                    // Optional: store a manual updatedAt inside value for clarity alongside timestamps
+                    updatedAt: new Date().toISOString(),
+                },
+            },
+            { upsert: true, new: true }
+        );
+
+        res.json({
+            message: "Facebook page access token updated successfully",
+            lastUpdatedAt: settings.updatedAt,
+        });
+    } catch (error) {
+        console.error("Error updating Facebook settings:", error);
+        res.status(500).json({ message: "Failed to update Facebook settings" });
+    }
+});
+
 // ==================== MAINTENANCE MODE ROUTES ====================
 
 // GET /maintenance-mode - Get maintenance mode status

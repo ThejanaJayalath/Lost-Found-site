@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare, Wrench, Settings, RefreshCw } from 'lucide-react';
+import { Users, Package, CheckCircle, Trash2, Ban, EyeOff, ChevronDown, ChevronUp, Facebook, Mail, Lock, X, Search, MessageSquare, Wrench, Settings, RefreshCw, AlertTriangle } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { getApiBaseUrl } from '../../services/api';
 import Sidebar from '../../components/admin/Sidebar';
@@ -50,6 +50,12 @@ export default function AdminDashboard() {
     const [selectedPostForMeta, setSelectedPostForMeta] = useState<any | null>(null);
     const [metaCaption, setMetaCaption] = useState('');
     const [metaSubTab, setMetaSubTab] = useState<'requests' | 'history'>('requests');
+    const [facebookSettingsLoading, setFacebookSettingsLoading] = useState(false);
+    const [facebookConfigured, setFacebookConfigured] = useState<boolean | null>(null);
+    const [facebookLastUpdatedAt, setFacebookLastUpdatedAt] = useState<string | null>(null);
+    const [facebookTokenPreview, setFacebookTokenPreview] = useState<string | null>(null);
+    const [facebookTokenInput, setFacebookTokenInput] = useState('');
+    const [facebookSaving, setFacebookSaving] = useState(false);
     const navigate = useNavigate();
 
     // Tracks tab filters and search
@@ -81,6 +87,8 @@ export default function AdminDashboard() {
             return;
         }
         fetchData();
+        // Also load Facebook integration status in background
+        fetchFacebookSettings();
     }, [navigate]);
 
     // Fetch support messages when Messages tab is active
@@ -219,6 +227,72 @@ export default function AdminDashboard() {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         };
+    };
+
+    const getFacebookTokenAgeDays = () => {
+        if (!facebookLastUpdatedAt) return null;
+        const updatedMs = new Date(facebookLastUpdatedAt).getTime();
+        if (Number.isNaN(updatedMs)) return null;
+        const diffMs = Date.now() - updatedMs;
+        if (diffMs < 0) return 0;
+        return diffMs / (1000 * 60 * 60 * 24);
+    };
+
+    const fetchFacebookSettings = async () => {
+        setFacebookSettingsLoading(true);
+        try {
+            const headers = getAuthHeaders();
+            const res = await fetch(`${getApiBaseUrl()}/admin/facebook-settings`, { headers });
+            if (res.ok) {
+                const data = await res.json();
+                setFacebookConfigured(!!data.configured);
+                setFacebookLastUpdatedAt(data.lastUpdatedAt || null);
+                setFacebookTokenPreview(data.tokenPreview || null);
+            } else {
+                console.error('Failed to fetch Facebook settings');
+            }
+        } catch (error) {
+            console.error('Error fetching Facebook settings:', error);
+        } finally {
+            setFacebookSettingsLoading(false);
+        }
+    };
+
+    const handleSaveFacebookToken = async () => {
+        if (!facebookTokenInput.trim()) {
+            alert('Please paste a valid Facebook Page Access Token.');
+            return;
+        }
+
+        if (!confirm('Update Facebook Page Access Token? Existing token will be replaced.')) {
+            return;
+        }
+
+        setFacebookSaving(true);
+        try {
+            const headers = getAuthHeaders();
+            const res = await fetch(`${getApiBaseUrl()}/admin/facebook-settings`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ pageAccessToken: facebookTokenInput.trim() })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Facebook Page token updated successfully.');
+                setFacebookTokenInput('');
+                setFacebookConfigured(true);
+                setFacebookLastUpdatedAt(data.lastUpdatedAt || null);
+                // Re-fetch previews to stay in sync
+                fetchFacebookSettings();
+            } else {
+                alert('Error updating Facebook token: ' + (data.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error saving Facebook token:', error);
+            alert('Network error while saving Facebook token.');
+        } finally {
+            setFacebookSaving(false);
+        }
     };
 
     const fetchData = async () => {
@@ -1006,7 +1080,7 @@ export default function AdminDashboard() {
 
                 {/* 3. META TAB */}
                 {activeTab === 'meta' && (
-                    <div className="animate-fade-in flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 min-h-[calc(100vh-200px)] md:h-[calc(100vh-140px)]">
+                    <div className="animate-fade-in flex flex-col md:grid md:grid-cols-[2fr,3fr] gap-4 md:gap-8 min-h-[calc(100vh-200px)] md:h-[calc(100vh-140px)]">
                         {/* Left: Post Requests & History */}
                         <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden flex flex-col min-h-[400px] md:min-h-0">
                             <div className="p-4 md:p-6 border-b border-gray-800">
@@ -1101,10 +1175,101 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
-                        {/* Right: Editor Preview */}
-                        <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 flex flex-col overflow-hidden min-h-[500px] md:min-h-0">
-                            {selectedPostForMeta ? (
-                                <>
+                        {/* Right: Editor Preview + Facebook Settings */}
+                        <div className="flex flex-col gap-4 md:gap-6 min-h-[500px] md:min-h-0">
+                            {/* Facebook Connection Summary */}
+                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-4 md:p-5">
+                                <div className="flex items-start justify-between gap-3 mb-3">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Facebook size={16} className="text-blue-400" />
+                                            <h3 className="font-semibold text-sm md:text-base">Facebook Page Connection</h3>
+                                        </div>
+                                        <p className="text-xs md:text-sm text-gray-500">
+                                            Paste your current Facebook Page Access Token here when it expires (about every 60 days).
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={fetchFacebookSettings}
+                                        disabled={facebookSettingsLoading}
+                                        className="p-1.5 rounded-full border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 text-xs flex items-center gap-1 disabled:opacity-50"
+                                        title="Refresh status"
+                                    >
+                                        <RefreshCw size={12} />
+                                        <span className="hidden md:inline">Refresh</span>
+                                    </button>
+                                </div>
+
+                                <div className="space-y-2 text-xs md:text-sm">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-gray-400">Status:</span>
+                                        {facebookConfigured === null || facebookSettingsLoading ? (
+                                            <span className="px-2 py-0.5 rounded-full bg-gray-700 text-gray-200">Checking...</span>
+                                        ) : facebookConfigured ? (
+                                            <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                                                Connected
+                                            </span>
+                                        ) : (
+                                            <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/30">
+                                                Not configured
+                                            </span>
+                                        )}
+                                    </div>
+                                    {facebookConfigured && !facebookSettingsLoading && (() => {
+                                        const ageDays = getFacebookTokenAgeDays();
+                                        if (ageDays === null || ageDays < 55) return null;
+                                        return (
+                                            <div className="flex items-start gap-2 text-[11px] md:text-xs text-yellow-400 bg-yellow-500/5 border border-yellow-500/30 rounded-md px-2 py-1 mt-1">
+                                                <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+                                                <span>
+                                                    Token was last updated about {Math.floor(ageDays)} days ago. Long-lived Page tokens typically expire in ~60 days.
+                                                    Please generate and save a new token soon to avoid failures.
+                                                </span>
+                                            </div>
+                                        );
+                                    })()}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="text-gray-400">Last updated:</span>
+                                        <span className="text-gray-200">
+                                            {facebookLastUpdatedAt
+                                                ? new Date(facebookLastUpdatedAt).toLocaleString()
+                                                : 'Never'}
+                                        </span>
+                                    </div>
+                                    {facebookTokenPreview && (
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="text-gray-400">Token preview:</span>
+                                            <span className="font-mono text-gray-200 break-all text-xs bg-black/40 px-2 py-1 rounded">
+                                                {facebookTokenPreview}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mt-4 space-y-2">
+                                    <label className="block text-xs md:text-sm font-medium text-gray-300">
+                                        New Facebook Page Access Token
+                                    </label>
+                                    <textarea
+                                        value={facebookTokenInput}
+                                        onChange={(e) => setFacebookTokenInput(e.target.value)}
+                                        placeholder="Paste the long-lived Facebook Page Access Token here"
+                                        className="w-full h-20 md:h-24 bg-black/40 border border-gray-700 rounded-xl p-2.5 md:p-3 text-xs md:text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono resize-none"
+                                    />
+                                    <button
+                                        onClick={handleSaveFacebookToken}
+                                        disabled={facebookSaving}
+                                        className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs md:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {facebookSaving ? 'Saving...' : 'Save Token'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Editor Preview */}
+                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 flex flex-col overflow-hidden flex-1">
+                                {selectedPostForMeta ? (
+                                    <>
                                             <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col md:flex-row md:justify-between md:items-center gap-2 bg-[#2d2d2d]">
                                                 <h3 className="font-bold text-sm md:text-base">Post Preview</h3>
                                                 <div className="flex items-center gap-2 text-blue-400 text-xs md:text-sm">
@@ -1164,6 +1329,7 @@ export default function AdminDashboard() {
                                     <p>Select a post {metaSubTab === 'requests' ? 'request' : 'from history'} to edit and publish.</p>
                                 </div>
                             )}
+                        </div>
                         </div>
                     </div>
                 )}
