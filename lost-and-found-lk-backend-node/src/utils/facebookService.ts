@@ -12,7 +12,7 @@ const GRAPH_API_VERSION = "v22.0";
  * 1. Environment variable (FACEBOOK_PAGE_ACCESS_TOKEN) - for backward compatibility
  * 2. Settings collection (key: "facebookIntegration", value.pageAccessToken)
  */
-const getFacebookPageAccessToken = async (): Promise<string> => {
+export const getFacebookPageAccessToken = async (): Promise<string> => {
     const fromEnv = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
     if (fromEnv) {
         return fromEnv;

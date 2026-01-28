@@ -56,6 +56,14 @@ export default function AdminDashboard() {
     const [facebookTokenPreview, setFacebookTokenPreview] = useState<string | null>(null);
     const [facebookTokenInput, setFacebookTokenInput] = useState('');
     const [facebookSaving, setFacebookSaving] = useState(false);
+    const [facebookLiveStatus, setFacebookLiveStatus] = useState<{
+        isValid: boolean;
+        expiresAt: string | null;
+        daysUntilExpiry: number | null;
+        message?: string;
+        checkedAt: string;
+    } | null>(null);
+    const [facebookLiveLoading, setFacebookLiveLoading] = useState(false);
     const navigate = useNavigate();
 
     // Tracks tab filters and search
@@ -292,6 +300,36 @@ export default function AdminDashboard() {
             alert('Network error while saving Facebook token.');
         } finally {
             setFacebookSaving(false);
+        }
+    };
+
+    const handleCheckFacebookTokenStatus = async () => {
+        setFacebookLiveLoading(true);
+        try {
+            const headers = getAuthHeaders();
+            const res = await fetch(`${getApiBaseUrl()}/admin/facebook-token-status`, {
+                headers,
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setFacebookLiveStatus({
+                    isValid: !!data.isValid,
+                    expiresAt: data.expiresAt || null,
+                    daysUntilExpiry:
+                        typeof data.daysUntilExpiry === 'number'
+                            ? Math.floor(data.daysUntilExpiry)
+                            : null,
+                    message: data.error?.message || undefined,
+                    checkedAt: data.checkedAt || new Date().toISOString(),
+                });
+            } else {
+                alert('Error checking token: ' + (data.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error checking Facebook token status:', error);
+            alert('Network error while checking token status.');
+        } finally {
+            setFacebookLiveLoading(false);
         }
     };
 
@@ -1228,6 +1266,40 @@ export default function AdminDashboard() {
                                             </div>
                                         );
                                     })()}
+                                    {facebookLiveStatus && (
+                                        <div className="mt-3 space-y-1 text-[11px] md:text-xs">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-gray-400">Live status:</span>
+                                                {facebookLiveStatus.isValid ? (
+                                                    <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                                                        Valid
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/30">
+                                                        Invalid
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="text-gray-300">
+                                                {facebookLiveStatus.expiresAt
+                                                    ? `Expires at: ${new Date(facebookLiveStatus.expiresAt).toLocaleString()}`
+                                                    : 'Expiry time: Not provided by Facebook'}
+                                            </div>
+                                            {facebookLiveStatus.daysUntilExpiry !== null && (
+                                                <div className="text-gray-300">
+                                                    Approx. days until expiry: {facebookLiveStatus.daysUntilExpiry}
+                                                </div>
+                                            )}
+                                            <div className="text-gray-500">
+                                                Checked at: {new Date(facebookLiveStatus.checkedAt).toLocaleString()}
+                                            </div>
+                                            {facebookLiveStatus.message && (
+                                                <div className="text-red-400">
+                                                    {facebookLiveStatus.message}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                     <div className="flex flex-wrap items-center gap-2">
                                         <span className="text-gray-400">Last updated:</span>
                                         <span className="text-gray-200">
@@ -1256,13 +1328,22 @@ export default function AdminDashboard() {
                                         placeholder="Paste the long-lived Facebook Page Access Token here"
                                         className="w-full h-20 md:h-24 bg-black/40 border border-gray-700 rounded-xl p-2.5 md:p-3 text-xs md:text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono resize-none"
                                     />
-                                    <button
-                                        onClick={handleSaveFacebookToken}
-                                        disabled={facebookSaving}
-                                        className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs md:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {facebookSaving ? 'Saving...' : 'Save Token'}
-                                    </button>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            onClick={handleSaveFacebookToken}
+                                            disabled={facebookSaving}
+                                            className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs md:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {facebookSaving ? 'Saving...' : 'Save Token'}
+                                        </button>
+                                        <button
+                                            onClick={handleCheckFacebookTokenStatus}
+                                            disabled={facebookLiveLoading}
+                                            className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-100 text-xs md:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {facebookLiveLoading ? 'Checking...' : 'Check live status'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

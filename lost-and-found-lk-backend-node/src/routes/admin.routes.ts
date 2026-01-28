@@ -4,7 +4,7 @@ import { Post } from "../models/Post";
 import { SupportMessage } from "../models/SupportMessage";
 import { Settings } from "../models/Settings";
 import { requireAdmin, requireOwner } from "../middleware/auth.middleware";
-import { postToFacebook } from "../utils/facebookService";
+import { postToFacebook, getFacebookPageAccessToken } from "../utils/facebookService";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import { env } from "../config/env";
@@ -527,6 +527,77 @@ adminRouter.put("/facebook-settings", async (req, res) => {
     } catch (error) {
         console.error("Error updating Facebook settings:", error);
         res.status(500).json({ message: "Failed to update Facebook settings" });
+    }
+});
+
+// GET /facebook-token-status - Live check with Facebook debug_token
+adminRouter.get("/facebook-token-status", async (req, res) => {
+    try {
+        const appId = process.env.FACEBOOK_APP_ID;
+        const appSecret = process.env.FACEBOOK_APP_SECRET;
+
+        if (!appId || !appSecret) {
+            return res.status(500).json({
+                message: "FACEBOOK_APP_ID and FACEBOOK_APP_SECRET are not configured on the server",
+            });
+        }
+
+        let pageToken: string;
+        try {
+            pageToken = await getFacebookPageAccessToken();
+        } catch (e: any) {
+            return res.status(400).json({
+                message: e?.message || "Facebook page access token is not configured",
+            });
+        }
+
+        const appAccessToken = `${appId}|${appSecret}`;
+        const url = `https://graph.facebook.com/debug_token?input_token=${encodeURIComponent(
+            pageToken
+        )}&access_token=${encodeURIComponent(appAccessToken)}`;
+
+        const response = await fetch(url);
+        const data: any = await response.json();
+
+        if (!response.ok) {
+            console.error("Facebook debug_token error:", data);
+            return res.status(500).json({
+                message: data?.error?.message || "Failed to debug Facebook token",
+            });
+        }
+
+        const info = data?.data || {};
+        const isValid: boolean = !!info.is_valid;
+        const expiresAtUnix: number | null =
+            typeof info.expires_at === "number" ? info.expires_at : null;
+        const expiresAtIso = expiresAtUnix ? new Date(expiresAtUnix * 1000).toISOString() : null;
+
+        let secondsUntilExpiry: number | null = null;
+        let daysUntilExpiry: number | null = null;
+        if (expiresAtUnix) {
+            const diffSec = expiresAtUnix - Math.floor(Date.now() / 1000);
+            secondsUntilExpiry = diffSec;
+            daysUntilExpiry = diffSec / (60 * 60 * 24);
+        }
+
+        res.json({
+            isValid,
+            expiresAtUnix,
+            expiresAt: expiresAtIso,
+            secondsUntilExpiry,
+            daysUntilExpiry,
+            scopes: info.scopes || [],
+            type: info.type,
+            userId: info.user_id,
+            // When invalid, Facebook usually includes 'error' field inside data
+            error: info.error || null,
+            checkedAt: new Date().toISOString(),
+        });
+    } catch (error: any) {
+        console.error("Error checking Facebook token status:", error);
+        res.status(500).json({
+            message: error?.message || "Failed to check Facebook token status",
+        });
     }
 });
 
