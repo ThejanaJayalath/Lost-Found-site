@@ -1118,7 +1118,7 @@ export default function AdminDashboard() {
 
                 {/* 3. META TAB */}
                 {activeTab === 'meta' && (
-                    <div className="animate-fade-in flex flex-col md:grid md:grid-cols-[2fr,3fr] gap-4 md:gap-8 min-h-[calc(100vh-200px)] md:h-[calc(100vh-140px)]">
+                    <div className="animate-fade-in flex flex-col md:grid md:grid-cols-[2fr,3fr] gap-4 md:gap-8">
                         {/* Left: Post Requests & History */}
                         <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 overflow-hidden flex flex-col min-h-[400px] md:min-h-0">
                             <div className="p-4 md:p-6 border-b border-gray-800">
@@ -1214,7 +1214,7 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Right: Editor Preview + Facebook Settings */}
-                        <div className="flex flex-col gap-4 md:gap-6 min-h-[500px] md:min-h-0">
+                        <div className="flex flex-col gap-4 md:gap-6">
                             {/* Facebook Connection Summary */}
                             <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 p-4 md:p-5">
                                 <div className="flex items-start justify-between gap-3 mb-3">
@@ -1348,17 +1348,17 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* Editor Preview */}
-                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 flex flex-col overflow-hidden flex-1">
+                            <div className="bg-[#1c1c1c] rounded-2xl border border-gray-800 flex flex-col overflow-hidden min-h-[500px] max-h-[calc(100vh-300px)]">
                                 {selectedPostForMeta ? (
                                     <>
-                                            <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col md:flex-row md:justify-between md:items-center gap-2 bg-[#2d2d2d]">
+                                            <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col md:flex-row md:justify-between md:items-center gap-2 bg-[#2d2d2d] flex-shrink-0">
                                                 <h3 className="font-bold text-sm md:text-base">Post Preview</h3>
                                                 <div className="flex items-center gap-2 text-blue-400 text-xs md:text-sm">
                                                     <Facebook size={14} />
                                                     Target: Lost & Found LK Page
                                                 </div>
                                             </div>
-                                            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
+                                            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 min-h-0">
                                         {/* Image Preview */}
                                         <div className="aspect-video bg-black rounded-lg flex items-center justify-center overflow-hidden border border-gray-800">
                                             {selectedPostForMeta.images?.[0] ? (
